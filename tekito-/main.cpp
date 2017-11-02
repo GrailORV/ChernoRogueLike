@@ -4,7 +4,7 @@ using namespace std;
 
 int main(void)
 {
-	cout << "Mother Fucker" << endl;
+	cout << "Mother Fucker Siko-Siko Lane" << endl;
 
 	cin.get();
 
