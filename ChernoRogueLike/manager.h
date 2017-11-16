@@ -22,7 +22,7 @@ public:
 	CManager(UINT width, UINT height);
 	~CManager();
 
-	HRESULT Init(HINSTANCE hInstance, bool bWIndow);
+	HRESULT Init(HINSTANCE hInstance, HWND hwnd, BOOL bWIndow);
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);

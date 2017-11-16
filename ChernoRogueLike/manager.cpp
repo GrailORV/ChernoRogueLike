@@ -10,7 +10,7 @@
 //=============================================================================
 // CManagerコンストラクタ
 //=============================================================================
-CManager::CManager(UINT width, UINT height) : m_width(width), m_height(height), m_pRenderer{nullptr}
+CManager::CManager(UINT width, UINT height) : m_width(width), m_height(height), m_pRenderer{ nullptr }
 {
 }
 
@@ -24,13 +24,13 @@ CManager::~CManager()
 //=============================================================================
 // 初期化処理
 //=============================================================================
-HRESULT CManager::Init(HINSTANCE hInstance, bool bWindow)
+HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 {
 	HRESULT hr{};
 
 	// レンダリング処理の初期化処理
 	m_pRenderer = new CRenderer;
-	m_pRenderer->Init(bWindow);
+	m_pRenderer->Init(hwnd, bWindow);
 
 	return hr;
 }

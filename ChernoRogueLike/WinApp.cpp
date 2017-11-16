@@ -25,7 +25,7 @@ int CWinApp::Run(CManager* pManager, HINSTANCE hInstance, int nCmdShow)
 #endif
 
 	// ウインドウクラスの初期化
-	WNDCLASSEX wcex;
+	WNDCLASSEX wcex{};
 	wcex.cbSize = sizeof(WNDCLASSEX);
 	wcex.style = CS_CLASSDC;
 	wcex.lpfnWndProc = WindowProc;
@@ -35,7 +35,7 @@ int CWinApp::Run(CManager* pManager, HINSTANCE hInstance, int nCmdShow)
 	wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = nullptr;
+	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = CLASS_NAME;
 	wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 	RegisterClassEx(&wcex);
@@ -53,14 +53,14 @@ int CWinApp::Run(CManager* pManager, HINSTANCE hInstance, int nCmdShow)
 		CW_USEDEFAULT,
 		(wndRect.right - wndRect.left),
 		(wndRect.bottom - wndRect.top),
-		nullptr,
-		nullptr,
+		NULL,
+		NULL,
 		hInstance,
 		pManager
 	);
 
 	// マネージャの初期化
-	pManager->Init(hInstance, true);
+	pManager->Init(hInstance, m_hwnd, TRUE);
 
 	// 分解能の設定
 	timeBeginPeriod(1);
@@ -113,18 +113,18 @@ LRESULT CALLBACK CWinApp::WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPA
 	switch (message)
 	{
 	case WM_CREATE:
-		{
-			// フレームカウント初期化
-			dwExecLastTime =
+	{
+		// フレームカウント初期化
+		dwExecLastTime =
 			dwFPSLastTime = timeGetTime();
-			dwCurrentTime =
+		dwCurrentTime =
 			dwFrameCount = 0;
 
-			// マネージャのパス保存
-			LPCREATESTRUCT pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-			SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
-		}
-		return 0;
+		// マネージャのパス保存
+		LPCREATESTRUCT pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
+	}
+	return 0;
 
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -138,7 +138,7 @@ LRESULT CALLBACK CWinApp::WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPA
 			break;
 		}
 		return 0;
-		
+
 	case WM_PAINT:
 	{
 		dwCurrentTime = timeGetTime();
@@ -168,7 +168,7 @@ LRESULT CALLBACK CWinApp::WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPA
 			dwFrameCount++;
 		}
 	}
-		return 0;
+	return 0;
 
 	}
 

@@ -17,7 +17,7 @@ public:
 	CRenderer();
 	~CRenderer();
 
-	HRESULT Init(bool bWindow);
+	HRESULT Init(HWND hwnd, BOOL bWindow);
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);

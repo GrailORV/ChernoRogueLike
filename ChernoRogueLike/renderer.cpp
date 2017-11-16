@@ -35,10 +35,9 @@ CRenderer::~CRenderer()
 //=============================================================================
 // 初期化処理
 //=============================================================================
-HRESULT CRenderer::Init(bool bWindow)
+HRESULT CRenderer::Init(HWND hwnd, BOOL bWindow)
 {
 	// マネージャー取得
-	HWND hwnd = CWinApp::GetHwnd();
 	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
 	D3DPRESENT_PARAMETERS d3dpp;
@@ -66,9 +65,18 @@ HRESULT CRenderer::Init(bool bWindow)
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;						// 映像信号に同期してフリップする
 	d3dpp.Windowed = bWindow;										// ウィンドウモード
 	d3dpp.EnableAutoDepthStencil = TRUE;							// デプスバッファ（Ｚバッファ）とステンシルバッファを作成
-	d3dpp.AutoDepthStencilFormat = D3DFMT_D16;						// デプスバッファとして16bitを使う
-	d3dpp.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;			// リフレッシュレート
+	d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;						// デプスバッファとして16bitを使う
 	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;			// インターバル
+	d3dpp.hDeviceWindow = hwnd;
+
+	if (bWindow)
+	{
+		d3dpp.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;			// リフレッシュレート
+	}
+	else
+	{
+		d3dpp.FullScreen_RefreshRateInHz = d3ddm.RefreshRate;			// リフレッシュレート
+	}
 
 
 	// デバイスの生成
