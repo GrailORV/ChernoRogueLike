@@ -7,6 +7,7 @@
 #include "WinApp.h"
 #include "manager.h"
 #include "renderer.h"
+#include "debugproc.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -21,8 +22,6 @@
 //=============================================================================
 CRenderer::CRenderer()
 {
-	m_pD3D = NULL;
-	m_pD3DDevice = NULL;
 }
 
 //=============================================================================
@@ -131,6 +130,7 @@ HRESULT CRenderer::Init(HWND hwnd, BOOL bWindow)
 	m_pD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);	// アルファブレンディング処理(初期値はD3DTOP_SELECTARG1)
 	m_pD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);		// 最初のアルファ引数(初期値はD3DTA_TEXTURE、テクスチャがない場合はD3DTA_DIFFUSE)
 	m_pD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_CURRENT);		// ２番目のアルファ引数(初期値はD3DTA_CURRENT)
+	m_pD3DDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);	// 2次元ベクトルで指定されたテクスチャ座標の変換行列有効化
 
 	return S_OK;
 }
@@ -140,12 +140,6 @@ HRESULT CRenderer::Init(HWND hwnd, BOOL bWindow)
 //=============================================================================
 void CRenderer::Uninit(void)
 {
-	// Direct3Dオブジェクトの開放
-	SafeRelease(m_pD3DDevice);
-
-	// デバイスの開放
-	SafeRelease(m_pD3D);
-
 }
 
 //=============================================================================
@@ -177,7 +171,7 @@ void CRenderer::Draw(void)
 
 #ifdef _DEBUG
 		// デバッグ処理
-		//CDebugProc::Draw();
+		CDebugProc::Draw();
 #endif
 
 		// Direct3Dによる描画の終了

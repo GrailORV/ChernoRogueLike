@@ -22,11 +22,11 @@ public:
 	void Update(void);
 	void Draw(void);
 
-	LPDIRECT3DDEVICE9 GetDevice(void) { return m_pD3DDevice; }
+	IDirect3DDevice9* GetDevice(void) { return m_pD3DDevice.Get(); }
 
 private:
-	LPDIRECT3D9 m_pD3D;					// Direct3D オブジェクト
-	LPDIRECT3DDEVICE9 m_pD3DDevice;		// Deviceオブジェクト(描画に必要)
+	ComPtr<IDirect3D9> m_pD3D;					// Direct3D オブジェクト
+	ComPtr<IDirect3DDevice9> m_pD3DDevice;		// Deviceオブジェクト(描画に必要)
 
 };
 

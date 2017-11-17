@@ -41,7 +41,7 @@ int CWinApp::Run(CManager* pManager, HINSTANCE hInstance, int nCmdShow)
 	RegisterClassEx(&wcex);
 
 	// ウインドウサイズの初期化
-	RECT wndRect = { 0,0,pManager->GetWindowWidth(),pManager->GetWindowHeight() };
+	RECT wndRect = { 0,0,static_cast<LONG>(pManager->GetWindowWidth()),static_cast<LONG>(pManager->GetWindowHeight()) };
 	AdjustWindowRect(&wndRect, WS_OVERLAPPEDWINDOW, false);
 
 	// ウインドウの初期化
@@ -88,7 +88,7 @@ int CWinApp::Run(CManager* pManager, HINSTANCE hInstance, int nCmdShow)
 	timeEndPeriod(1);
 
 	// マネージャの破棄
-	SafeUninitDelete(pManager);
+	SafeDelete(pManager, &CManager::Uninit);
 
 	return static_cast<int>(msg.wParam);
 }

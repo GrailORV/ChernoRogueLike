@@ -6,11 +6,19 @@
 //=============================================================================
 #include "manager.h"
 #include "renderer.h"
+#include "debugproc.h"
+#include "input.h"
 
 //=============================================================================
 // CManagerコンストラクタ
 //=============================================================================
-CManager::CManager(UINT width, UINT height) : m_width(width), m_height(height), m_pRenderer{ nullptr }
+CManager::CManager(UINT width, UINT height) :
+	m_width(width),
+	m_height(height),
+	m_pRenderer{ nullptr },
+	m_pInputKeyboard{ nullptr },
+	m_pInputMouse{ nullptr },
+	m_pInputJoypad{ nullptr }
 {
 }
 
@@ -32,6 +40,25 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 	m_pRenderer = new CRenderer;
 	m_pRenderer->Init(hwnd, bWindow);
 
+	// キーボードの初期化処理
+	m_pInputKeyboard = new CInputKeyboard;
+	m_pInputKeyboard->Init(hInstance, hwnd);
+
+	// マウスの初期化処理
+	m_pInputMouse = new CInputMouse;
+	m_pInputMouse->Init(hInstance, hwnd);
+
+	// ジョイパッドの初期化処理
+	m_pInputJoypad = new CInputJoypad;
+	m_pInputJoypad->Init(hInstance, hwnd);
+
+
+#ifdef _DEBUG
+	// デバッグフォントの初期化
+	m_pDebugProc = new CDebugProc;
+	m_pDebugProc->Init();
+#endif
+
 	return hr;
 }
 
@@ -41,7 +68,21 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 void CManager::Uninit(void)
 {
 	// レンダリングの終了処理
-	SafeUninitDelete(m_pRenderer);
+	SafeDelete(m_pRenderer, &CRenderer::Uninit);
+
+	// キーボードの終了処理
+	SafeDelete(m_pInputKeyboard, &CInputKeyboard::Uninit);
+
+	// マウスの終了処理
+	SafeDelete(m_pInputMouse, &CInputMouse::Uninit);
+
+	// ジョイパッドの終了処理
+	SafeDelete(m_pInputJoypad, &CInputJoypad::Uninit);
+
+#ifdef _DEBUG
+	// デバッグフォントの破棄
+	SafeDelete(m_pDebugProc, &CDebugProc::Uninit);
+#endif
 }
 
 //=============================================================================
@@ -49,11 +90,36 @@ void CManager::Uninit(void)
 //=============================================================================
 void CManager::Update(void)
 {
+	// キーボードの更新処理
+	if (m_pInputKeyboard)
+	{
+		m_pInputKeyboard->Update();
+	}
+
+	// マウスの更新処理
+	if (m_pInputMouse)
+	{
+		m_pInputMouse->Update();
+	}
+
+	// ジョイパッドの更新処理
+	if (m_pInputJoypad)
+	{
+		m_pInputJoypad->Update();
+	}
+
 	// オブジェクトの更新処理
 	if (m_pRenderer)
 	{
 		m_pRenderer->Update();
 	}
+
+	CDebugProc::Print("F1を押すと消えるよ（はーと\n");
+
+#ifdef _DEBUG
+	// デバッグフォントの更新
+	m_pDebugProc->Update();
+#endif
 }
 
 //=============================================================================
