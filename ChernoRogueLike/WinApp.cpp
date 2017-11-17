@@ -11,6 +11,7 @@
 // 静的変数
 //*****************************************************************************
 HWND CWinApp::m_hwnd = nullptr;
+BOOL CWinApp::m_bInit = FALSE;
 const LPSTR CWinApp::CLASS_NAME = "DX9Game";
 const LPSTR CWinApp::WINDOW_NAME = "ChernoLogueLike";
 
@@ -59,8 +60,38 @@ int CWinApp::Run(CManager* pManager, HINSTANCE hInstance, int nCmdShow)
 		pManager
 	);
 
+	BOOL bWindow{};
+#ifdef _DEBUG
+	bWindow = TRUE;
+#else
+	int result;
+	result = MessageBox(NULL, "フルスクリーンにしますか？", WINDOW_NAME, MB_YESNOCANCEL | MB_ICONQUESTION);
+	while (1)
+	{
+		if (result == IDYES)
+		{
+			bWindow = FALSE;
+			break;
+		}
+		else if (result == IDNO)
+		{
+			bWindow = TRUE;
+			break;
+		}
+		else if (result == IDCANCEL)
+		{
+			// ウインドウクラスの登録の解除
+			UnregisterClass(CLASS_NAME, wcex.hInstance);
+			// マネージャの破棄
+			SafeDelete(pManager, &CManager::Uninit);
+			return 0;
+		}
+	}
+#endif
+
 	// マネージャの初期化
-	pManager->Init(hInstance, m_hwnd, TRUE);
+	pManager->Init(hInstance, m_hwnd, bWindow);
+	m_bInit = TRUE;
 
 	// 分解能の設定
 	timeBeginPeriod(1);
@@ -140,35 +171,36 @@ LRESULT CALLBACK CWinApp::WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPA
 		return 0;
 
 	case WM_PAINT:
-	{
-		dwCurrentTime = timeGetTime();
-		if ((dwCurrentTime - dwFPSLastTime) >= 500)	// 0.5秒ごとに実行
+		if (m_bInit)
 		{
+			dwCurrentTime = timeGetTime();
+			if ((dwCurrentTime - dwFPSLastTime) >= 500)	// 0.5秒ごとに実行
+			{
 #ifdef _DEBUG
-			nCountFPS = dwFrameCount * 1000 / (dwCurrentTime - dwFPSLastTime);
+				nCountFPS = dwFrameCount * 1000 / (dwCurrentTime - dwFPSLastTime);
 #endif
-			dwFPSLastTime = dwCurrentTime;
-			dwFrameCount = 0;
-		}
+				dwFPSLastTime = dwCurrentTime;
+				dwFrameCount = 0;
+			}
 
-		if ((dwCurrentTime - dwExecLastTime) >= (1000 / 60))
-		{
-			dwExecLastTime = dwCurrentTime;
+			if ((dwCurrentTime - dwExecLastTime) >= (1000 / 60))
+			{
+				dwExecLastTime = dwCurrentTime;
 
-			// マネージャの更新処理
-			pManager->Update();
+				// マネージャの更新処理
+				pManager->Update();
 
-			// マネージャの描画処理
-			pManager->Draw();
+				// マネージャの描画処理
+				pManager->Draw();
 
 #ifdef _DEBUG
 
 #endif
 
-			dwFrameCount++;
+				dwFrameCount++;
+			}
 		}
-	}
-	return 0;
+		return 0;
 
 	}
 

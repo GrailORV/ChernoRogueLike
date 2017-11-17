@@ -42,6 +42,7 @@ protected:
 
 private:
 	static HWND m_hwnd;
+	static BOOL m_bInit;
 
 };
 

@@ -34,7 +34,9 @@ public:
 	void Update(void);
 	void Draw(void);
 
+	void SetWindowWidth(UINT width) { m_width = width; }
 	UINT GetWindowWidth(void) { return m_width; }
+	void SetWindowHeight(UINT height) { m_height = height; }
 	UINT GetWindowHeight(void) { return m_height; }
 
 	CRenderer* GetRenderer(void) { return m_pRenderer; }

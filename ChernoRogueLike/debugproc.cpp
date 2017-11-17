@@ -81,6 +81,11 @@ void CDebugProc::Update(void)
 {
 	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 	CInputKeyboard* pInputKeyboard = pManager->GetInputKeyboard();
+	
+	if (!pInputKeyboard)
+	{
+		return;
+	}
 
 	if (pInputKeyboard->GetKeyTrigger(DIK_F1))
 	{
