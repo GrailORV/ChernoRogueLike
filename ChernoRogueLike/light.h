@@ -26,6 +26,8 @@ public:
 
 	void SetLight(void);
 
+
 private:
 	D3DLIGHT9 m_aLight[NUM_LIGHT];		// ƒ‰ƒCƒgî•ñ
+
 };

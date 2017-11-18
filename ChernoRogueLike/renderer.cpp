@@ -8,6 +8,8 @@
 #include "manager.h"
 #include "renderer.h"
 #include "debugproc.h"
+#include "scene.h"
+#include "scene2D.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -132,6 +134,8 @@ HRESULT CRenderer::Init(HWND hwnd, BOOL bWindow)
 	m_pD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_CURRENT);		// ２番目のアルファ引数(初期値はD3DTA_CURRENT)
 	m_pD3DDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);	// 2次元ベクトルで指定されたテクスチャ座標の変換行列有効化
 
+	CScene2D::MakeVertexBuffer();
+
 	return S_OK;
 }
 
@@ -148,7 +152,7 @@ void CRenderer::Uninit(void)
 void CRenderer::Update(void)
 {
 	// オブジェクトの更新
-	//CScene::UpdateAll();
+	CScene::UpdateAll();
 }
 
 //=============================================================================
@@ -157,7 +161,7 @@ void CRenderer::Update(void)
 void CRenderer::Draw(void)
 {
 	// バックバッファ＆Ｚバッファのクリア
-	if (FAILED(m_pD3DDevice->Clear(0, nullptr, (D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER), (DWORD)D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f), 1.0f, 0)))
+	if (FAILED(m_pD3DDevice->Clear(0, nullptr, (D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER), colorNS::_BACKGROUND, 1.0f, 0)))
 	{
 		MessageBox(NULL, "Failed target clear", "Error", MB_OK);
 	}
@@ -167,7 +171,7 @@ void CRenderer::Draw(void)
 	if (SUCCEEDED(hr))
 	{
 		// オブジェクトの描画
-		//CScene::DrawAll();
+		CScene::DrawAll();
 
 #ifdef _DEBUG
 		// デバッグ処理

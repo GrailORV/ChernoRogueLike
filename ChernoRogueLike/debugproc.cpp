@@ -187,6 +187,7 @@ void CDebugProc::Draw(void)
 			pDevice->SetTransform(D3DTS_WORLD, &projection);
 			pDevice->SetStreamSource(0, m_pVtxBuff.Get(), 0, sizeof(VertexDebug));
 			pDevice->SetFVF(FVF_DEBUG_PROC);
+			pDevice->SetTexture(0, NULL);
 			pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 			pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);

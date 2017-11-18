@@ -9,6 +9,8 @@
 #include "debugproc.h"
 #include "input.h"
 #include "light.h"
+#include "scene.h"
+#include "scene2D.h"
 
 //=============================================================================
 // CManagerコンストラクタ
@@ -64,6 +66,9 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 	m_pDebugProc->Init();
 #endif
 
+	CScene2D* pScene = CScene2D::Create(0, D3DXVECTOR3(352.0f, 0.0f, 0.0f), vector3NS::ZERO, 576.0f, 720.0f,colorNS::_RED);
+	pScene->LoadTexture("data/TEXTURE/tex_haruka_princess.jpg");
+
 	return hr;
 }
 
@@ -91,6 +96,8 @@ void CManager::Uninit(void)
 	// デバッグフォントの破棄
 	SafeDelete(m_pDebugProc, &CDebugProc::Uninit);
 #endif
+
+	CScene::ReleaseAll();
 }
 
 //=============================================================================
@@ -129,7 +136,7 @@ void CManager::Update(void)
 	}
 
 	CDebugProc::Print("F1を押すと消えるよ（はーと\n");
-	
+
 
 #ifdef _DEBUG
 	// デバッグフォントの更新
