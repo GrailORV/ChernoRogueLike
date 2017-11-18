@@ -154,6 +154,7 @@ LRESULT CALLBACK CWinApp::WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPA
 		// マネージャのパス保存
 		LPCREATESTRUCT pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
+
 	}
 	return 0;
 

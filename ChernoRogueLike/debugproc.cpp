@@ -1,6 +1,6 @@
-//=============================================================================
+ï»¿//=============================================================================
 //
-// ƒfƒoƒbƒOˆ— [debugproc.cpp]
+// ãƒ‡ãƒãƒƒã‚°å‡¦ç† [debugproc.cpp]
 // Author : SORA ENOMOTO
 //
 //=============================================================================
@@ -13,7 +13,7 @@
 #include "input.h"
 
 //*****************************************************************************
-// Ã“I•Ï”
+// é™çš„å¤‰æ•°
 //*****************************************************************************
 ComPtr<ID3DXFont> CDebugProc::m_pFont;
 ComPtr<IDirect3DVertexBuffer9> CDebugProc::m_pVtxBuff;
@@ -23,30 +23,30 @@ const float CDebugProc::m_fWidth = 640.0f;
 const float CDebugProc::m_fHeight = 640.0f;
 
 //=============================================================================
-// CDebugProcƒRƒ“ƒXƒgƒ‰ƒNƒ^
+// CDebugProcã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 //=============================================================================
 CDebugProc::CDebugProc()
 {
-	// ƒoƒbƒtƒ@ƒNƒŠƒA
+	// ãƒãƒƒãƒ•ã‚¡ã‚¯ãƒªã‚¢
 	memset(m_aStr, 0, sizeof m_aStr);
 }
 
 //=============================================================================
-// CDebugProcƒfƒXƒgƒ‰ƒNƒ^
+// CDebugProcãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 //=============================================================================
 CDebugProc::~CDebugProc()
 {
 }
 
 //=============================================================================
-// ‰Šú‰»ˆ—
+// åˆæœŸåŒ–å‡¦ç†
 //=============================================================================
 void CDebugProc::Init()
 {
 	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
 
-	// î•ñ•\¦—pƒtƒHƒ“ƒg‚ğİ’è
+	// æƒ…å ±è¡¨ç¤ºç”¨ãƒ•ã‚©ãƒ³ãƒˆã‚’è¨­å®š
 	D3DXFONT_DESC fontDesc;
 	fontDesc.Height = 24;
 	fontDesc.Width = 12;
@@ -59,23 +59,23 @@ void CDebugProc::Init()
 	fontDesc.PitchAndFamily = DEFAULT_PITCH;
 	strcpy_s(fontDesc.FaceName, "Terminal");
 
-	// ƒtƒHƒ“ƒg‚Ì¶¬
+	// ãƒ•ã‚©ãƒ³ãƒˆã®ç”Ÿæˆ
 	D3DXCreateFontIndirect(pDevice, &fontDesc, m_pFont.GetAddressOf());
 
-	// ”wŒi”Âƒ|ƒŠ‚Ì¶¬
+	// èƒŒæ™¯æ¿ãƒãƒªã®ç”Ÿæˆ
 	MakeVertexBuffer();
 
 }
 
 //=============================================================================
-// ŠJ•úˆ—
+// é–‹æ”¾å‡¦ç†
 //=============================================================================
 void CDebugProc::Uninit(void)
 {
 }
 
 //=============================================================================
-// XVˆ—
+// æ›´æ–°å‡¦ç†
 //=============================================================================
 void CDebugProc::Update(void)
 {
@@ -94,7 +94,7 @@ void CDebugProc::Update(void)
 }
 
 //=============================================================================
-// ‘‚«‚İˆ—
+// æ›¸ãè¾¼ã¿å‡¦ç†
 //=============================================================================
 void CDebugProc::Print(char *fmt, ...)
 {
@@ -104,12 +104,12 @@ void CDebugProc::Print(char *fmt, ...)
 		return;
 	}
 
-	va_list list;			// ‰Â•Ïˆø”‚ğˆ—‚·‚éˆ×‚Ég—p‚·‚é•Ï”
+	va_list list;			// å¯å¤‰å¼•æ•°ã‚’å‡¦ç†ã™ã‚‹ç‚ºã«ä½¿ç”¨ã™ã‚‹å¤‰æ•°
 	char *pCur;
 	char aBuf[256] = { "\0" };
 	char aWk[32];
 
-	// ‰Â•Ïˆø”‚ÉƒAƒNƒZƒX‚·‚é‘O‚Ì‰Šúˆ—
+	// å¯å¤‰å¼•æ•°ã«ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹å‰ã®åˆæœŸå‡¦ç†
 	va_start(list, fmt);
 
 	pCur = fmt;
@@ -126,22 +126,22 @@ void CDebugProc::Print(char *fmt, ...)
 			switch (*pCur)
 			{
 			case 'd':
-				// ‰Â•Ïˆø”‚ÉƒAƒNƒZƒX‚µ‚Ä‚»‚Ì•Ï”‚ğæ‚èo‚·ˆ—
+				// å¯å¤‰å¼•æ•°ã«ã‚¢ã‚¯ã‚»ã‚¹ã—ã¦ãã®å¤‰æ•°ã‚’å–ã‚Šå‡ºã™å‡¦ç†
 				sprintf_s(aWk, "%d", va_arg(list, int));
 				break;
 
 			case 'f':
-				// ‰Â•Ïˆø”‚ÉƒAƒNƒZƒX‚µ‚Ä‚»‚Ì•Ï”‚ğæ‚èo‚·ˆ—
-				sprintf_s(aWk, "%f", va_arg(list, double));		// doubleŒ^‚Åw’è
+				// å¯å¤‰å¼•æ•°ã«ã‚¢ã‚¯ã‚»ã‚¹ã—ã¦ãã®å¤‰æ•°ã‚’å–ã‚Šå‡ºã™å‡¦ç†
+				sprintf_s(aWk, "%f", va_arg(list, double));		// doubleå‹ã§æŒ‡å®š
 				break;
 
 			case 's':
-				// ‰Â•Ïˆø”‚ÉƒAƒNƒZƒX‚µ‚Ä‚»‚Ì•Ï”‚ğæ‚èo‚·ˆ—
+				// å¯å¤‰å¼•æ•°ã«ã‚¢ã‚¯ã‚»ã‚¹ã—ã¦ãã®å¤‰æ•°ã‚’å–ã‚Šå‡ºã™å‡¦ç†
 				sprintf_s(aWk, "%s", va_arg(list, char*));
 				break;
 
 			case 'c':
-				// ‰Â•Ïˆø”‚ÉƒAƒNƒZƒX‚µ‚Ä‚»‚Ì•Ï”‚ğæ‚èo‚·ˆ—
+				// å¯å¤‰å¼•æ•°ã«ã‚¢ã‚¯ã‚»ã‚¹ã—ã¦ãã®å¤‰æ•°ã‚’å–ã‚Šå‡ºã™å‡¦ç†
 				sprintf_s(aWk, "%c", va_arg(list, char));
 				break;
 
@@ -154,7 +154,7 @@ void CDebugProc::Print(char *fmt, ...)
 		strcat_s(aBuf, aWk);
 	}
 
-	// ‰Â•Ïˆø”‚ÉƒAƒNƒZƒX‚µ‚½Œã‚ÌI—¹ˆ—
+	// å¯å¤‰å¼•æ•°ã«ã‚¢ã‚¯ã‚»ã‚¹ã—ãŸå¾Œã®çµ‚äº†å‡¦ç†
 	va_end(list);
 
 	if ((strlen(m_aStr) + strlen(aBuf)) < sizeof m_aStr - 1)
@@ -165,7 +165,7 @@ void CDebugProc::Print(char *fmt, ...)
 }
 
 //=============================================================================
-// •`‰æˆ—
+// æç”»å‡¦ç†
 //=============================================================================
 void CDebugProc::Draw(void)
 {
@@ -175,7 +175,7 @@ void CDebugProc::Draw(void)
 		CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 		IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
 
-		{// ƒtƒHƒ“ƒg‚Ì”wŒi•`‰æ
+		{// ãƒ•ã‚©ãƒ³ãƒˆã®èƒŒæ™¯æç”»
 			D3DXMATRIX projection
 			{
 				2.0f / pManager->GetWindowWidth(),0.0f,0.0f,0.0f,
@@ -187,15 +187,17 @@ void CDebugProc::Draw(void)
 			pDevice->SetTransform(D3DTS_WORLD, &projection);
 			pDevice->SetStreamSource(0, m_pVtxBuff.Get(), 0, sizeof(VertexDebug));
 			pDevice->SetFVF(FVF_DEBUG_PROC);
+			pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+			pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 		}
 
-		{// ƒtƒHƒ“ƒg‚Ì•`‰æ
+		{// ãƒ•ã‚©ãƒ³ãƒˆã®æç”»
 			RECT rect = { 0, 0, static_cast<LONG>(pManager->GetWindowWidth()), static_cast<LONG>(pManager->GetWindowHeight()) };
 
 			m_pFont->DrawText(NULL, m_aStr, -1, &rect, DT_LEFT, D3DCOLOR_ARGB(0xff, 0xff, 0xff, 0x00));
 
-			// ƒoƒbƒtƒ@ƒNƒŠƒA
+			// ãƒãƒƒãƒ•ã‚¡ã‚¯ãƒªã‚¢
 			memset(m_aStr, 0, sizeof m_aStr);
 		}
 	}
@@ -203,7 +205,7 @@ void CDebugProc::Draw(void)
 }
 
 //=============================================================================
-// ’¸“_ƒoƒbƒtƒ@‚Ì¶¬
+// é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã®ç”Ÿæˆ
 //=============================================================================
 void CDebugProc::MakeVertexBuffer(void)
 {
@@ -212,7 +214,7 @@ void CDebugProc::MakeVertexBuffer(void)
 	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
 
-	// ’¸“_ƒoƒbƒtƒ@‚Ì¶¬
+	// é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã®ç”Ÿæˆ
 	hr = pDevice->CreateVertexBuffer(
 		sizeof(VertexDebug) * 4,
 		D3DUSAGE_WRITEONLY,
@@ -226,13 +228,13 @@ void CDebugProc::MakeVertexBuffer(void)
 		return;
 	}
 
-	{// ’¸“_ƒoƒbƒtƒ@‚Ì’†g‚ğ–„‚ß‚é
+	{// é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã®ä¸­èº«ã‚’åŸ‹ã‚ã‚‹
 		VertexDebug* pVtx;
 
-		// ’¸“_ƒf[ƒ^‚ÌƒƒbƒN
+		// é ‚ç‚¹ãƒ‡ãƒ¼ã‚¿ã®ãƒ­ãƒƒã‚¯
 		m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-		// ’¸“_ƒf[ƒ^‚Ìİ’è
+		// é ‚ç‚¹ãƒ‡ãƒ¼ã‚¿ã®è¨­å®š
 		for (int i = 0; i < 4; i++)
 		{
 			pVtx->position.x = (i % 2) * m_fWidth;

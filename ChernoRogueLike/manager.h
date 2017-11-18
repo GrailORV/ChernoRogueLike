@@ -15,6 +15,7 @@ class CRenderer;
 class CInputKeyboard;
 class CInputMouse;
 class CInputJoypad;
+class CLight;
 
 #ifdef _DEBUG
 class CDebugProc;
@@ -43,12 +44,14 @@ public:
 	CInputKeyboard *GetInputKeyboard(void) { return m_pInputKeyboard; }
 	CInputMouse *GetInputMouse(void) { return m_pInputMouse; }
 	CInputJoypad *GetInputJoypad(void) { return m_pInputJoypad; }
+	CLight *GetLight(void) { return m_pLight; }
 
 private:
 	CRenderer* m_pRenderer;
 	CInputKeyboard *m_pInputKeyboard;	// キーボードへのポインタ
 	CInputMouse *m_pInputMouse;			// マウスへのポインタ
 	CInputJoypad *m_pInputJoypad;		// ジョイパッドへのポインタ
+	CLight * m_pLight;
 
 	UINT m_width;
 	UINT m_height;

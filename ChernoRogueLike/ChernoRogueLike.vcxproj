@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="input.cpp" />
+    <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manager.cpp" />
     <ClCompile Include="renderer.cpp" />
@@ -159,6 +160,7 @@
   <ItemGroup>
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="light.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="manager.h" />
     <ClInclude Include="renderer.h" />

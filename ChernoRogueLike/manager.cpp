@@ -8,6 +8,7 @@
 #include "renderer.h"
 #include "debugproc.h"
 #include "input.h"
+#include "light.h"
 
 //=============================================================================
 // CManagerコンストラクタ
@@ -18,7 +19,8 @@ CManager::CManager(UINT width, UINT height) :
 	m_pRenderer{ nullptr },
 	m_pInputKeyboard{ nullptr },
 	m_pInputMouse{ nullptr },
-	m_pInputJoypad{ nullptr }
+	m_pInputJoypad{ nullptr },
+	m_pLight{ nullptr }
 {
 }
 
@@ -52,6 +54,9 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 	m_pInputJoypad = new CInputJoypad;
 	m_pInputJoypad->Init(hInstance, hwnd);
 
+	// ライトの初期化処理
+	m_pLight = new CLight;
+	m_pLight->Init();
 
 #ifdef _DEBUG
 	// デバッグフォントの初期化
@@ -78,6 +83,9 @@ void CManager::Uninit(void)
 
 	// ジョイパッドの終了処理
 	SafeDelete(m_pInputJoypad, &CInputJoypad::Uninit);
+
+	// ライトの終了処理
+	SafeDelete(m_pLight, &CLight::Uninit);
 
 #ifdef _DEBUG
 	// デバッグフォントの破棄
@@ -108,6 +116,12 @@ void CManager::Update(void)
 		m_pInputJoypad->Update();
 	}
 
+	// ライトの更新処理
+	if (m_pLight)
+	{
+		m_pLight->Update();
+	}
+
 	// オブジェクトの更新処理
 	if (m_pRenderer)
 	{
@@ -115,6 +129,7 @@ void CManager::Update(void)
 	}
 
 	CDebugProc::Print("F1を押すと消えるよ（はーと\n");
+	
 
 #ifdef _DEBUG
 	// デバッグフォントの更新
