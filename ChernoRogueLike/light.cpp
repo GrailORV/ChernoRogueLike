@@ -122,6 +122,6 @@ void CLight::SetLight(void)
 
 	// ライティングモード
 	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
-	pDevice->SetRenderState(D3DRS_AMBIENT, 0xFFFFFFFF);
+	pDevice->SetRenderState(D3DRS_AMBIENT, 0x000000);
 }
 

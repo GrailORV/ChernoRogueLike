@@ -77,6 +77,8 @@ private:
 	ComPtr<IDirect3DTexture9> m_pTexture;			// テクスチャへのポインタ
 	static ComPtr<IDirect3DVertexBuffer9> m_pVtxBuff;		// 頂点バッファへのポインタ
 
+	DWORD m_texMod;
+
 	int m_nType;							// 種類
 
 	bool m_bLoadTex;						// テクスチャが読み込まれたどうか

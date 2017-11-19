@@ -66,7 +66,7 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 	m_pDebugProc->Init();
 #endif
 
-	CScene2D* pScene = CScene2D::Create(0, D3DXVECTOR3(352.0f, 0.0f, 0.0f), vector3NS::ZERO, 576.0f, 720.0f,colorNS::_RED);
+	CScene2D* pScene = CScene2D::Create(0, D3DXVECTOR3(352.0f, 0.0f, 0.0f), vector3NS::ZERO, 576.0f, 720.0f,colorNS::_WHITE);
 	pScene->LoadTexture("data/TEXTURE/tex_haruka_princess.jpg");
 
 	return hr;

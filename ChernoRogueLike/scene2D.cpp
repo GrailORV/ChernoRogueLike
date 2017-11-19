@@ -65,6 +65,8 @@ HRESULT CScene2D::MakeVertexBuffer(void)
 		// 頂点データをアンロックする
 		m_pVtxBuff->Unlock();
 	}
+
+	return S_OK;
 }
 
 //=============================================================================
@@ -93,7 +95,8 @@ m_fHeight{},
 m_uv{},
 m_color{},
 m_nType{},
-m_bLoadTex{}
+m_bLoadTex{},
+m_texMod{}
 {
 }
 
@@ -136,6 +139,9 @@ HRESULT CScene2D::Init(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot, float width,
 
 	// 画像読み込み判別変数の設定
 	m_bLoadTex = false;
+
+	// 色の乗算対象の設定
+	m_texMod = D3DTA_CURRENT;
 
 	return S_OK;
 }
@@ -201,22 +207,26 @@ void CScene2D::Draw(void)
 	);
 	pDevice->SetTransform(D3DTS_TEXTURE0, &texture);
 
-	// 色設定
-	D3DMATERIAL9 mat, defMat;
-	pDevice->GetMaterial(&defMat);
-	mat.Diffuse = m_color;
-	pDevice->SetMaterial(&mat);
-	
 	// ライティングオフ
 	pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+
+	// 色設定
+	pDevice->SetRenderState(D3DRS_TEXTUREFACTOR, m_color);
+	pDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+	pDevice->SetTextureStageState(0, D3DTSS_COLORARG1, m_texMod);
+	pDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_TFACTOR);
 
 	// ポリゴンの描画
 	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, NUM_POLYGON);
 
-	pDevice->SetMaterial(&defMat);
-
 	// ライティングオン
 	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
+
+	// 色設定元に戻す
+	pDevice->SetRenderState(D3DRS_TEXTUREFACTOR, colorNS::_WHITE);
+	pDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+	pDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+	pDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT);
 
 	D3DXMATRIX uvDefault;
 	D3DXMatrixIdentity(&uvDefault);
@@ -246,18 +256,27 @@ void CScene2D::LoadTexture(const char *pTextureName)
 	}
 
 
+	HRESULT hr{};
+
 	// テクスチャの読み込み
-	D3DXCreateTextureFromFile(pDevice,				// デバイスへのポインタ
+	hr = D3DXCreateTextureFromFile(pDevice,				// デバイスへのポインタ
 		pTextureName,		// ファイルの名前
 		m_pTexture.GetAddressOf());		// 読み込むメモリー
+	if (FAILED(hr))
+	{
+		return;
+	}
+
 	m_bLoadTex = true;
+	m_texMod = D3DTA_TEXTURE;
+
 
 }
 
 //=============================================================================
 // テクスチャの割り当て
 //=============================================================================
-void CScene2D::BindTexture(LPDIRECT3DTEXTURE9 pTexture)
+void CScene2D::BindTexture(IDirect3DTexture9* pTexture)
 {
 	if (m_bLoadTex)
 	{
@@ -266,4 +285,12 @@ void CScene2D::BindTexture(LPDIRECT3DTEXTURE9 pTexture)
 
 	m_pTexture = pTexture;
 	m_bLoadTex = false;
+	if (pTexture == NULL)
+	{
+		m_texMod = D3DTA_CURRENT;
+	}
+	else
+	{
+		m_texMod = D3DTA_TEXTURE;
+	}
 }
