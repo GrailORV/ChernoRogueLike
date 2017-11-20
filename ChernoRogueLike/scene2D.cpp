@@ -250,12 +250,6 @@ void CScene2D::LoadTexture(const char *pTextureName)
 	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
 
-	if (m_bLoadTex)
-	{
-		m_pTexture.Reset();
-	}
-
-
 	HRESULT hr{};
 
 	// テクスチャの読み込み
@@ -278,12 +272,7 @@ void CScene2D::LoadTexture(const char *pTextureName)
 //=============================================================================
 void CScene2D::BindTexture(IDirect3DTexture9* pTexture)
 {
-	if (m_bLoadTex)
-	{
-		m_pTexture.Reset();
-	}
-
-	m_pTexture = pTexture;
+	pTexture->QueryInterface(IID_IUnknown, (void**)m_pTexture.GetAddressOf());
 	m_bLoadTex = false;
 	if (pTexture == NULL)
 	{

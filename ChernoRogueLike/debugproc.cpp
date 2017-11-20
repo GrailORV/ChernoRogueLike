@@ -25,7 +25,7 @@ const float CDebugProc::m_fHeight = 640.0f;
 //=============================================================================
 // CDebugProcコンストラクタ
 //=============================================================================
-CDebugProc::CDebugProc()
+CDebugProc::CDebugProc() :m_dwRef(0)
 {
 	// バッファクリア
 	memset(m_aStr, 0, sizeof m_aStr);
@@ -36,6 +36,42 @@ CDebugProc::CDebugProc()
 //=============================================================================
 CDebugProc::~CDebugProc()
 {
+	Release();
+}
+
+//=============================================================================
+// 参照コピー
+//=============================================================================
+HRESULT CDebugProc::QueryInterface(REFIID riid, void FAR* FAR* ppvObject)
+{
+	if (IsEqualIID(riid, IID_IUnknown))
+	{
+		*ppvObject = this;
+		AddRef();
+		return NOERROR;
+	}
+	return E_NOINTERFACE;
+}
+
+//=============================================================================
+// 参照カウンタインクリメント
+//=============================================================================
+ULONG CDebugProc::AddRef(void)
+{
+	return ++m_dwRef;
+}
+
+//=============================================================================
+// 終了処理
+//=============================================================================
+ULONG CDebugProc::Release(void)
+{
+	if (--m_dwRef == 0)
+	{
+		delete this;
+		return 0;
+	}
+	return m_dwRef;
 }
 
 //=============================================================================
@@ -68,20 +104,13 @@ void CDebugProc::Init()
 }
 
 //=============================================================================
-// 開放処理
-//=============================================================================
-void CDebugProc::Uninit(void)
-{
-}
-
-//=============================================================================
 // 更新処理
 //=============================================================================
 void CDebugProc::Update(void)
 {
 	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 	CInputKeyboard* pInputKeyboard = pManager->GetInputKeyboard();
-	
+
 	if (!pInputKeyboard)
 	{
 		return;

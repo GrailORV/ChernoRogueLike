@@ -11,17 +11,22 @@
 //*********************************************************
 // 入力クラス
 //*********************************************************
-class CInput
+interface CInput :public IUnknown
 {
 public:
 	CInput();
 	virtual ~CInput();
 
+	STDMETHODIMP QueryInterface(REFIID riid, void FAR* FAR* ppvObject);
+	STDMETHODIMP_(ULONG) AddRef(void);
+	STDMETHODIMP_(ULONG) Release(void);
+
 	virtual HRESULT Init(HINSTANCE hInst, HWND hWnd);
-	virtual void Uninit(void);
 	virtual HRESULT Update(void) = 0;		// ---> 純粋仮想関数化
 
 protected:
+	DWORD m_dwRef;
+
 	ComPtr<IDirectInputDevice8>		m_pDIDevice;		// IDirectInputDevice8インターフェースへのポインタ
 	static ComPtr<IDirectInput8>		m_pDInput;			// IDirectInput8インターフェースへのポインタ
 };
@@ -29,14 +34,13 @@ protected:
 //*********************************************************
 // キーボード入力クラス
 //*********************************************************
-class CInputKeyboard : public CInput
+interface CInputKeyboard : public CInput
 {
 public:
 	CInputKeyboard();
 	~CInputKeyboard();
 
 	HRESULT Init(HINSTANCE hInst, HWND hWnd);
-	void Uninit(void);
 	HRESULT Update(void);
 
 	BOOL GetKeyPress(int nKey);
@@ -58,14 +62,13 @@ private:
 //*********************************************************
 // マウス入力クラス
 //*********************************************************
-class CInputMouse : public CInput
+interface CInputMouse : public CInput
 {
 public:
 	CInputMouse();
 	~CInputMouse();
 
 	HRESULT Init(HINSTANCE hInst, HWND hWnd);
-	void Uninit(void);
 	HRESULT Update(void);
 
 	BOOL GetLeftPress(void);
@@ -88,14 +91,13 @@ private:
 //*********************************************************
 // ジョイパッド入力クラス
 //*********************************************************
-class CInputJoypad : public CInput
+interface CInputJoypad : public CInput
 {
 public:
 	CInputJoypad();
 	~CInputJoypad();
 
 	HRESULT Init(HINSTANCE hInst, HWND hWnd);
-	void Uninit(void);
 	HRESULT Update(void);
 
 	// キーの種類

@@ -5,10 +5,6 @@
 //
 //=============================================================================
 #include "manager.h"
-#include "renderer.h"
-#include "debugproc.h"
-#include "input.h"
-#include "light.h"
 #include "scene.h"
 #include "scene2D.h"
 
@@ -17,12 +13,7 @@
 //=============================================================================
 CManager::CManager(UINT width, UINT height) :
 	m_width(width),
-	m_height(height),
-	m_pRenderer{ nullptr },
-	m_pInputKeyboard{ nullptr },
-	m_pInputMouse{ nullptr },
-	m_pInputJoypad{ nullptr },
-	m_pLight{ nullptr }
+	m_height(height)
 {
 }
 
@@ -79,26 +70,6 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 //=============================================================================
 void CManager::Uninit(void)
 {
-	// レンダリングの終了処理
-	SafeDelete(m_pRenderer, &CRenderer::Uninit);
-
-	// キーボードの終了処理
-	SafeDelete(m_pInputKeyboard, &CInputKeyboard::Uninit);
-
-	// マウスの終了処理
-	SafeDelete(m_pInputMouse, &CInputMouse::Uninit);
-
-	// ジョイパッドの終了処理
-	SafeDelete(m_pInputJoypad, &CInputJoypad::Uninit);
-
-	// ライトの終了処理
-	SafeDelete(m_pLight, &CLight::Uninit);
-
-#ifdef _DEBUG
-	// デバッグフォントの破棄
-	SafeDelete(m_pDebugProc, &CDebugProc::Uninit);
-#endif
-
 	CScene::ReleaseAll();
 }
 

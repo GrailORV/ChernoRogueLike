@@ -27,8 +27,11 @@ public:
 	CDebugProc();
 	~CDebugProc();
 
+	STDMETHODIMP QueryInterface(REFIID riid, void FAR* FAR* ppvObject);
+	STDMETHODIMP_(ULONG) AddRef(void);
+	STDMETHODIMP_(ULONG) Release(void);
+
 	void Init(void);
-	void Uninit(void);
 	void Update(void);
 
 	static void Print(char *fmt, ...);
@@ -38,6 +41,8 @@ public:
 	static void EnableDisp(bool bDisp) { m_bDisp = bDisp; }
 
 private:
+	DWORD m_dwRef;
+
 	static ComPtr<ID3DXFont> m_pFont;				// フォントへのポインタ
 	static char m_aStr[LENGTH_STRING_BUFF];	// デバッグ表示のバッファ
 	static const float m_fWidth;

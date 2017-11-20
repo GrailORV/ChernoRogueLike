@@ -10,16 +10,10 @@
 // ヘッダファイル
 //*********************************************************
 #include "stdafx.h"
-
-class CRenderer;
-class CInputKeyboard;
-class CInputMouse;
-class CInputJoypad;
-class CLight;
-
-#ifdef _DEBUG
-class CDebugProc;
-#endif
+#include "debugproc.h"
+#include "renderer.h"
+#include "light.h"
+#include "input.h"
 
 //*********************************************************
 // マネージャークラス
@@ -40,24 +34,24 @@ public:
 	void SetWindowHeight(UINT height) { m_height = height; }
 	UINT GetWindowHeight(void) { return m_height; }
 
-	CRenderer* GetRenderer(void) { return m_pRenderer; }
-	CInputKeyboard *GetInputKeyboard(void) { return m_pInputKeyboard; }
-	CInputMouse *GetInputMouse(void) { return m_pInputMouse; }
-	CInputJoypad *GetInputJoypad(void) { return m_pInputJoypad; }
-	CLight *GetLight(void) { return m_pLight; }
+	CRenderer* GetRenderer(void) { return m_pRenderer.Get(); }
+	CInputKeyboard *GetInputKeyboard(void) { return m_pInputKeyboard.Get(); }
+	CInputMouse *GetInputMouse(void) { return m_pInputMouse.Get(); }
+	CInputJoypad *GetInputJoypad(void) { return m_pInputJoypad.Get();; }
+	CLight *GetLight(void) { return m_pLight.Get(); }
 
 private:
-	CRenderer* m_pRenderer;
-	CInputKeyboard *m_pInputKeyboard;	// キーボードへのポインタ
-	CInputMouse *m_pInputMouse;			// マウスへのポインタ
-	CInputJoypad *m_pInputJoypad;		// ジョイパッドへのポインタ
-	CLight * m_pLight;
+	ComPtr<CRenderer> m_pRenderer;
+	ComPtr<CInputKeyboard> m_pInputKeyboard;	// キーボードへのポインタ
+	ComPtr<CInputMouse> m_pInputMouse;			// マウスへのポインタ
+	ComPtr<CInputJoypad> m_pInputJoypad;		// ジョイパッドへのポインタ
+	ComPtr<CLight> m_pLight;
 
 	UINT m_width;
 	UINT m_height;
 
 #ifdef _DEBUG
-	CDebugProc *m_pDebugProc;			// デバッグ処理へのポインタ
+	ComPtr<CDebugProc> m_pDebugProc;			// デバッグ処理へのポインタ
 #endif
 
 };
