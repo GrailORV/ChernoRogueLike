@@ -19,6 +19,7 @@ using namespace std;
 //*****************************************************************************
 // リスト用
 vector<CScene*> CScene::m_apScene[NUM_PRIORITY];
+UINT CScene::m_nCreateObjNum = 0;
 
 //=============================================================================
 // リスト内オブジェ更新
@@ -29,7 +30,6 @@ void CScene::UpdateAll(void)
 	{
 		for (UINT nCntScene = 0; nCntScene < m_apScene[nCntPri].size(); nCntScene++)
 		{
-			m_apScene[nCntPri][nCntScene]->m_nID = nCntScene;
 			if (!m_apScene[nCntPri][nCntScene]->m_bEnableUpdate)
 			{
 				continue;
@@ -67,7 +67,11 @@ void CScene::DrawAll(void)
 //=============================================================================
 void CScene::Release(void)
 {
-	m_apScene[m_nPriority].erase(m_apScene[m_nPriority].begin() + m_nID);
+	auto itr = find_if(m_apScene[m_nPriority].begin(), m_apScene[m_nPriority].end(), [=](CScene* p) {return p->GetID() == m_nID; });
+	size_t index = itr - m_apScene[m_nPriority].begin();
+	CScene* pScene = m_apScene[m_nPriority][index];
+	m_apScene[m_nPriority].erase(itr);
+	delete pScene;
 }
 
 //=============================================================================
@@ -77,7 +81,7 @@ void CScene::ReleaseAll(void)
 {
 	for (UINT nCntPri = 0; nCntPri < NUM_PRIORITY; nCntPri++)
 	{
-		for (UINT nCntScene = 0; nCntScene < m_apScene[nCntPri].size(); nCntScene++)
+		for (UINT nCntScene = 0; nCntScene < m_apScene[nCntPri].size();)
 		{
 			m_apScene[nCntPri][nCntScene]->Uninit();
 		}
@@ -93,6 +97,8 @@ CScene::CScene(UINT nPriority, OBJTYPE objType) :
 	m_bEnableUpdate(true),
 	m_bEnableDraw(true)
 {
+	m_nCreateObjNum++;
+	m_nID = m_nCreateObjNum;
 	m_apScene[nPriority].push_back(this);
 }
 

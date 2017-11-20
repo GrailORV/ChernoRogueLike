@@ -89,9 +89,13 @@ public:
 private:
 	// リスト用
 	static std::vector<CScene*> m_apScene[NUM_PRIORITY];	// リストの先頭位置へのポインタ
+	static UINT m_nCreateObjNum;
 
 	UINT m_nID;
 	UINT m_nPriority;						// プライオリティ番号
+
+	UINT GetID(void) { return m_nID; }
+	UINT GetPriority(void) { return m_nPriority; }
 
 	OBJTYPE m_objType;						// オブジェクトタイプ
 
