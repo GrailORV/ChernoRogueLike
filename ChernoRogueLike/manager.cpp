@@ -13,7 +13,8 @@
 //=============================================================================
 CManager::CManager(UINT width, UINT height) :
 	m_width(width),
-	m_height(height)
+	m_height(height),
+	m_dwRef(0)
 {
 }
 
@@ -22,6 +23,43 @@ CManager::CManager(UINT width, UINT height) :
 //=============================================================================
 CManager::~CManager()
 {
+	Release();
+}
+
+//=============================================================================
+// 参照コピー
+//=============================================================================
+HRESULT CManager::QueryInterface(REFIID riid, void FAR* FAR* ppvObject)
+{
+	if (IsEqualIID(riid, IID_IUnknown))
+	{
+		*ppvObject = this;
+		AddRef();
+		return NOERROR;
+	}
+	return E_NOINTERFACE;
+}
+
+//=============================================================================
+// 参照カウンタインクリメント
+//=============================================================================
+ULONG CManager::AddRef(void)
+{
+	return ++m_dwRef;
+}
+
+//=============================================================================
+// 終了処理
+//=============================================================================
+ULONG CManager::Release(void)
+{
+	if (--m_dwRef == 0)
+	{
+		CScene::ReleaseAll();
+		delete this;
+		return 0;
+	}
+	return m_dwRef;
 }
 
 //=============================================================================
@@ -47,6 +85,10 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 	m_pInputJoypad = new CInputJoypad;
 	m_pInputJoypad->Init(hInstance, hwnd);
 
+	// サウンドの初期化
+	m_pSound = new CSound;
+	m_pSound->Init();
+
 	// ライトの初期化処理
 	m_pLight = new CLight;
 	m_pLight->Init();
@@ -60,17 +102,9 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 	CScene2D* pScene = CScene2D::Create(0, D3DXVECTOR3(352.0f, 0.0f, 0.0f), vector3NS::ZERO, 576.0f, 720.0f,colorNS::_WHITE);
 	pScene->LoadTexture("data/TEXTURE/tex_haruka_princess.jpg");
 
-	CScene2D::Create(0, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO, 100.0f, 100.0f, colorNS::_WHITE);
-	CScene2D::Create(0, D3DXVECTOR3(100.0f, 100.0f, 0.0f), vector3NS::ZERO, 100.0f, 100.0f, colorNS::_BLACK);
-	return hr;
-}
+	m_pSound->Play(CSound::BGM_LABEL_NO_CURRY);
 
-//=============================================================================
-// 終了処理
-//=============================================================================
-void CManager::Uninit(void)
-{
-	CScene::ReleaseAll();
+	return hr;
 }
 
 //=============================================================================
@@ -94,6 +128,12 @@ void CManager::Update(void)
 	if (m_pInputJoypad)
 	{
 		m_pInputJoypad->Update();
+	}
+
+	// サウンドの更新処理
+	if (m_pSound)
+	{
+		m_pSound->Update();
 	}
 
 	// ライトの更新処理

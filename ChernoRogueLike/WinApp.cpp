@@ -5,7 +5,6 @@
 //
 //=============================================================================
 #include "WinApp.h"
-#include "manager.h"
 
 //*****************************************************************************
 // 静的変数
@@ -117,9 +116,6 @@ int CWinApp::Run(CManager* pManager, HINSTANCE hInstance, int nCmdShow)
 
 	// 分解能を戻す
 	timeEndPeriod(1);
-
-	// マネージャの破棄
-	SafeDelete(pManager, &CManager::Uninit);
 
 	return static_cast<int>(msg.wParam);
 }

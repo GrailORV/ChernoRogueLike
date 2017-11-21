@@ -14,18 +14,22 @@
 #include "renderer.h"
 #include "light.h"
 #include "input.h"
+#include "sound.h"
 
 //*********************************************************
 // マネージャークラス
 //*********************************************************
-class CManager
+interface CManager :public IUnknown
 {
 public:
 	CManager(UINT width, UINT height);
 	~CManager();
 
+	STDMETHODIMP QueryInterface(REFIID riid, void FAR* FAR* ppvObject);
+	STDMETHODIMP_(ULONG) AddRef(void);
+	STDMETHODIMP_(ULONG) Release(void);
+
 	HRESULT Init(HINSTANCE hInstance, HWND hwnd, BOOL bWIndow);
-	void Uninit(void);
 	void Update(void);
 	void Draw(void);
 
@@ -38,13 +42,17 @@ public:
 	CInputKeyboard *GetInputKeyboard(void) { return m_pInputKeyboard.Get(); }
 	CInputMouse *GetInputMouse(void) { return m_pInputMouse.Get(); }
 	CInputJoypad *GetInputJoypad(void) { return m_pInputJoypad.Get();; }
+	CSound *GetSound(void) { return m_pSound.Get(); }
 	CLight *GetLight(void) { return m_pLight.Get(); }
 
 private:
+	DWORD m_dwRef;
+
 	ComPtr<CRenderer> m_pRenderer;
 	ComPtr<CInputKeyboard> m_pInputKeyboard;	// キーボードへのポインタ
 	ComPtr<CInputMouse> m_pInputMouse;			// マウスへのポインタ
 	ComPtr<CInputJoypad> m_pInputJoypad;		// ジョイパッドへのポインタ
+	ComPtr<CSound> m_pSound;
 	ComPtr<CLight> m_pLight;
 
 	UINT m_width;

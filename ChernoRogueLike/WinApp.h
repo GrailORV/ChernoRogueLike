@@ -10,6 +10,7 @@
 // ヘッダファイル
 //*****************************************************************************
 #include "stdafx.h"
+#include "manager.h"
 
 //メモリーリーク対応処置
 #ifndef MEMORY_LEAK_H
@@ -20,8 +21,6 @@
 #define new new(_NORMAL_BLOCK,__FILE__,__LINE__)
 #endif
 #endif
-
-class CManager;
 
 //*********************************************************
 // ウインドウクラス

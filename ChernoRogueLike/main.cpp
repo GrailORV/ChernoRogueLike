@@ -13,7 +13,6 @@
 //=============================================================================
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
-
-	CManager* pManager = new CManager(1280, 720);
-	return CWinApp::Run(pManager, hInstance, nCmdShow);
+	ComPtr<CManager> pManager = new CManager(1280, 720);
+	return CWinApp::Run(pManager.Get(), hInstance, nCmdShow);
 }
