@@ -44,11 +44,6 @@ void CScene::UpdateAll(void)
 //=============================================================================
 void CScene::DrawAll(void)
 {
-	//CCamera *pCamera = CManager::GetCamera();
-
-	//// ƒJƒƒ‰‚ÌÝ’è
-	//pCamera->SetCamera();
-
 	for (UINT nCntPri = 0; nCntPri < NUM_PRIORITY; nCntPri++)
 	{
 		for (UINT nCntScene = 0; nCntScene < m_apScene[nCntPri].size(); nCntScene++)

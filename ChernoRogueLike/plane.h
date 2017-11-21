@@ -1,34 +1,32 @@
 //=============================================================================
 //
-// 2Dオブジェクトの処理 [scene2D.h]
+// プレーンの処理 [plane.h]
 // Author : 
 //
 //=============================================================================
 #pragma once
 
-#include "stdafx.h"
+#include "main.h"
 #include "scene.h"
 
 //*********************************************************
-// 2Dオブジェクトクラス
+// 3Dオブジェクトクラス
 //*********************************************************
-class CScene2D : public CScene
+class CPlane : public CScene
 {
 public:
-	static const UINT NUM_VERTEX = 4;
-	static const UINT NUM_POLYGON = 2;
+	CPlane(int nPriority = 3, OBJTYPE objType = OBJTYPE_PLANE);
+	~CPlane();
 
-public:
-	CScene2D(int nPri = 3, OBJTYPE objType = OBJTYPE_2D);
-	virtual ~CScene2D();
+	static CPlane *Create(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color = colorNS::_WHITE);
 
-	static HRESULT MakeVertexBuffer(void);
-	static CScene2D *Create(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot, float width, float height, D3DXCOLOR color = colorNS::_WHITE);
-
-	HRESULT Init(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot, float width, float height, D3DXCOLOR color = colorNS::_WHITE);
+	HRESULT Init(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color = colorNS::_WHITE);
+	HRESULT Init(void) { return S_OK; }
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
+
+	HRESULT MakeVertexBuffer(void);
 
 	void LoadTexture(const char *pTextureName);
 	void BindTexture(IDirect3DTexture9* pTex);
@@ -42,36 +40,31 @@ public:
 	void SetRotation(D3DXVECTOR3 rot) { m_rot = rot; }
 	D3DXVECTOR3 GetRotation(void) { return m_rot; }
 
-	void SetScale(D3DXVECTOR3 scale) { m_scale = scale; }
-	D3DXVECTOR3 GetScale(void) { return m_scale; }
-
 	void SetUV(float width, float height, float x, float y) { m_uv = D3DXVECTOR4(width, height, x, y); }
 	D3DXVECTOR4 GetUV(void) { return m_uv; }
-	
+
 	void SetColor(D3DXCOLOR color) { m_color = color; }
 	D3DXCOLOR GetColor(void) { return m_color; }
 
-	void SetSize(float fWidth, float fHeight);
-
-	int GetType(void) { return m_nType; }
-
-protected:
-	D3DXVECTOR3 m_pos;						// 位置
-	D3DXVECTOR3 m_pivot;
-	D3DXVECTOR3 m_rot;						// 向き
-	D3DXVECTOR3 m_scale;
-	float m_fWidth;
-	float m_fHeight;
-	D3DXVECTOR4 m_uv;						// テクスチャ座標(x : width, y : height, z : xStart, w : yStart)
-	D3DXCOLOR m_color;
+	void SetType(int nType) { m_nType = nType; }
 
 private:
 	ComPtr<IDirect3DTexture9> m_pTexture;			// テクスチャへのポインタ
-	static ComPtr<IDirect3DVertexBuffer9> m_pVtxBuff;		// 頂点バッファへのポインタ
+	ComPtr<IDirect3DVertexBuffer9> m_pVtxBuff;		// 頂点バッファへのポインタ
+	ComPtr<IDirect3DIndexBuffer9> m_pIdxBuff;
 
-	DWORD m_texMod;
+	D3DXMATRIX m_mtxWorld;					// ワールドマトリックス
+
+	UINT m_column, m_row;
+	UINT m_numFace, m_numIndex, m_numVertex;
+	D3DXVECTOR3 m_pos;						// 位置
+	D3DXVECTOR3 m_pivot;
+	D3DXVECTOR3 m_rot;						// 向き
+	float m_width;
+	float m_height;
+	D3DXVECTOR4 m_uv;
+	D3DXCOLOR m_color;
 
 	int m_nType;							// 種類
 
-	bool m_bLoadTex;						// テクスチャが読み込まれたどうか
 };

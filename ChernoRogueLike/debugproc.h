@@ -15,11 +15,12 @@ class CDebugProc
 {
 private:
 	static const u_int LENGTH_STRING_BUFF = 1024;
-	static const DWORD FVF_DEBUG_PROC = D3DFVF_XYZ | D3DFVF_DIFFUSE;
+	static const DWORD FVF_DEBUG_PROC = D3DFVF_XYZRHW | D3DFVF_DIFFUSE;
 
 	struct VertexDebug
 	{
 		D3DXVECTOR3 position;
+		float rhw;
 		D3DCOLOR color;
 	};
 
@@ -31,7 +32,7 @@ public:
 	STDMETHODIMP_(ULONG) AddRef(void);
 	STDMETHODIMP_(ULONG) Release(void);
 
-	void Init(void);
+	HRESULT Init(void);
 	void Update(void);
 
 	static void Print(char *fmt, ...);
@@ -53,6 +54,6 @@ private:
 
 	static bool m_bDisp;					// デバッグ表示ON/OFF
 
-	static void MakeVertexBuffer(void);
+	static HRESULT MakeVertexBuffer(void);
 };
 

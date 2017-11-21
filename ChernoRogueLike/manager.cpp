@@ -7,6 +7,7 @@
 #include "manager.h"
 #include "scene.h"
 #include "scene2D.h"
+#include "plane.h"
 
 //=============================================================================
 // CManagerコンストラクタ
@@ -71,36 +72,75 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 
 	// レンダリング処理の初期化処理
 	m_pRenderer = new CRenderer;
-	m_pRenderer->Init(hwnd, bWindow);
+	hr = m_pRenderer->Init(hwnd, bWindow);
+	if (FAILED(hr))
+	{
+		return hr;
+	}
 
 	// キーボードの初期化処理
 	m_pInputKeyboard = new CInputKeyboard;
-	m_pInputKeyboard->Init(hInstance, hwnd);
+	hr = m_pInputKeyboard->Init(hInstance, hwnd);
+	if (FAILED(hr))
+	{
+		return hr;
+	}
 
 	// マウスの初期化処理
 	m_pInputMouse = new CInputMouse;
-	m_pInputMouse->Init(hInstance, hwnd);
+	hr = m_pInputMouse->Init(hInstance, hwnd);
+	if (FAILED(hr))
+	{
+		return hr;
+	}
 
 	// ジョイパッドの初期化処理
 	m_pInputJoypad = new CInputJoypad;
-	m_pInputJoypad->Init(hInstance, hwnd);
+	hr = m_pInputJoypad->Init(hInstance, hwnd);
+	if (FAILED(hr))
+	{
+		return hr;
+	}
 
 	// サウンドの初期化
 	m_pSound = new CSound;
-	m_pSound->Init();
+	hr = m_pSound->Init();
+	if (FAILED(hr))
+	{
+		return hr;
+	}
+
+	// カメラの初期化
+	m_pCamera = new CCamera;
+	hr = m_pCamera->Init();
+	if (FAILED(hr))
+	{
+		return hr;
+	}
 
 	// ライトの初期化処理
 	m_pLight = new CLight;
-	m_pLight->Init();
+	hr = m_pLight->Init();
+	if (FAILED(hr))
+	{
+		return hr;
+	}
 
 #ifdef _DEBUG
 	// デバッグフォントの初期化
 	m_pDebugProc = new CDebugProc;
-	m_pDebugProc->Init();
+	hr = m_pDebugProc->Init();
+	if (FAILED(hr))
+	{
+		return hr;
+	}
 #endif
 
-	CScene2D* pScene = CScene2D::Create(0, D3DXVECTOR3(352.0f, 0.0f, 0.0f), vector3NS::ZERO, 576.0f, 720.0f,colorNS::_WHITE);
-	pScene->LoadTexture("data/TEXTURE/tex_haruka_princess.jpg");
+	CScene2D* pScene2D = CScene2D::Create(0, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO, 160.0f, 200.0f, colorNS::_WHITE);
+	pScene2D->LoadTexture("data/TEXTURE/tex_haruka_princess.jpg");
+
+	CPlane* pPlane = CPlane::Create(0, 4, 4, 640.0f, 800.0f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO);
+	pPlane->LoadTexture("data/TEXTURE/tex_haruka_princess.jpg");
 
 	m_pSound->Play(CSound::BGM_LABEL_NO_CURRY);
 
@@ -136,6 +176,12 @@ void CManager::Update(void)
 		m_pSound->Update();
 	}
 
+	// カメラの更新処理
+	if (m_pCamera)
+	{
+		m_pCamera->Update();
+	}
+
 	// ライトの更新処理
 	if (m_pLight)
 	{
@@ -149,7 +195,6 @@ void CManager::Update(void)
 	}
 
 	CDebugProc::Print("F1を押すと消えるよ（はーと\n");
-
 
 #ifdef _DEBUG
 	// デバッグフォントの更新

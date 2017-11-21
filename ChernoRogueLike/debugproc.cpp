@@ -77,8 +77,10 @@ ULONG CDebugProc::Release(void)
 //=============================================================================
 // 初期化処理
 //=============================================================================
-void CDebugProc::Init()
+HRESULT CDebugProc::Init(void)
 {
+	HRESULT hr{};
+
 	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
 
@@ -96,10 +98,20 @@ void CDebugProc::Init()
 	strcpy_s(fontDesc.FaceName, "Terminal");
 
 	// フォントの生成
-	D3DXCreateFontIndirect(pDevice, &fontDesc, m_pFont.GetAddressOf());
+	hr = D3DXCreateFontIndirect(pDevice, &fontDesc, m_pFont.GetAddressOf());
+	if (FAILED(hr))
+	{
+		return hr;
+	}
 
 	// 背景板ポリの生成
-	MakeVertexBuffer();
+	hr = MakeVertexBuffer();
+	if (FAILED(hr))
+	{
+		return hr;
+	}
+
+	return S_OK;
 
 }
 
@@ -205,21 +217,10 @@ void CDebugProc::Draw(void)
 		IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
 
 		{// フォントの背景描画
-			D3DXMATRIX projection
-			{
-				2.0f / pManager->GetWindowWidth(),0.0f,0.0f,0.0f,
-				0.0f,-2.0f / pManager->GetWindowHeight(),0.0f,0.0f,
-				0.0f,0.0f,1.0f,0.0f,
-				-1.0f,1.0f,0.0f,1.0f
-			};
-
-			pDevice->SetTransform(D3DTS_WORLD, &projection);
 			pDevice->SetStreamSource(0, m_pVtxBuff.Get(), 0, sizeof(VertexDebug));
 			pDevice->SetFVF(FVF_DEBUG_PROC);
 			pDevice->SetTexture(0, NULL);
-			pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-			pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 		}
 
 		{// フォントの描画
@@ -237,7 +238,7 @@ void CDebugProc::Draw(void)
 //=============================================================================
 // 頂点バッファの生成
 //=============================================================================
-void CDebugProc::MakeVertexBuffer(void)
+HRESULT CDebugProc::MakeVertexBuffer(void)
 {
 
 	HRESULT hr{};
@@ -255,7 +256,7 @@ void CDebugProc::MakeVertexBuffer(void)
 	);
 	if (FAILED(hr))
 	{
-		return;
+		return hr;
 	}
 
 	{// 頂点バッファの中身を埋める
@@ -271,6 +272,8 @@ void CDebugProc::MakeVertexBuffer(void)
 			pVtx->position.y = (i / 2) * m_fHeight;
 			pVtx->position.z = 0.0f;
 
+			pVtx->rhw = 1.0f;
+
 			pVtx->color = D3DCOLOR_ARGB(192, 0, 0, 0);
 
 			pVtx++;
@@ -279,4 +282,5 @@ void CDebugProc::MakeVertexBuffer(void)
 		m_pVtxBuff->Unlock();
 	}
 
+	return S_OK;
 }

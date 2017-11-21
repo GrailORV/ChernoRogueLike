@@ -37,6 +37,26 @@ namespace vector3NS
 //*********************************************************
 class CScene
 {
+protected:
+	static const DWORD FVFVertex2D = D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1 | D3DFVF_TEXCOORDSIZE2(0);
+	static const DWORD FVFVertex3D = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1 | D3DFVF_TEXCOORDSIZE2(0);
+
+	typedef struct
+	{
+		D3DXVECTOR3 position;	// 頂点座標
+		D3DCOLOR color;		// 頂点カラー
+		D3DXVECTOR2 uv;	// テクスチャ座標
+	} Vertex2D;
+
+	typedef struct
+	{
+		D3DXVECTOR3 position;	// 頂点座標
+		D3DXVECTOR3 normal;		// 法線
+		D3DCOLOR color;			// 頂点カラー
+		D3DXVECTOR2 uv;			// テクスチャ座標
+	} Vertex3D;
+
+
 private:
 	static const UINT NUM_PRIORITY = 8;
 
@@ -45,7 +65,7 @@ public:
 	{
 		OBJTYPE_NONE = 0,
 		OBJTYPE_2D,					// 2Dポリゴン
-		OBJTYPE_3D,					// 3Dポリゴン
+		OBJTYPE_PLANE,				// プレーン
 		OBJTYPE_X,					// Xファイル
 		OBJTYPE_BILLBOARD,			// ビルボード
 		OBJTYPE_FADE,				// フェード

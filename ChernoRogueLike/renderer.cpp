@@ -8,6 +8,7 @@
 #include "manager.h"
 #include "renderer.h"
 #include "debugproc.h"
+#include "camera.h"
 #include "scene.h"
 #include "scene2D.h"
 

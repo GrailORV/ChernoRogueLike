@@ -180,7 +180,7 @@ void CScene2D::Draw(void)
 	pDevice->SetTexture(0, m_pTexture.Get());
 
 	// ワールド変換行列の設定
-	D3DXMATRIX world, scale, rot, translation, projection;
+	D3DXMATRIX world, scale, rot, translation, projection, view;
 	D3DXMatrixScaling(&world, m_fWidth, m_fHeight, 1.0f);
 	D3DXMatrixTranslation(&translation, -m_pivot.x, -m_pivot.y, -m_pivot.z);
 	D3DXMatrixRotationZ(&rot, m_rot.z);
@@ -189,14 +189,18 @@ void CScene2D::Draw(void)
 	world = world * scale * rot;
 	D3DXMatrixTranslation(&translation, m_pos.x, m_pos.y, m_pos.z);
 	world *= translation;
+	pDevice->SetTransform(D3DTS_WORLD, &world);
+
 	projection = D3DXMATRIX(
 		2.0f / pManager->GetWindowWidth(), 0.0f, 0.0f, 0.0f,
 		0.0f, -2.0f / pManager->GetWindowHeight(), 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		-1.0f, 1.0f, 0.0f, 1.0f
 	);
-	world *= projection;
-	pDevice->SetTransform(D3DTS_WORLD, &world);
+	pDevice->SetTransform(D3DTS_PROJECTION, &projection);
+	
+	D3DXMatrixIdentity(&view);
+	pDevice->SetTransform(D3DTS_VIEW, &view);
 
 	// テクスチャ座標返還行列の設定
 	D3DXMATRIX texture(

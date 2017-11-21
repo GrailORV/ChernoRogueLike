@@ -13,6 +13,7 @@
 #include "debugproc.h"
 #include "renderer.h"
 #include "light.h"
+#include "camera.h"
 #include "input.h"
 #include "sound.h"
 
@@ -43,6 +44,7 @@ public:
 	CInputMouse *GetInputMouse(void) { return m_pInputMouse.Get(); }
 	CInputJoypad *GetInputJoypad(void) { return m_pInputJoypad.Get();; }
 	CSound *GetSound(void) { return m_pSound.Get(); }
+	CCamera *GetCamera(void) { return m_pCamera.Get(); }
 	CLight *GetLight(void) { return m_pLight.Get(); }
 
 private:
@@ -53,6 +55,7 @@ private:
 	ComPtr<CInputMouse> m_pInputMouse;			// マウスへのポインタ
 	ComPtr<CInputJoypad> m_pInputJoypad;		// ジョイパッドへのポインタ
 	ComPtr<CSound> m_pSound;
+	ComPtr<CCamera> m_pCamera;
 	ComPtr<CLight> m_pLight;
 
 	UINT m_width;
