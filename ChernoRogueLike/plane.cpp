@@ -4,6 +4,8 @@
 // Author : 
 //
 //=============================================================================
+#include "stdafx.h"
+
 #include "plane.h"
 #include "manager.h"
 #include "renderer.h"

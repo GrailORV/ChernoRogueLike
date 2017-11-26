@@ -17,6 +17,8 @@
 #include "input.h"
 #include "sound.h"
 
+class CScene2D;
+
 //*********************************************************
 // マネージャークラス
 //*********************************************************
@@ -57,6 +59,8 @@ private:
 	ComPtr<CSound> m_pSound;
 	ComPtr<CCamera> m_pCamera;
 	ComPtr<CLight> m_pLight;
+
+	CScene2D* m_pScene;
 
 	UINT m_width;
 	UINT m_height;

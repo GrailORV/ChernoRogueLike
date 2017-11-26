@@ -4,6 +4,8 @@
 // Author : SORA ENOMOTO
 //
 //=============================================================================
+#include "stdafx.h"
+
 #include "main.h"
 #include "manager.h"
 #include "WinApp.h"

@@ -4,9 +4,12 @@
 // Author : SORA ENOMOTO
 //
 //=============================================================================
+#include "stdafx.h"
+
 #include "sound.h"
 #include "winApp.h"
 #include "stdafx.h"
+
 
 //*****************************************************************************
 // 静的変数
@@ -27,17 +30,6 @@ CSound::SE_PARAM CSound::m_aSEParam[CSound::SE_LABEL_MAX] =
 CSound::CSound() :
 	m_dwRef(0)
 {
-	for (UINT i = 0; i < BGM_LABEL_MAX; i++)
-	{
-		m_apBGMPlayer[i] = NULL;
-	}
-
-	m_pXAudio2 = NULL;
-	m_pMasteringVoice = NULL;
-	for (UINT i = 0; i < MAX_VOICE; i++)
-	{
-		m_apSourceVoice[i] = NULL;
-	}
 	for (UINT i = 0; i < SE_LABEL_MAX; i++)
 	{
 		m_apDataAudio[i] = NULL;
@@ -86,39 +78,6 @@ ULONG CSound::Release(void)
 		// サウンドの停止
 		StopAll();
 
-		// BGMの破棄
-		for (UINT i = 0; i < BGM_LABEL_MAX; i++)
-		{
-			SafeRelease(m_apBGMPlayer[i]);
-		}
-
-		// SEの破棄
-		for (UINT i = 0; i < MAX_VOICE; i++)
-		{
-			// ソースボイスの破棄
-			if (m_apSourceVoice[i])
-			{
-				m_apSourceVoice[i]->DestroyVoice();
-				m_apSourceVoice[i] = NULL;
-			}
-		}
-		for (UINT i = 0; i < SE_LABEL_MAX; i++)
-		{
-			// オーディオデータの解放
-			free(m_apDataAudio[i]);
-			m_apDataAudio[i] = NULL;
-		}
-
-		// マスターボイスの破棄
-		if (m_pMasteringVoice)
-		{
-			m_pMasteringVoice->DestroyVoice();
-			m_pMasteringVoice = NULL;
-		}
-
-		// XAudio2オブジェクトの破棄
-		SafeRelease(m_pXAudio2);
-
 		// COMライブラリの終了処理
 		CoUninitialize();
 
@@ -138,7 +97,7 @@ HRESULT CSound::Init(void)
 	// BGMの初期化
 	for (UINT i = 0; i < BGM_LABEL_MAX; i++)
 	{
-		hr = MFPCreateMediaPlayer(m_aBGMParam[i].pFileName, FALSE, 0, NULL, CWinApp::GetHwnd(), &m_apBGMPlayer[i]);
+		hr = MFPCreateMediaPlayer(m_aBGMParam[i].pFileName, FALSE, 0, NULL, CWinApp::GetHwnd(), m_apBGMPlayer[i].GetAddressOf());
 		if (FAILED(hr))
 		{
 			return hr;
@@ -159,14 +118,14 @@ HRESULT CSound::Init(void)
 	}
 
 	// マスターボイスの生成
-	hr = m_pXAudio2->CreateMasteringVoice(&m_pMasteringVoice);
+	IXAudio2MasteringVoice* pMaster;
+	hr = m_pXAudio2->CreateMasteringVoice(&pMaster);
 	if (FAILED(hr))
 	{
-		if (m_pXAudio2)
+		if (m_pXAudio2.Get())
 		{
 			// XAudio2オブジェクトの開放
-			m_pXAudio2->Release();
-			m_pXAudio2 = NULL;
+			m_pXAudio2.Reset();
 		}
 
 		// COMライブラリの終了処理
@@ -174,20 +133,58 @@ HRESULT CSound::Init(void)
 
 		return E_FAIL;
 	}
+	m_pMasteringVoice = std::make_unique<IXAudio2MasteringVoice*>(pMaster);
 
 	// サウンドデータの初期化
 	for (int nCntSound = 0; nCntSound < SE_LABEL_MAX; nCntSound++)
 	{
-		HANDLE hFile;
+		HMMIO mmio{};
+		MMIOINFO info{};
+		mmio = mmioOpen(m_aSEParam[nCntSound].pFileName, &info, MMIO_READ);
+		if (!mmio)
+		{
+			mmioClose(mmio, 0);
+			return 1;
+		}
+
+		MMRESULT mret{};
+		MMCKINFO riff_chunk{};
+		riff_chunk.fccType = mmioFOURCC('W', 'A', 'V', 'E');
+		mret = mmioDescend(mmio, &riff_chunk, NULL, MMIO_FINDRIFF);
+		if (mret != MMSYSERR_NOERROR)
+		{
+			mmioClose(mmio, 0);
+			return 1;
+		}
+
+		MMCKINFO chunk;
+		chunk.ckid = mmioFOURCC('d', 'a', 't', 'a');
+		mret = mmioDescend(mmio, &chunk, &riff_chunk, MMIO_FINDCHUNK);
+		if (mret != MMSYSERR_NOERROR) 
+		{
+			mmioClose(mmio, 0);
+			return 1;
+		}
+		
+		m_apDataAudio[nCntSound] = std::make_unique<BYTE[]>(chunk.cksize);
+		m_aSizeAudio[nCntSound] = mmioRead(mmio, (HPSTR)m_apDataAudio[nCntSound].get(), chunk.cksize);
+		if (m_aSizeAudio[nCntSound] != chunk.cksize)
+		{
+			mmioClose(mmio, 0);
+			m_apDataAudio[nCntSound].reset();
+			return 1;
+		}
+
+		mmioClose(mmio, 0);
+
+		/*HANDLE hFile;
 		DWORD dwChunkSize = 0;
 		DWORD dwChunkPosition = 0;
 		DWORD dwFiletype;
 		WAVEFORMATEXTENSIBLE wfx;
-		XAUDIO2_BUFFER buffer;
 
 		// バッファのクリア
 		memset(&wfx, 0, sizeof(WAVEFORMATEXTENSIBLE));
-		memset(&buffer, 0, sizeof(XAUDIO2_BUFFER));
 
 		// サウンドデータファイルの生成
 		hFile = CreateFile(m_aSEParam[nCntSound].pFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
@@ -239,7 +236,7 @@ HRESULT CSound::Init(void)
 		if (FAILED(hr))
 		{
 			return S_FALSE;
-		}
+		}*/
 	}
 
 	WAVEFORMATEX format;
@@ -252,11 +249,11 @@ HRESULT CSound::Init(void)
 	format.cbSize = 0;
 	for (u_int i = 0; i < MAX_VOICE; i++)
 	{
+		IXAudio2SourceVoice* pVoice;
 		// ソースボイスの生成
-		m_pXAudio2->CreateSourceVoice(&m_apSourceVoice[i], &format);
+		m_pXAudio2->CreateSourceVoice(&pVoice, &format);
+		m_apSourceVoice[i] = std::make_unique<IXAudio2SourceVoice*>(pVoice);
 	}
-
-	return S_OK;
 
 	return S_OK;
 }
@@ -317,29 +314,32 @@ void CSound::Play(SE_LABEL label)
 
 	memset(&buffer, 0, sizeof(XAUDIO2_BUFFER));
 	buffer.AudioBytes = m_aSizeAudio[label];
-	buffer.pAudioData = m_apDataAudio[label];
+	buffer.pAudioData = m_apDataAudio[label].get();
 	buffer.Flags = XAUDIO2_END_OF_STREAM;
 	buffer.LoopCount = m_aSEParam[label].nCntLoop;
 
+	IXAudio2SourceVoice** pVoice = m_apSourceVoice[m_nNextVoiceIndex].get();
+	
+
 	// 状態取得
-	m_apSourceVoice[m_nNextVoiceIndex]->GetState(&xa2state);
+	(*m_apSourceVoice[m_nNextVoiceIndex])->GetState(&xa2state);
 	if (xa2state.BuffersQueued != 0)
 	{// 再生中
 	 // 一時停止
-		m_apSourceVoice[m_nNextVoiceIndex]->Stop(0);
+		(*m_apSourceVoice[m_nNextVoiceIndex])->Stop(0);
 
 		// オーディオバッファの削除
-		m_apSourceVoice[m_nNextVoiceIndex]->FlushSourceBuffers();
+		(*m_apSourceVoice[m_nNextVoiceIndex])->FlushSourceBuffers();
 	}
 
 	// オーディオバッファの登録
-	m_apSourceVoice[m_nNextVoiceIndex]->SubmitSourceBuffer(&buffer);
+	(*m_apSourceVoice[m_nNextVoiceIndex])->SubmitSourceBuffer(&buffer);
 
 	// 音量の設定
-	m_apSourceVoice[label]->SetVolume(m_aSEParam[label].fVolume);
+	(*m_apSourceVoice[label])->SetVolume(m_aSEParam[label].fVolume);
 
 	// 再生
-	m_apSourceVoice[m_nNextVoiceIndex]->Start(0);
+	(*m_apSourceVoice[m_nNextVoiceIndex])->Start(0);
 
 	// 次に使うソースボイス設定
 	m_nNextVoiceIndex++;
@@ -404,7 +404,7 @@ void CSound::StopAllSE(void)
 {
 	for (UINT i = 0; i < MAX_VOICE; i++)
 	{
-		m_apSourceVoice[i]->Stop(0);
+		(*m_apSourceVoice[i])->Stop(0);
 	}
 }
 

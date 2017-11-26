@@ -4,6 +4,8 @@
 // Author : SORA ENOMOTO
 //
 //=============================================================================
+#include "stdafx.h"
+
 #include "manager.h"
 #include "renderer.h"
 #include "scene.h"
@@ -18,7 +20,7 @@ using namespace std;
 // 静的変数
 //*****************************************************************************
 // リスト用
-vector<CScene*> CScene::m_apScene[NUM_PRIORITY];
+vector<std::unique_ptr<CScene>> CScene::m_apScene[NUM_PRIORITY];
 UINT CScene::m_nCreateObjNum = 0;
 
 //=============================================================================
@@ -62,11 +64,8 @@ void CScene::DrawAll(void)
 //=============================================================================
 void CScene::Release(void)
 {
-	auto itr = find_if(m_apScene[m_nPriority].begin(), m_apScene[m_nPriority].end(), [=](CScene* p) {return p->GetID() == m_nID; });
-	size_t index = itr - m_apScene[m_nPriority].begin();
-	CScene* pScene = m_apScene[m_nPriority][index];
+	auto itr = find_if(m_apScene[m_nPriority].begin(), m_apScene[m_nPriority].end(), [=](std::unique_ptr<CScene> const& p) {return p->GetID() == m_nID; });
 	m_apScene[m_nPriority].erase(itr);
-	delete pScene;
 }
 
 //=============================================================================
@@ -81,6 +80,7 @@ void CScene::ReleaseAll(void)
 			m_apScene[nCntPri][nCntScene]->Uninit();
 		}
 	}
+	m_nCreateObjNum = 0;
 }
 
 //=============================================================================
@@ -92,9 +92,10 @@ CScene::CScene(UINT nPriority, OBJTYPE objType) :
 	m_bEnableUpdate(true),
 	m_bEnableDraw(true)
 {
-	m_nCreateObjNum++;
-	m_nID = m_nCreateObjNum;
-	m_apScene[nPriority].push_back(this);
+	m_nID = m_nCreateObjNum++;
+	std::unique_ptr<CScene> pScene(this);
+	m_apScene[nPriority].push_back(nullptr);
+	m_apScene[nPriority][m_apScene[nPriority].size() - 1] = std::move(pScene);
 }
 
 //=============================================================================

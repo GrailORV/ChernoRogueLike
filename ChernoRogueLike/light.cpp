@@ -4,6 +4,8 @@
 // Author : SORA ENOMOTO
 //
 //=============================================================================
+#include "stdafx.h"
+
 #include "light.h"
 #include "manager.h"
 #include "renderer.h"

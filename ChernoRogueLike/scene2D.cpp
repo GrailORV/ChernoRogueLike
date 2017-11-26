@@ -4,6 +4,8 @@
 // Author : 
 //
 //=============================================================================
+#include "stdafx.h"
+
 #include "scene2D.h"
 #include "manager.h"
 #include "renderer.h"

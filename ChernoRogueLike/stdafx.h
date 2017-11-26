@@ -13,6 +13,7 @@
 #include <d3dx9.h>
 #include <typeinfo>
 #include <algorithm>
+#include <memory>
 #include <string>
 #include <wrl/client.h>
 
@@ -55,20 +56,10 @@ void SafeUninit(T& ptr)
 	}
 }
 
-template <typename T, class C>
-void SafeDelete(T& ptr, void(C::*func)())
+inline void ThrowIfFailed(HRESULT hr)
 {
-	// 参照ポインタのクラス名と引数関数の帰属クラス名比較
-	const type_info& tID = typeid(T);
-	std::string sT = tID.name();
-	const type_info& cID = typeid(C);
-	std::string sC = cID.name();
-
-	if (ptr)
+	if (FAILED(hr))
 	{
-		(ptr->*func)();
-		delete ptr;
-		ptr = NULL;
+		throw hr;
 	}
 }
-

@@ -4,6 +4,8 @@
 // Author : 
 //
 //=============================================================================
+#include "stdafx.h"
+
 #include "manager.h"
 #include "scene.h"
 #include "scene2D.h"
@@ -56,7 +58,6 @@ ULONG CManager::Release(void)
 {
 	if (--m_dwRef == 0)
 	{
-		CScene::ReleaseAll();
 		delete this;
 		return 0;
 	}
@@ -136,8 +137,8 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 	}
 #endif
 
-	CScene2D* pScene2D = CScene2D::Create(0, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO, 160.0f, 200.0f, colorNS::_WHITE);
-	pScene2D->LoadTexture("data/TEXTURE/tex_haruka_princess.jpg");
+	m_pScene = CScene2D::Create(0, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO, 160.0f, 200.0f, colorNS::_WHITE);
+	m_pScene->LoadTexture("data/TEXTURE/tex_haruka_princess.jpg");
 
 	CPlane* pPlane = CPlane::Create(0, 4, 4, 640.0f, 800.0f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO);
 	pPlane->LoadTexture("data/TEXTURE/tex_haruka_princess.jpg");
@@ -195,6 +196,20 @@ void CManager::Update(void)
 	}
 
 	CDebugProc::Print("F1を押すと消えるよ（はーと\n");
+
+	if (m_pInputKeyboard->GetKeyTrigger(DIK_RETURN))
+	{
+		if (m_pScene)
+		{
+			m_pScene->Uninit();
+			m_pScene = NULL;
+		}
+		else
+		{
+			m_pScene = CScene2D::Create(0, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO, 160.0f, 200.0f, colorNS::_WHITE);
+			m_pScene->LoadTexture("data/TEXTURE/tex_haruka_princess.jpg");
+		}
+	}
 
 #ifdef _DEBUG
 	// デバッグフォントの更新
