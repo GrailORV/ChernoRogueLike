@@ -28,8 +28,7 @@ public:
 
 	HRESULT MakeVertexBuffer(void);
 
-	void LoadTexture(const char *pTextureName);
-	void BindTexture(IDirect3DTexture9* pTex);
+	void BindTexture(const char* texID);
 
 	void SetPosition(D3DXVECTOR3 pos) { m_pos = pos; }
 	D3DXVECTOR3 GetPosition(void) { return m_pos; }

@@ -9,6 +9,7 @@
 #include "plane.h"
 #include "manager.h"
 #include "renderer.h"
+#include "textureManager.h"
 #include "camera.h"
 #include "WinApp.h"
 
@@ -275,31 +276,19 @@ HRESULT CPlane::MakeVertexBuffer(void)
 }
 
 //=============================================================================
-// 画像のロード
+// テクスチャの割り当て
 //=============================================================================
-void CPlane::LoadTexture(const char *pTextureName)
+void CPlane::BindTexture(const char* texID)
 {
-	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
-	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
-
-	HRESULT hr{};
-
-	// テクスチャの読み込み
-	hr = D3DXCreateTextureFromFile(pDevice,				// デバイスへのポインタ
-		pTextureName,		// ファイルの名前
-		m_pTexture.GetAddressOf());		// 読み込むメモリー
-	if (FAILED(hr))
+	if (!texID)
 	{
+		m_pTexture.Reset();
 		return;
 	}
 
-}
+	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
+	CTextureManager* pTextureManager = pManager->GetTextureManager();
 
-//=============================================================================
-// 画像のバインド
-//=============================================================================
-void CPlane::BindTexture(IDirect3DTexture9* pTex)
-{
-	pTex->QueryInterface(IID_IUnknown, (void**)m_pTexture.GetAddressOf());
+	pTextureManager->BindtextureFromString(texID, m_pTexture.GetAddressOf());
 }
 

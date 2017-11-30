@@ -1,40 +1,37 @@
 //=============================================================================
 //
-// レンダリング処理 [renderer.h]
+// テクスチャ管理処理 [textureManager.h]
 // Author : SORA ENOMOTO
 //
 //=============================================================================
 #pragma once
 
 #include "stdafx.h"
+#include <map>
 
 //*********************************************************
-// 描画クラス
+// テクスチャ管理クラス
 //*********************************************************
-interface CRenderer :public IUnknown
+interface CTextureManager :public IUnknown
 {
 public:
-	CRenderer();
-	~CRenderer();
+	CTextureManager();
+	~CTextureManager();
 
 	STDMETHODIMP QueryInterface(REFIID riid, void FAR* FAR* ppvObject);
 	STDMETHODIMP_(ULONG) AddRef(void);
 	STDMETHODIMP_(ULONG) Release(void);
 
-	HRESULT Init(BOOL bWindow);
-	void Update(void);
-	void Draw(void);
+	HRESULT Init(void);
 
-	IDirect3DDevice9* GetDevice(void) { return m_pD3DDevice.Get(); }
+	void LoadSceneTex(int mode);
+	void BindtextureFromString(std::string texID, IDirect3DTexture9** ppTex);
 
-private:
 	void OnLostDevice(void);
 
+private:
 	DWORD m_dwRef;
-	BOOL m_bWindow;
 
-	ComPtr<IDirect3D9> m_pD3D;					// Direct3D オブジェクト
-	ComPtr<IDirect3DDevice9> m_pD3DDevice;		// Deviceオブジェクト(描画に必要)
+	std::map<std::string, ComPtr<IDirect3DTexture9>> m_texData;
 
 };
-

@@ -30,8 +30,7 @@ public:
 	void Update(void);
 	void Draw(void);
 
-	void LoadTexture(const char *pTextureName);
-	void BindTexture(IDirect3DTexture9* pTex);
+	void BindTexture(const char* texID);
 
 	void SetPosition(D3DXVECTOR3 pos) { m_pos = pos; }
 	D3DXVECTOR3 GetPosition(void) { return m_pos; }
@@ -72,6 +71,4 @@ private:
 	DWORD m_texMod;
 
 	int m_nType;							// 種類
-
-	bool m_bLoadTex;						// テクスチャが読み込まれたどうか
 };

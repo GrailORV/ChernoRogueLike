@@ -83,8 +83,6 @@ int CWinApp::Run(CManager* pManager, HINSTANCE hInstance, int nCmdShow)
 		{
 			// ウインドウクラスの登録の解除
 			UnregisterClass(CLASS_NAME, wcex.hInstance);
-			// マネージャの破棄
-			SafeDelete(pManager, &CManager::Uninit);
 			return 0;
 		}
 	}
