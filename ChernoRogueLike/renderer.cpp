@@ -175,6 +175,8 @@ HRESULT CRenderer::Init(BOOL bWindow)
 	m_pD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_CURRENT);		// ２番目のアルファ引数(初期値はD3DTA_CURRENT)
 	m_pD3DDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);	// 2次元ベクトルで指定されたテクスチャ座標の変換行列有効化
 
+	SetDefaultMaterial();
+
 	CScene2D::MakeVertexBuffer();
 
 	return S_OK;
@@ -228,6 +230,20 @@ void CRenderer::Draw(void)
 	{
 		OnLostDevice();
 	}
+}
+
+//=============================================================================
+// デフォルトマテリアル設定
+//=============================================================================
+void CRenderer::SetDefaultMaterial(void)
+{
+	D3DMATERIAL9 matDef;
+	matDef.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	matDef.Ambient = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	matDef.Emissive = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+	matDef.Specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	matDef.Power = 16.0f;
+	m_pD3DDevice->SetMaterial(&matDef);
 }
 
 //=============================================================================

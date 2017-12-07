@@ -11,6 +11,7 @@
 #include "scene.h"
 #include "scene2D.h"
 #include "plane.h"
+#include "model.h"
 
 //=============================================================================
 // CManagerコンストラクタ
@@ -88,6 +89,14 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 		return hr;
 	}
 
+	// メッシュマネージャの初期化
+	m_pModelManager = new CModelManager;
+	hr = m_pModelManager->Init();
+	if (FAILED(hr))
+	{
+		return hr;
+	}
+
 	// キーボードの初期化処理
 	m_pInputKeyboard = new CInputKeyboard;
 	hr = m_pInputKeyboard->Init(hInstance, hwnd);
@@ -147,12 +156,15 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 #endif
 
 	m_pTextureManager->LoadSceneTex(m_mode);
+	m_pModelManager->LoadSceneMesh(m_mode);
 
 	m_pScene = CScene2D::Create(0, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO, 160.0f, 200.0f, colorNS::_WHITE);
 	m_pScene->BindTexture("tex_haruka_princess");
 
 	CPlane* pPlane = CPlane::Create(0, 4, 4, 640.0f, 800.0f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO);
 	pPlane->BindTexture("tex_haruka_princess");
+
+	CModel* pModel = CModel::Create(0, "torus", D3DXVECTOR3(30.0f, 50.0f, 70.0f), D3DXVECTOR3(D3DX_PI / 4.0f, D3DX_PI / 4.0f, D3DX_PI / 6.0f));
 
 	m_pSound->Play(CSound::BGM_LABEL_NO_CURRY);
 

@@ -11,7 +11,7 @@
 //*********************************************************
 // ƒJƒƒ‰ƒNƒ‰ƒX
 //*********************************************************
-interface CCamera :public IUnknown
+class CCamera :public IUnknown
 {
 protected:
 	const float VIEW_ANGLE = D3DXToRadian(60.0f);	// ‹–ìŠp

@@ -124,6 +124,7 @@ void CTextureManager::LoadSceneTex(int mode)
 void CTextureManager::BindtextureFromString(std::string texID, IDirect3DTexture9** ppTex)
 {
 	m_texData[texID].Get()->QueryInterface(IID_IUnknown, (void**)ppTex);
+
 }
 
 
