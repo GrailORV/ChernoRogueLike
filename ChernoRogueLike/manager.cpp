@@ -11,6 +11,7 @@
 #include "scene.h"
 #include "scene2D.h"
 #include "plane.h"
+#include "player.h"
 
 //=============================================================================
 // CManagerコンストラクタ
@@ -153,6 +154,9 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 
 	CPlane* pPlane = CPlane::Create(0, 4, 4, 640.0f, 800.0f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO);
 	pPlane->BindTexture("tex_haruka_princess");
+
+	CPlayer* pPlayer = CPlayer::Create(0, 4, 4, 50.f, 50.f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO);
+	pPlayer->BindTexture("ore");
 
 	m_pSound->Play(CSound::BGM_LABEL_NO_CURRY);
 
