@@ -161,6 +161,7 @@
     <ClCompile Include="model.cpp" />
     <ClCompile Include="modelManager.cpp" />
     <ClCompile Include="plane.cpp" />
+    <ClCompile Include="player.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="scene2D.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="model.h" />
     <ClInclude Include="modelManager.h" />
     <ClInclude Include="plane.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="scene.h" />

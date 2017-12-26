@@ -12,10 +12,12 @@
 #include "textureManager.h"
 #include "camera.h"
 #include "WinApp.h"
+#include "input.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
+#define MOVE		10.f
 
 //*****************************************************************************
 // 構造体定義
@@ -76,7 +78,7 @@ HRESULT CPlayer::Init(int nType, UINT column, UINT row, float width, float heigh
 	m_numVertex = (column + 1) * (row + 1);
 
 	// 位置を設定
-	m_pos = pos;
+	m_pos = pos +vector3NS::UP;
 
 	// 向きを設定
 	m_rot = rot;
@@ -93,6 +95,10 @@ HRESULT CPlayer::Init(int nType, UINT column, UINT row, float width, float heigh
 
 	// 色の設定
 	m_color = color;
+
+	m_move = vector3NS::ZERO;
+
+	m_rotDest = vector3NS::ZERO;
 
 	// オブジェクトの頂点バッファを生成
 	hr = MakeVertexBuffer();
@@ -118,6 +124,45 @@ void CPlayer::Uninit(void)
 //=============================================================================
 void CPlayer::Update(void)
 {
+	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
+	CCamera *pCamera = pManager->GetCamera();
+	CInputKeyboard *pInputKeyboard;
+	// キーボード取得
+	pInputKeyboard = pManager->GetInputKeyboard();
+
+	//前
+	if (pInputKeyboard->GetKeyTrigger(DIK_UP)) {
+		m_move.x -= sinf(pCamera->GetRot().y+ D3DX_PI)* MOVE;
+		m_move.z -= cosf(pCamera->GetRot().y + D3DX_PI)* MOVE;
+		m_rot.y = D3DX_PI*1.f + pCamera->GetRot().y;
+	}
+	//後
+	if (pInputKeyboard->GetKeyTrigger(DIK_DOWN)) {
+		m_move.x += sinf(pCamera->GetRot().y - D3DX_PI)* MOVE;
+		m_move.z += cosf(pCamera->GetRot().y - D3DX_PI)* MOVE;
+		m_rot.y = D3DX_PI*0.f + pCamera->GetRot().y;
+
+	}
+	//左
+	if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
+		m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+		m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+		m_rot.y = D3DX_PI*0.5f + pCamera->GetRot().y;
+
+	}
+	//右
+	if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
+		m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+		m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+		m_rot.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
+	}
+
+	m_pos += m_move;
+	m_rot = m_rotDest + m_rot;
+	m_move += (D3DXVECTOR3(0, 0, 0) - m_move) * 0.2f;
+	m_rot += (D3DXVECTOR3(0, 0, 0) - m_rot) * 0.5f;
+
+	
 }
 
 //=============================================================================

@@ -59,6 +59,8 @@ private:
 	D3DXVECTOR3 m_pos;						// ˆÊ’u
 	D3DXVECTOR3 m_pivot;
 	D3DXVECTOR3 m_rot;						// Œü‚«
+	D3DXVECTOR3 m_move;
+	D3DXVECTOR3 m_rotDest;
 	float m_width;
 	float m_height;
 	D3DXVECTOR4 m_uv;

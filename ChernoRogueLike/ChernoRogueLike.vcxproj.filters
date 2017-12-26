@@ -81,6 +81,9 @@
     <ClCompile Include="model.cpp">
       <Filter>Sources\Util</Filter>
     </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -133,6 +136,9 @@
     </ClInclude>
     <ClInclude Include="model.h">
       <Filter>Headers\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
