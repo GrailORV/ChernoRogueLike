@@ -7,12 +7,13 @@
 #pragma once
 
 #include "stdafx.h"
+
 #include <map>
 
 //*********************************************************
 // テクスチャ管理クラス
 //*********************************************************
-interface CTextureManager :public IUnknown
+class CTextureManager :public IUnknown
 {
 public:
 	CTextureManager();

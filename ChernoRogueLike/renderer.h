@@ -11,7 +11,7 @@
 //*********************************************************
 // •`‰æƒNƒ‰ƒX
 //*********************************************************
-interface CRenderer :public IUnknown
+class CRenderer :public IUnknown
 {
 public:
 	CRenderer();
@@ -26,6 +26,8 @@ public:
 	void Draw(void);
 
 	IDirect3DDevice9* GetDevice(void) { return m_pD3DDevice.Get(); }
+
+	void SetDefaultMaterial(void);
 
 private:
 	void OnLostDevice(void);

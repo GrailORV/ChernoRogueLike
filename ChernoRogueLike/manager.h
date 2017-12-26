@@ -17,13 +17,14 @@
 #include "input.h"
 #include "sound.h"
 #include "textureManager.h"
+#include "modelManager.h"
 
 class CScene2D;
 
 //*********************************************************
 // マネージャークラス
 //*********************************************************
-interface CManager :public IUnknown
+class CManager :public IUnknown
 {
 public:
 	CManager(UINT width, UINT height);
@@ -54,6 +55,7 @@ public:
 
 	CRenderer* GetRenderer(void) { return m_pRenderer.Get(); }
 	CTextureManager* GetTextureManager(void) { return m_pTextureManager.Get(); }
+	CModelManager* GetMeshManager(void) { return m_pModelManager.Get(); }
 	CInputKeyboard *GetInputKeyboard(void) { return m_pInputKeyboard.Get(); }
 	CInputMouse *GetInputMouse(void) { return m_pInputMouse.Get(); }
 	CInputJoypad *GetInputJoypad(void) { return m_pInputJoypad.Get();; }
@@ -69,6 +71,7 @@ private:
 
 	ComPtr<CRenderer> m_pRenderer;
 	ComPtr<CTextureManager> m_pTextureManager;
+	ComPtr<CModelManager> m_pModelManager;
 	ComPtr<CInputKeyboard> m_pInputKeyboard;	// キーボードへのポインタ
 	ComPtr<CInputMouse> m_pInputMouse;			// マウスへのポインタ
 	ComPtr<CInputJoypad> m_pInputJoypad;		// ジョイパッドへのポインタ

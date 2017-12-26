@@ -11,7 +11,7 @@
 //*********************************************************
 // ライトクラス
 //*********************************************************
-interface CLight:public IUnknown
+class CLight:public IUnknown
 {
 public:
 	static const UINT NUM_LIGHT = 3;

@@ -75,6 +75,12 @@
     <ClCompile Include="textureManager.cpp">
       <Filter>Sources\Util</Filter>
     </ClCompile>
+    <ClCompile Include="modelManager.cpp">
+      <Filter>Sources\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="model.cpp">
+      <Filter>Sources\Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -120,6 +126,12 @@
       <Filter>Headers\Util</Filter>
     </ClInclude>
     <ClInclude Include="textureManager.h">
+      <Filter>Headers\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="modelManager.h">
+      <Filter>Headers\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="model.h">
       <Filter>Headers\Util</Filter>
     </ClInclude>
   </ItemGroup>
