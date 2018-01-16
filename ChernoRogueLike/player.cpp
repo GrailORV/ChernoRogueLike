@@ -6,16 +6,19 @@
 //=============================================================================
 #include "stdafx.h"
 
-#include "plane.h"
+#include "player.h"
 #include "manager.h"
 #include "renderer.h"
 #include "textureManager.h"
 #include "camera.h"
 #include "WinApp.h"
+#include "input.h"
+#include "debugproc.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
+#define MOVE		10.f
 
 //*****************************************************************************
 // 構造体定義
@@ -30,11 +33,11 @@
 //=============================================================================
 // CPlane生成
 //=============================================================================
-CPlane *CPlane::Create(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color)
+CPlayer *CPlayer::Create(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color)
 {
-	CPlane *pScene3D;
+	CPlayer *pScene3D;
 
-	pScene3D = new CPlane;
+	pScene3D = new CPlayer;
 	pScene3D->Init(nType, column, row, width, height, pos, rot, color);
 
 	return pScene3D;
@@ -43,7 +46,7 @@ CPlane *CPlane::Create(int nType, UINT column, UINT row, float width, float heig
 //=============================================================================
 // CPlaneコンストラクタ
 //=============================================================================
-CPlane::CPlane(int nPriority, CScene::OBJTYPE objType) : CScene(nPriority, objType)
+CPlayer::CPlayer(int nPriority, CScene::OBJTYPE objType) : CScene(nPriority, objType)
 {
 	m_pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -54,16 +57,20 @@ CPlane::CPlane(int nPriority, CScene::OBJTYPE objType) : CScene(nPriority, objTy
 //=============================================================================
 // CPlaneデストラクタ
 //=============================================================================
-CPlane::~CPlane()
+CPlayer::~CPlayer()
 {
 }
 
 //=============================================================================
 // 初期化処理
 //=============================================================================
-HRESULT CPlane::Init(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color)
+HRESULT CPlayer::Init(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color)
 {
 	HRESULT hr{};
+
+
+	m_iTurn = 0;
+	m_iCount = 0;
 
 	// タイプを設定
 	m_nType = nType;
@@ -76,7 +83,7 @@ HRESULT CPlane::Init(int nType, UINT column, UINT row, float width, float height
 	m_numVertex = (column + 1) * (row + 1);
 
 	// 位置を設定
-	m_pos = pos;
+	m_pos = pos +vector3NS::UP;
 
 	// 向きを設定
 	m_rot = rot;
@@ -94,6 +101,10 @@ HRESULT CPlane::Init(int nType, UINT column, UINT row, float width, float height
 	// 色の設定
 	m_color = color;
 
+	m_move = vector3NS::ZERO;
+
+	m_rotDest = vector3NS::ZERO;
+
 	// オブジェクトの頂点バッファを生成
 	hr = MakeVertexBuffer();
 	if (FAILED(hr))
@@ -107,7 +118,7 @@ HRESULT CPlane::Init(int nType, UINT column, UINT row, float width, float height
 //=============================================================================
 // 終了処理
 //=============================================================================
-void CPlane::Uninit(void)
+void CPlayer::Uninit(void)
 {
 	// オブジェクトを破棄
 	Release();
@@ -116,14 +127,168 @@ void CPlane::Uninit(void)
 //=============================================================================
 // 更新処理
 //=============================================================================
-void CPlane::Update(void)
+void CPlayer::Update(void)
 {
+	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
+	CCamera *pCamera = pManager->GetCamera();
+	CInputKeyboard *pInputKeyboard;
+	// キーボード取得
+	pInputKeyboard = pManager->GetInputKeyboard();
+
+
+
+
+
+
+	if (pInputKeyboard->GetKeyTrigger(DIK_UP)) {
+		m_iCount++;
+		// 左上
+		if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
+			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+		// 右上
+		else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
+			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+		// 上
+		else {
+			m_move.x -= sinf(pCamera->GetRot().y + D3DX_PI)* MOVE;
+			m_move.z -= cosf(pCamera->GetRot().y + D3DX_PI)* MOVE;
+			m_rotDest.y = D3DX_PI*1.f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+	}
+
+
+
+
+
+
+	else if (pInputKeyboard->GetKeyTrigger(DIK_DOWN)) {
+		m_iCount++;
+		// 左下
+		if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
+			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+		// 右下
+		else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
+			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+		// 後ろ
+		else {
+			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI)* MOVE;
+			m_rotDest.y = D3DX_PI*0.f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+	}
+
+
+
+
+
+
+
+	else if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
+		m_iCount++;
+		// 左上
+		if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
+			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+		// 右上
+		else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
+			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+		//左
+		else {
+			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+	}
+
+
+
+
+
+
+	else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
+		m_iCount++;
+		// 左上
+		if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
+			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+		// 右上
+		else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
+			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+		//右
+		else {
+			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+	}
+
+	// 回転方向補正
+	float fDiffRotY = m_rotDest.y - m_rot.y;
+	if (fDiffRotY > D3DX_PI)
+	{
+		fDiffRotY -= D3DX_PI * 2.0f;
+	}
+	if (fDiffRotY < -D3DX_PI)
+	{
+		fDiffRotY += D3DX_PI * 2.0f;
+	}
+
+	// 回転
+	m_rot.y += fDiffRotY * 0.2f;
+	if (m_rot.y > D3DX_PI)
+	{
+		m_rot.y -= D3DX_PI * 2.0f;
+	}
+	if (m_rot.y < -D3DX_PI)
+	{
+		m_rot.y += D3DX_PI * 2.0f;
+	}
+
+	m_pos += m_move;
+	m_move *= 0.8f;
+	
+	CDebugProc::Print("ターン数 : %d\n", m_iTurn);
+
 }
 
 //=============================================================================
 // 描画処理
 //=============================================================================
-void CPlane::Draw(void)
+void CPlayer::Draw(void)
 {
 	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
@@ -190,7 +355,7 @@ void CPlane::Draw(void)
 //=============================================================================
 // 頂点バッファとインデックスバッファの生成
 //=============================================================================
-HRESULT CPlane::MakeVertexBuffer(void)
+HRESULT CPlayer::MakeVertexBuffer(void)
 {
 	HRESULT hr{};
 
@@ -198,11 +363,11 @@ HRESULT CPlane::MakeVertexBuffer(void)
 	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
 
 	hr = pDevice->CreateVertexBuffer(
-		sizeof(Vertex3D)*m_numVertex, 
-		D3DUSAGE_WRITEONLY, 
-		FVFVertex3D, 
-		D3DPOOL_MANAGED, 
-		m_pVtxBuff.GetAddressOf(), 
+		sizeof(Vertex3D)*m_numVertex,
+		D3DUSAGE_WRITEONLY,
+		FVFVertex3D,
+		D3DPOOL_MANAGED,
+		m_pVtxBuff.GetAddressOf(),
 		NULL
 	);
 	if (FAILED(hr))
@@ -278,7 +443,7 @@ HRESULT CPlane::MakeVertexBuffer(void)
 //=============================================================================
 // テクスチャの割り当て
 //=============================================================================
-void CPlane::BindTexture(const char* texID)
+void CPlayer::BindTexture(const char* texID)
 {
 	if (!texID)
 	{

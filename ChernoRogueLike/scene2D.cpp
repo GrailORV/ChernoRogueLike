@@ -10,7 +10,7 @@
 #include "manager.h"
 #include "renderer.h"
 #include "WinApp.h"
-#include "light.h"
+#include "textureManager.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -97,7 +97,6 @@ m_fHeight{},
 m_uv{},
 m_color{},
 m_nType{},
-m_bLoadTex{},
 m_texMod{}
 {
 }
@@ -138,9 +137,6 @@ HRESULT CScene2D::Init(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot, float width,
 
 	// 色の設定
 	m_color = color;
-
-	// 画像読み込み判別変数の設定
-	m_bLoadTex = false;
 
 	// 色の乗算対象の設定
 	m_texMod = D3DTA_CURRENT;
@@ -200,7 +196,7 @@ void CScene2D::Draw(void)
 		-1.0f, 1.0f, 0.0f, 1.0f
 	);
 	pDevice->SetTransform(D3DTS_PROJECTION, &projection);
-	
+
 	D3DXMatrixIdentity(&view);
 	pDevice->SetTransform(D3DTS_VIEW, &view);
 
@@ -249,43 +245,21 @@ void CScene2D::SetSize(float fWidth, float fHeight)
 }
 
 //=============================================================================
-// テクスチャの読み込み
+// テクスチャの割り当て
 //=============================================================================
-void CScene2D::LoadTexture(const char *pTextureName)
+void CScene2D::BindTexture(const char* texID)
 {
-	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
-	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
-
-	HRESULT hr{};
-
-	// テクスチャの読み込み
-	hr = D3DXCreateTextureFromFile(pDevice,				// デバイスへのポインタ
-		pTextureName,		// ファイルの名前
-		m_pTexture.GetAddressOf());		// 読み込むメモリー
-	if (FAILED(hr))
+	if (!texID)
 	{
+		m_pTexture.Reset();
+		m_texMod = D3DTA_CURRENT;
 		return;
 	}
 
-	m_bLoadTex = true;
+	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
+	CTextureManager* pTextureManager = pManager->GetTextureManager();
+	
+	pTextureManager->BindtextureFromString(texID, m_pTexture.GetAddressOf());
 	m_texMod = D3DTA_TEXTURE;
 
-
-}
-
-//=============================================================================
-// テクスチャの割り当て
-//=============================================================================
-void CScene2D::BindTexture(IDirect3DTexture9* pTexture)
-{
-	pTexture->QueryInterface(IID_IUnknown, (void**)m_pTexture.GetAddressOf());
-	m_bLoadTex = false;
-	if (pTexture == NULL)
-	{
-		m_texMod = D3DTA_CURRENT;
-	}
-	else
-	{
-		m_texMod = D3DTA_TEXTURE;
-	}
 }

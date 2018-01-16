@@ -9,6 +9,7 @@
 #include "WinApp.h"
 #include "manager.h"
 #include "renderer.h"
+#include "textureManager.h"
 #include "debugproc.h"
 #include "camera.h"
 #include "scene.h"
@@ -25,7 +26,7 @@
 //=============================================================================
 // CRendererコンストラクタ
 //=============================================================================
-CRenderer::CRenderer() :m_dwRef(0)
+CRenderer::CRenderer() :m_dwRef(0), m_bWindow{}
 {
 }
 
@@ -75,13 +76,14 @@ ULONG CRenderer::Release(void)
 //=============================================================================
 // 初期化処理
 //=============================================================================
-HRESULT CRenderer::Init(HWND hwnd, BOOL bWindow)
+HRESULT CRenderer::Init(BOOL bWindow)
 {
 	// マネージャー取得
-	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 
 	D3DPRESENT_PARAMETERS d3dpp;
 	D3DDISPLAYMODE d3ddm;
+	m_bWindow = bWindow;
 
 	// Direct3Dオブジェクトの作成
 	m_pD3D = Direct3DCreate9(D3D_SDK_VERSION);
@@ -107,7 +109,7 @@ HRESULT CRenderer::Init(HWND hwnd, BOOL bWindow)
 	d3dpp.EnableAutoDepthStencil = TRUE;							// デプスバッファ（Ｚバッファ）とステンシルバッファを作成
 	d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;						// デプスバッファとして16bitを使う
 	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;			// インターバル
-	d3dpp.hDeviceWindow = hwnd;
+	d3dpp.hDeviceWindow = CWinApp::GetHwnd();
 
 	if (bWindow)
 	{
@@ -124,7 +126,7 @@ HRESULT CRenderer::Init(HWND hwnd, BOOL bWindow)
 	// 描画と頂点処理をハードウェアで行なう
 	if (FAILED(m_pD3D->CreateDevice(D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_HAL,
-		hwnd,
+		CWinApp::GetHwnd(),
 		D3DCREATE_HARDWARE_VERTEXPROCESSING,
 		&d3dpp, &m_pD3DDevice)))
 	{
@@ -132,7 +134,7 @@ HRESULT CRenderer::Init(HWND hwnd, BOOL bWindow)
 		// 描画をハードウェアで行い、頂点処理はCPUで行なう
 		if (FAILED(m_pD3D->CreateDevice(D3DADAPTER_DEFAULT,
 			D3DDEVTYPE_HAL,
-			hwnd,
+			CWinApp::GetHwnd(),
 			D3DCREATE_SOFTWARE_VERTEXPROCESSING,
 			&d3dpp, &m_pD3DDevice)))
 		{
@@ -140,7 +142,7 @@ HRESULT CRenderer::Init(HWND hwnd, BOOL bWindow)
 			// 描画と頂点処理をCPUで行なう
 			if (FAILED(m_pD3D->CreateDevice(D3DADAPTER_DEFAULT,
 				D3DDEVTYPE_REF,
-				hwnd,
+				CWinApp::GetHwnd(),
 				D3DCREATE_SOFTWARE_VERTEXPROCESSING,
 				&d3dpp, &m_pD3DDevice)))
 			{
@@ -172,6 +174,8 @@ HRESULT CRenderer::Init(HWND hwnd, BOOL bWindow)
 	m_pD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);		// 最初のアルファ引数(初期値はD3DTA_TEXTURE、テクスチャがない場合はD3DTA_DIFFUSE)
 	m_pD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_CURRENT);		// ２番目のアルファ引数(初期値はD3DTA_CURRENT)
 	m_pD3DDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);	// 2次元ベクトルで指定されたテクスチャ座標の変換行列有効化
+
+	SetDefaultMaterial();
 
 	CScene2D::MakeVertexBuffer();
 
@@ -221,5 +225,39 @@ void CRenderer::Draw(void)
 	}
 
 	// バックバッファとフロントバッファの入れ替えz
-	m_pD3DDevice->Present(NULL, NULL, NULL, NULL);
+	hr = m_pD3DDevice->Present(NULL, NULL, NULL, NULL);
+	if (FAILED(hr))
+	{
+		OnLostDevice();
+	}
+}
+
+//=============================================================================
+// デフォルトマテリアル設定
+//=============================================================================
+void CRenderer::SetDefaultMaterial(void)
+{
+	D3DMATERIAL9 matDef;
+	matDef.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	matDef.Ambient = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	matDef.Emissive = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+	matDef.Specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	matDef.Power = 16.0f;
+	m_pD3DDevice->SetMaterial(&matDef);
+}
+
+//=============================================================================
+// デバイスロスト時の復帰処理
+//=============================================================================
+void CRenderer::OnLostDevice(void)
+{
+	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
+	CTextureManager* pTextureManager = pManager->GetTextureManager();
+
+	m_pD3D.Reset();
+	m_pD3DDevice.Reset();
+	pTextureManager->OnLostDevice();
+
+	Init(m_bWindow);
+	pTextureManager->LoadSceneTex(pManager->GetMode());
 }

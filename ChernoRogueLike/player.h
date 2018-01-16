@@ -12,13 +12,13 @@
 //*********************************************************
 // 3Dオブジェクトクラス
 //*********************************************************
-class CPlane : public CScene
+class CPlayer : public CScene
 {
 public:
-	CPlane(int nPriority = 3, OBJTYPE objType = OBJTYPE_PLANE);
-	~CPlane();
+	CPlayer(int nPriority = 3, OBJTYPE objType = OBJTYPE_PLANE);
+	~CPlayer();
 
-	static CPlane *Create(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color = colorNS::_WHITE);
+	static CPlayer *Create(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color = colorNS::_WHITE);
 
 	HRESULT Init(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color = colorNS::_WHITE);
 	HRESULT Init(void) { return S_OK; }
@@ -59,10 +59,15 @@ private:
 	D3DXVECTOR3 m_pos;						// 位置
 	D3DXVECTOR3 m_pivot;
 	D3DXVECTOR3 m_rot;						// 向き
+	D3DXVECTOR3 m_move;
+	D3DXVECTOR3 m_rotDest;
 	float m_width;
 	float m_height;
 	D3DXVECTOR4 m_uv;
 	D3DXCOLOR m_color;
+
+	int m_iCount;
+	int m_iTurn;
 
 	int m_nType;							// 種類
 

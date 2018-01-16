@@ -11,7 +11,7 @@
 //*********************************************************
 // 描画クラス
 //*********************************************************
-interface CRenderer :public IUnknown
+class CRenderer :public IUnknown
 {
 public:
 	CRenderer();
@@ -21,14 +21,19 @@ public:
 	STDMETHODIMP_(ULONG) AddRef(void);
 	STDMETHODIMP_(ULONG) Release(void);
 
-	HRESULT Init(HWND hwnd, BOOL bWindow);
+	HRESULT Init(BOOL bWindow);
 	void Update(void);
 	void Draw(void);
 
 	IDirect3DDevice9* GetDevice(void) { return m_pD3DDevice.Get(); }
 
+	void SetDefaultMaterial(void);
+
 private:
+	void OnLostDevice(void);
+
 	DWORD m_dwRef;
+	BOOL m_bWindow;
 
 	ComPtr<IDirect3D9> m_pD3D;					// Direct3D オブジェクト
 	ComPtr<IDirect3DDevice9> m_pD3DDevice;		// Deviceオブジェクト(描画に必要)

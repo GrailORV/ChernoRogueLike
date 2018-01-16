@@ -11,7 +11,7 @@
 //*****************************************************************************
 // デバッグ処理クラス
 //*****************************************************************************
-interface CDebugProc :public IUnknown
+class CDebugProc :public IUnknown
 {
 private:
 	static const u_int LENGTH_STRING_BUFF = 1024;

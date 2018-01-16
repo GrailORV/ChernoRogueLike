@@ -96,63 +96,98 @@ void CLight::SetLight(void)
 {
 	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
-	D3DXVECTOR3 vecDir;
 
-	// D3DLIGHT9構造体を0でクリアする
-	ZeroMemory(&m_aLight, sizeof(D3DLIGHT9));
+	{// キーライト
+		// D3DLIGHT9構造体を0でクリアする
+		ZeroMemory(&m_aLight, sizeof(D3DLIGHT9));
 
-	// ライトのタイプの設定
-	m_aLight[0].Type = D3DLIGHT_DIRECTIONAL;
+		// ライトのタイプの設定
+		m_aLight[0].Type = D3DLIGHT_DIRECTIONAL;
 
-	// 拡散光
-	m_aLight[0].Diffuse.r = 1.0f;
-	m_aLight[0].Diffuse.g = 1.0f;
-	m_aLight[0].Diffuse.b = 1.0f;
+		// 拡散光
+		m_aLight[0].Diffuse.r = 1.0000000f;
+		m_aLight[0].Diffuse.g = 0.9607844f;
+		m_aLight[0].Diffuse.b = 0.8078432f;
 
-	// 環境光
-	m_aLight[0].Ambient.r = 0.50f;
-	m_aLight[0].Ambient.g = 0.50f;
-	m_aLight[0].Ambient.b = 0.50f;
+		// 反射光
+		m_aLight[0].Specular.r = 1.0000000f;
+		m_aLight[0].Specular.g = 0.9607844f;
+		m_aLight[0].Specular.b = 0.8078432f;
 
-	// ライトの方向の設定
-	vecDir = D3DXVECTOR3(0.20f, -0.60f, 0.80f);
-	D3DXVec3Normalize((D3DXVECTOR3*)&m_aLight[0].Direction, &vecDir);
+		// ライトの方向の設定
+		m_aLight[0].Direction = D3DXVECTOR3(-0.5265408f, -0.5735765f, -0.6275069f);
 
-	// ライトをレンダリングパイプラインに設定
-	pDevice->SetLight(0, &m_aLight[0]);
+		// ライトをレンダリングパイプラインに設定
+		pDevice->SetLight(0, &m_aLight[0]);
 
-	// ライトの設定
-	pDevice->LightEnable(0, TRUE);
+		// ライトの設定
+		pDevice->LightEnable(0, TRUE);
+	}
 
+	{// フィルライト
+		// D3DLIGHT9構造体を0でクリアする
+		ZeroMemory(&m_aLight[1], sizeof(D3DLIGHT9));
 
-	// D3DLIGHT9構造体を0でクリアする
-	ZeroMemory(&m_aLight[1], sizeof(D3DLIGHT9));
+		// ライトのタイプの設定
+		m_aLight[1].Type = D3DLIGHT_DIRECTIONAL;
 
-	// ライトのタイプの設定
-	m_aLight[1].Type = D3DLIGHT_DIRECTIONAL;
+		// 拡散光
+		m_aLight[1].Diffuse.r = 0.3231373f;
+		m_aLight[1].Diffuse.g = 0.3607844f;
+		m_aLight[1].Diffuse.b = 0.3937255f;
 
-	// 拡散光
-	m_aLight[1].Diffuse.r = 0.25f;
-	m_aLight[1].Diffuse.g = 0.25f;
-	m_aLight[1].Diffuse.b = 0.25f;
+		// 反射光
+		m_aLight[1].Specular.r = 0.3231373f;
+		m_aLight[1].Specular.g = 0.3607844f;
+		m_aLight[1].Specular.b = 0.3937255f;
 
-	// 環境光
-	m_aLight[1].Ambient.r = 0.20f;
-	m_aLight[1].Ambient.g = 0.20f;
-	m_aLight[1].Ambient.b = 0.20f;
+		// ライトの方向の設定
+		m_aLight[1].Direction = D3DXVECTOR3(0.4545195f, -0.7660444f, 0.4545195f);
 
-	// ライトの方向の設定
-	vecDir = D3DXVECTOR3(-0.20f, 1.00f, -0.50f);
-	D3DXVec3Normalize((D3DXVECTOR3*)&m_aLight[1].Direction, &vecDir);
+		// ライトをレンダリングパイプラインに設定
+		pDevice->SetLight(1, &m_aLight[1]);
 
-	// ライトをレンダリングパイプラインに設定
-	pDevice->SetLight(1, &m_aLight[1]);
+		// ライトの設定
+		pDevice->LightEnable(1, TRUE);
+	}
 
-	// ライトの設定
-	pDevice->LightEnable(1, TRUE);
+	{// バックライト
+		// D3DLIGHT9構造体を0でクリアする
+		ZeroMemory(&m_aLight[1], sizeof(D3DLIGHT9));
+
+		// ライトのタイプの設定
+		m_aLight[1].Type = D3DLIGHT_DIRECTIONAL;
+
+		// 拡散光
+		m_aLight[2].Diffuse.r = 0.9647059f;
+		m_aLight[2].Diffuse.g = 0.7607844f;
+		m_aLight[2].Diffuse.b = 0.4078432f;
+
+		// 反射光
+		m_aLight[2].Specular.r = 0.0f;
+		m_aLight[2].Specular.g = 0.0f;
+		m_aLight[2].Specular.b = 0.0f;
+
+		// ライトの方向の設定
+		m_aLight[2].Direction = D3DXVECTOR3(0.7198464f, 0.3420201f, 0.6040227f);
+
+		// ライトをレンダリングパイプラインに設定
+		pDevice->SetLight(2, &m_aLight[2]);
+
+		// ライトの設定
+		pDevice->LightEnable(2, TRUE);
+	}
+
+	{// 環境光
+		D3DXCOLOR ambientColor;
+		ambientColor.r = 0.05333332f;
+		ambientColor.g = 0.09882354f;
+		ambientColor.b = 0.01819608f;
+		pDevice->SetRenderState(D3DRS_AMBIENT, ambientColor);
+	}
 
 	// ライティングモード
 	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
-	pDevice->SetRenderState(D3DRS_AMBIENT, 0xFFFFFF);
+
 }
 

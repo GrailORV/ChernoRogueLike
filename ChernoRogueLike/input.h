@@ -11,7 +11,7 @@
 //*********************************************************
 // 入力クラス
 //*********************************************************
-interface CInput :public IUnknown
+class CInput :public IUnknown
 {
 public:
 	CInput();
@@ -34,7 +34,7 @@ protected:
 //*********************************************************
 // キーボード入力クラス
 //*********************************************************
-interface CInputKeyboard : public CInput
+class CInputKeyboard : public CInput
 {
 public:
 	CInputKeyboard();
@@ -62,7 +62,7 @@ private:
 //*********************************************************
 // マウス入力クラス
 //*********************************************************
-interface CInputMouse : public CInput
+class CInputMouse : public CInput
 {
 public:
 	CInputMouse();
@@ -91,7 +91,7 @@ private:
 //*********************************************************
 // ジョイパッド入力クラス
 //*********************************************************
-interface CInputJoypad : public CInput
+class CInputJoypad : public CInput
 {
 public:
 	CInputJoypad();

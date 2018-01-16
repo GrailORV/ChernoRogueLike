@@ -1,6 +1,6 @@
 //=============================================================================
 //
-// ライトの処理 [light.h]
+// テクスチャ管理処理 [textureManager.h]
 // Author : SORA ENOMOTO
 //
 //=============================================================================
@@ -8,31 +8,31 @@
 
 #include "stdafx.h"
 
+#include <map>
+
 //*********************************************************
-// ライトクラス
+// テクスチャ管理クラス
 //*********************************************************
-class CLight:public IUnknown
+class CTextureManager :public IUnknown
 {
 public:
-	static const UINT NUM_LIGHT = 3;
-
-public:
-	CLight();
-	~CLight();
+	CTextureManager();
+	~CTextureManager();
 
 	STDMETHODIMP QueryInterface(REFIID riid, void FAR* FAR* ppvObject);
 	STDMETHODIMP_(ULONG) AddRef(void);
 	STDMETHODIMP_(ULONG) Release(void);
 
 	HRESULT Init(void);
-	void Update(void);
 
-	void SetLight(void);
+	void LoadSceneTex(int mode);
+	void BindtextureFromString(std::string texID, IDirect3DTexture9** ppTex);
 
+	void OnLostDevice(void);
 
 private:
-	unsigned long m_dwRef;
+	DWORD m_dwRef;
 
-	D3DLIGHT9 m_aLight[NUM_LIGHT];		// ライト情報
+	std::map<std::string, ComPtr<IDirect3DTexture9>> m_texData;
 
 };
