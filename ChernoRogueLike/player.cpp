@@ -13,6 +13,7 @@
 #include "camera.h"
 #include "WinApp.h"
 #include "input.h"
+#include "debugproc.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -66,6 +67,10 @@ CPlayer::~CPlayer()
 HRESULT CPlayer::Init(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color)
 {
 	HRESULT hr{};
+
+
+	m_iTurn = 0;
+	m_iCount = 0;
 
 	// タイプを設定
 	m_nType = nType;
@@ -130,39 +135,154 @@ void CPlayer::Update(void)
 	// キーボード取得
 	pInputKeyboard = pManager->GetInputKeyboard();
 
-	//前
+
+
+
+
+
 	if (pInputKeyboard->GetKeyTrigger(DIK_UP)) {
-		m_move.x -= sinf(pCamera->GetRot().y+ D3DX_PI)* MOVE;
-		m_move.z -= cosf(pCamera->GetRot().y + D3DX_PI)* MOVE;
-		m_rot.y = D3DX_PI*1.f + pCamera->GetRot().y;
+		m_iCount++;
+		// 左上
+		if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
+			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+		// 右上
+		else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
+			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+		// 上
+		else {
+			m_move.x -= sinf(pCamera->GetRot().y + D3DX_PI)* MOVE;
+			m_move.z -= cosf(pCamera->GetRot().y + D3DX_PI)* MOVE;
+			m_rotDest.y = D3DX_PI*1.f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
 	}
-	//後
-	if (pInputKeyboard->GetKeyTrigger(DIK_DOWN)) {
-		m_move.x += sinf(pCamera->GetRot().y - D3DX_PI)* MOVE;
-		m_move.z += cosf(pCamera->GetRot().y - D3DX_PI)* MOVE;
-		m_rot.y = D3DX_PI*0.f + pCamera->GetRot().y;
 
-	}
-	//左
-	if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
-		m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-		m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-		m_rot.y = D3DX_PI*0.5f + pCamera->GetRot().y;
 
+
+
+
+
+	else if (pInputKeyboard->GetKeyTrigger(DIK_DOWN)) {
+		m_iCount++;
+		// 左下
+		if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
+			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+		// 右下
+		else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
+			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+		// 後ろ
+		else {
+			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI)* MOVE;
+			m_rotDest.y = D3DX_PI*0.f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
 	}
-	//右
-	if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
-		m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-		m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-		m_rot.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
+
+
+
+
+
+
+
+	else if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
+		m_iCount++;
+		// 左上
+		if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
+			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+		// 右上
+		else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
+			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+		//左
+		else {
+			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+	}
+
+
+
+
+
+
+	else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
+		m_iCount++;
+		// 左上
+		if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
+			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+		// 右上
+		else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
+			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+		//右
+		else {
+			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
+			m_iTurn++;
+		}
+	}
+
+	// 回転方向補正
+	float fDiffRotY = m_rotDest.y - m_rot.y;
+	if (fDiffRotY > D3DX_PI)
+	{
+		fDiffRotY -= D3DX_PI * 2.0f;
+	}
+	if (fDiffRotY < -D3DX_PI)
+	{
+		fDiffRotY += D3DX_PI * 2.0f;
+	}
+
+	// 回転
+	m_rot.y += fDiffRotY * 0.2f;
+	if (m_rot.y > D3DX_PI)
+	{
+		m_rot.y -= D3DX_PI * 2.0f;
+	}
+	if (m_rot.y < -D3DX_PI)
+	{
+		m_rot.y += D3DX_PI * 2.0f;
 	}
 
 	m_pos += m_move;
-	m_rot = m_rotDest + m_rot;
-	m_move += (D3DXVECTOR3(0, 0, 0) - m_move) * 0.2f;
-	m_rot += (D3DXVECTOR3(0, 0, 0) - m_rot) * 0.5f;
-
+	m_move *= 0.8f;
 	
+	CDebugProc::Print("ターン数 : %d\n", m_iTurn);
+
 }
 
 //=============================================================================

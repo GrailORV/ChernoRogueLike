@@ -66,6 +66,9 @@ private:
 	D3DXVECTOR4 m_uv;
 	D3DXCOLOR m_color;
 
+	int m_iCount;
+	int m_iTurn;
+
 	int m_nType;							// Ží—Þ
 
 };
