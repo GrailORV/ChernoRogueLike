@@ -51,6 +51,7 @@ private:
 	ComPtr<IDirect3DTexture9> m_pTexture;			// テクスチャへのポインタ
 	ComPtr<IDirect3DVertexBuffer9> m_pVtxBuff;		// 頂点バッファへのポインタ
 	ComPtr<IDirect3DIndexBuffer9> m_pIdxBuff;
+	static const int FLAME_MAX;
 
 	D3DXMATRIX m_mtxWorld;					// ワールドマトリックス
 
@@ -66,6 +67,12 @@ private:
 	D3DXVECTOR4 m_uv;
 	D3DXCOLOR m_color;
 
+	Vector3 m_moveBuff;
+	bool m_bMove;
+	bool m_inputEnable;
+	bool m_inputSecondEnable;
+
+	int m_frameCount;
 	int m_iCount;
 	int m_iTurn;
 

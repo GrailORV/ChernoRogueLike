@@ -28,7 +28,7 @@
 //*****************************************************************************
 // 静的変数
 //*****************************************************************************
-
+const int CPlayer::FLAME_MAX = 5;		// キー入力の実行までの待機時間 : 0.6秒
 
 //=============================================================================
 // CPlane生成
@@ -71,6 +71,11 @@ HRESULT CPlayer::Init(int nType, UINT column, UINT row, float width, float heigh
 
 	m_iTurn = 0;
 	m_iCount = 0;
+	m_frameCount = 0;
+	m_bMove = false;
+	m_inputEnable = true;
+	m_inputSecondEnable = true;
+	m_moveBuff = Vector3(0.0f, 0.0f, 0.0f);
 
 	// タイプを設定
 	m_nType = nType;
@@ -83,7 +88,7 @@ HRESULT CPlayer::Init(int nType, UINT column, UINT row, float width, float heigh
 	m_numVertex = (column + 1) * (row + 1);
 
 	// 位置を設定
-	m_pos = pos +vector3NS::UP;
+	m_pos = pos + vector3NS::UP;
 
 	// 向きを設定
 	m_rot = rot;
@@ -135,124 +140,185 @@ void CPlayer::Update(void)
 	// キーボード取得
 	pInputKeyboard = pManager->GetInputKeyboard();
 
-
-
-
-
-
-	if (pInputKeyboard->GetKeyTrigger(DIK_UP)) {
-		m_iCount++;
-		// 左上
-		if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
-			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
-			m_iTurn++;
+	if (m_inputEnable)
+	{
+		if (pInputKeyboard->GetKeyPress(DIK_UP))
+		{
+			m_moveBuff.z += MOVE;
+			m_inputEnable = false;
 		}
-		// 右上
-		else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
-			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
-			m_iTurn++;
+		if (pInputKeyboard->GetKeyPress(DIK_DOWN))
+		{
+			m_moveBuff.z += -MOVE;
+			m_inputEnable = false;
 		}
-		// 上
-		else {
-			m_move.x -= sinf(pCamera->GetRot().y + D3DX_PI)* MOVE;
-			m_move.z -= cosf(pCamera->GetRot().y + D3DX_PI)* MOVE;
-			m_rotDest.y = D3DX_PI*1.f + pCamera->GetRot().y;
-			m_iTurn++;
+		if (pInputKeyboard->GetKeyPress(DIK_LEFT))
+		{
+			m_moveBuff.x += -MOVE;
+			m_inputEnable = false;
+		}
+		if (pInputKeyboard->GetKeyPress(DIK_RIGHT))
+		{
+			m_moveBuff.x += MOVE;
+			m_inputEnable = false;
+		}
+	}
+	else if (!m_bMove)
+	{
+		if (m_inputSecondEnable)
+		{
+			if (pInputKeyboard->GetKeyPress(DIK_UP))
+			{
+				m_moveBuff.z += MOVE;
+				m_inputSecondEnable = false;
+			}
+			if (pInputKeyboard->GetKeyPress(DIK_DOWN))
+			{
+				m_moveBuff.z += -MOVE;
+				m_inputSecondEnable = false;
+			}
+			if (pInputKeyboard->GetKeyPress(DIK_LEFT))
+			{
+				m_moveBuff.x += -MOVE;
+				m_inputSecondEnable = false;
+			}
+			if (pInputKeyboard->GetKeyPress(DIK_RIGHT))
+			{
+				m_moveBuff.x += MOVE;
+				m_inputSecondEnable = false;
+			}
+		}
+		m_frameCount++;
+		if (m_frameCount > FLAME_MAX)
+		{
+			m_frameCount = 0;
+			if (D3DXVec3Length(&m_moveBuff) <= 0.0f)
+			{
+				m_inputEnable = true;
+				m_inputSecondEnable = true;
+			}
+			else
+			{
+				m_bMove = true;
+				m_iTurn++;
+				m_move += m_moveBuff;
+				m_moveBuff = Vector3(0.0f, 0.0f, 0.0f);
+			}
 		}
 	}
 
 
+	//if (pInputKeyboard->GetKeyTrigger(DIK_UP)) {
+	//	m_bMove = true;
+	//	// 左上
+	//	if (pInputKeyboard->GetKeyTrigger(DIK_LEFT) && m_iCount >= FLAME_MAX) {
+	//		m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+	//		m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+	//		m_rotDest.y = D3DX_PI*0.75f + pCamera->GetRot().y;
+	//		m_iTurn++;
+	//	}
+	//	// 右上
+	//	else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT) && m_iCount >= FLAME_MAX) {
+	//		m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+	//		m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+	//		m_rotDest.y = D3DX_PI*-0.75f + pCamera->GetRot().y;
+	//		m_iTurn++;
+	//	}
+	//	// 上
+	//	else if(m_iCount >= FLAME_MAX){
+	//		m_move.x -= sinf(pCamera->GetRot().y + D3DX_PI)* MOVE;
+	//		m_move.z -= cosf(pCamera->GetRot().y + D3DX_PI)* MOVE;
+	//		m_rotDest.y = D3DX_PI*1.f + pCamera->GetRot().y;
+	//		m_iTurn++;
+	//	}
+	//}
+
+
+	//else if (pInputKeyboard->GetKeyTrigger(DIK_DOWN)) {
+	//	m_bMove = true;
+	//	// 左下
+	//	if (pInputKeyboard->GetKeyTrigger(DIK_LEFT) && m_iCount >= FLAME_MAX) {
+	//		m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+	//		m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+	//		m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
+	//		m_iTurn++;
+	//	}
+	//	// 右下
+	//	else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT) && m_iCount >= FLAME_MAX) {
+	//		m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+	//		m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+	//		m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
+	//		m_iTurn++;
+	//	}
+	//	// 後ろ
+	//	else if(m_iCount >= FLAME_MAX){
+	//		m_move.x += sinf(pCamera->GetRot().y - D3DX_PI)* MOVE;
+	//		m_move.z += cosf(pCamera->GetRot().y - D3DX_PI)* MOVE;
+	//		m_rotDest.y = D3DX_PI*0.f + pCamera->GetRot().y;
+	//		m_iTurn++;
+	//	}
+	//}
+
+
+	//else if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
+	//	m_bMove = true;
+	//	// 左上
+	//	if (pInputKeyboard->GetKeyTrigger(DIK_UP) && m_iCount >= FLAME_MAX) {
+	//		m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+	//		m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+	//		m_rotDest.y = D3DX_PI*0.75f + pCamera->GetRot().y;
+	//		m_iTurn++;
+	//	}
+	//	// 右上
+	//	else if (pInputKeyboard->GetKeyTrigger(DIK_DOWN) && m_iCount >= FLAME_MAX) {
+	//		m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+	//		m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+	//		m_rotDest.y = D3DX_PI*-0.25f + pCamera->GetRot().y;
+	//		m_iTurn++;
+	//	}
+	//	//左
+	//	else if(m_iCount >= FLAME_MAX){
+	//		m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+	//		m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+	//		m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
+	//		m_iTurn++;
+	//	}
+	//}
 
 
 
+	//else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
+	//	m_bMove = true;
+	//	// 左上
+	//	if (pInputKeyboard->GetKeyTrigger(DIK_UP) && m_iCount >= FLAME_MAX) {
+	//		m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+	//		m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
+	//		m_rotDest.y = D3DX_PI*0.75f + pCamera->GetRot().y;
+	//		m_iTurn++;
+	//	}
+	//	// 右上
+	//	else if (pInputKeyboard->GetKeyTrigger(DIK_DOWN) && m_iCount >= FLAME_MAX) {
+	//		m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+	//		m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+	//		m_rotDest.y = D3DX_PI*-0.25f + pCamera->GetRot().y;
+	//		m_iTurn++;
+	//	}
+	//	//右
+	//	else if(m_iCount >= FLAME_MAX){
+	//		m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+	//		m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
+	//		m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
+	//		m_iTurn++;
+	//	}
+	//}
 
-	else if (pInputKeyboard->GetKeyTrigger(DIK_DOWN)) {
-		m_iCount++;
-		// 左下
-		if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
-			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-		// 右下
-		else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
-			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-		// 後ろ
-		else {
-			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI)* MOVE;
-			m_rotDest.y = D3DX_PI*0.f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-	}
-
-
-
-
-
-
-
-	else if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
-		m_iCount++;
-		// 左上
-		if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
-			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-		// 右上
-		else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
-			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-		//左
-		else {
-			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-	}
-
-
-
-
-
-
-	else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
-		m_iCount++;
-		// 左上
-		if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
-			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-		// 右上
-		else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
-			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-		//右
-		else {
-			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
-			m_iTurn++;
+	if (m_bMove)
+	{
+		if (D3DXVec3Length(&m_move) <= 0.0f)
+		{
+			m_bMove = false;
+			m_inputEnable = true;
+			m_inputSecondEnable = true;
 		}
 	}
 
@@ -280,8 +346,13 @@ void CPlayer::Update(void)
 
 	m_pos += m_move;
 	m_move *= 0.8f;
-	
+	if (D3DXVec3Length(&m_move) < 0.01f)
+	{
+		m_move = Vector3(0.0f, 0.0f, 0.0f);
+	}
+
 	CDebugProc::Print("ターン数 : %d\n", m_iTurn);
+	CDebugProc::Print("フレーム数 : %d\n", m_iCount);
 
 }
 
