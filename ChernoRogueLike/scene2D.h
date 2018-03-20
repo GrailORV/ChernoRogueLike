@@ -1,7 +1,7 @@
 //=============================================================================
 //
 // 2Dオブジェクトの処理 [scene2D.h]
-// Author : 
+// Author : SORA ENOMOTO
 //
 //=============================================================================
 #pragma once
@@ -23,46 +23,46 @@ public:
 	virtual ~CScene2D();
 
 	static HRESULT MakeVertexBuffer(void);
-	static CScene2D *Create(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot, float width, float height, D3DXCOLOR color = colorNS::_WHITE);
+	static CScene2D *Create(int nType, Vector3 pos, Vector3 rot, float width, float height, XColor color = colorNS::_WHITE);
 
-	HRESULT Init(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot, float width, float height, D3DXCOLOR color = colorNS::_WHITE);
+	HRESULT Init(int nType, Vector3 pos, Vector3 rot, float width, float height, XColor color = colorNS::_WHITE);
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
 
 	void BindTexture(const char* texID);
 
-	void SetPosition(D3DXVECTOR3 pos) { m_pos = pos; }
-	D3DXVECTOR3 GetPosition(void) { return m_pos; }
+	void SetPosition(Vector3 pos) { m_pos = pos; }
+	Vector3 GetPosition(void) { return m_pos; }
 
-	void SetPivot(D3DXVECTOR3 pivot) { m_pivot = pivot; }
-	D3DXVECTOR3 GetPivot(void) { return m_pivot; }
+	void SetPivot(Vector3 pivot) { m_pivot = pivot; }
+	Vector3 GetPivot(void) { return m_pivot; }
 
-	void SetRotation(D3DXVECTOR3 rot) { m_rot = rot; }
-	D3DXVECTOR3 GetRotation(void) { return m_rot; }
+	void SetRotation(Vector3 rot) { m_rot = rot; }
+	Vector3 GetRotation(void) { return m_rot; }
 
-	void SetScale(D3DXVECTOR3 scale) { m_scale = scale; }
-	D3DXVECTOR3 GetScale(void) { return m_scale; }
+	void SetScale(Vector3 scale) { m_scale = scale; }
+	Vector3 GetScale(void) { return m_scale; }
 
-	void SetUV(float width, float height, float x, float y) { m_uv = D3DXVECTOR4(width, height, x, y); }
-	D3DXVECTOR4 GetUV(void) { return m_uv; }
+	void SetUV(float width, float height, float x, float y) { m_uv = Vector4(width, height, x, y); }
+	Vector4 GetUV(void) { return m_uv; }
 	
-	void SetColor(D3DXCOLOR color) { m_color = color; }
-	D3DXCOLOR GetColor(void) { return m_color; }
+	void SetColor(XColor color) { m_color = color; }
+	XColor GetColor(void) { return m_color; }
 
 	void SetSize(float fWidth, float fHeight);
 
 	int GetType(void) { return m_nType; }
 
 protected:
-	D3DXVECTOR3 m_pos;						// 位置
-	D3DXVECTOR3 m_pivot;
-	D3DXVECTOR3 m_rot;						// 向き
-	D3DXVECTOR3 m_scale;
+	Vector3 m_pos;						// 位置
+	Vector3 m_pivot;
+	Vector3 m_rot;						// 向き
+	Vector3 m_scale;
 	float m_fWidth;
 	float m_fHeight;
-	D3DXVECTOR4 m_uv;						// テクスチャ座標(x : width, y : height, z : xStart, w : yStart)
-	D3DXCOLOR m_color;
+	Vector4 m_uv;						// テクスチャ座標(x : width, y : height, z : xStart, w : yStart)
+	XColor m_color;
 
 private:
 	ComPtr<IDirect3DTexture9> m_pTexture;			// テクスチャへのポインタ

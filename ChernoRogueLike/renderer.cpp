@@ -158,14 +158,16 @@ HRESULT CRenderer::Init(BOOL bWindow)
 	m_pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);				// αブレンドを行う
 	m_pD3DDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);		// αソースカラーの指定(初期値はD3DBLEND_ONE)
 	m_pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);	// αデスティネーションカラーの指定(初期値はD3DBLEND_ZERO)
+	m_pD3DDevice->SetRenderState(D3DRS_SPECULARENABLE, TRUE);				// スペキュラーカラー有効化
+	m_pD3DDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
 
-																			// サンプラーステートパラメータの設定
+	// サンプラーステートパラメータの設定
 	m_pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);	// テクスチャＵ値の繰り返し設定
 	m_pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);	// テクスチャＶ値の繰り返し設定
 	m_pD3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);	// テクスチャ拡大時の補間設定
 	m_pD3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);	// テクスチャ縮小時の補間設定
 
-																			// テクスチャステージステートパラメータの設定
+	// テクスチャステージステートパラメータの設定
 	m_pD3DDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);		// カラーブレンディング処理(初期値はD3DTOP_MODULATE)
 	m_pD3DDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);		// 最初のカラー引数(初期値はD3DTA_TEXTURE)
 	m_pD3DDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT);		// ２番目のカラー引数(初期値はD3DTA_CURRENT)
@@ -238,10 +240,10 @@ void CRenderer::Draw(void)
 void CRenderer::SetDefaultMaterial(void)
 {
 	D3DMATERIAL9 matDef;
-	matDef.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	matDef.Ambient = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	matDef.Emissive = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
-	matDef.Specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	matDef.Diffuse = XColor(1.0f, 1.0f, 1.0f, 1.0f);
+	matDef.Ambient = XColor(1.0f, 1.0f, 1.0f, 1.0f);
+	matDef.Emissive = XColor(0.0f, 0.0f, 0.0f, 0.0f);
+	matDef.Specular = XColor(1.0f, 1.0f, 1.0f, 1.0f);
 	matDef.Power = 16.0f;
 	m_pD3DDevice->SetMaterial(&matDef);
 }
@@ -253,11 +255,14 @@ void CRenderer::OnLostDevice(void)
 {
 	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 	CTextureManager* pTextureManager = pManager->GetTextureManager();
+	CModelManager* pModelManager = pManager->GetModelManager();
 
 	m_pD3D.Reset();
 	m_pD3DDevice.Reset();
 	pTextureManager->OnLostDevice();
+	pModelManager->OnLostDevice();
 
 	Init(m_bWindow);
-	pTextureManager->LoadSceneTex(pManager->GetMode());
+	pTextureManager->LoadSceneTex(0);
+	pModelManager->LoadSceneMesh(0);
 }

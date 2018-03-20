@@ -1,7 +1,7 @@
 //=============================================================================
 //
 // ÉJÉÅÉâÇÃèàóù [camera.cpp]
-// Author : 
+// Author : SORA ENOMOTO
 //
 //=============================================================================
 #include "stdafx.h"
@@ -29,10 +29,10 @@ CCamera::CCamera() :m_dwRef(0)
 {
 	float fLengthXZ;
 
-	m_posP = D3DXVECTOR3(0.0f, 150.0f, -300.0f);
-	m_posR = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	m_vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	m_posP = Vector3(0.0f, 150.0f, -300.0f);
+	m_posR = Vector3(0.0f, 0.0f, 0.0f);
+	m_vecU = Vector3(0.0f, 1.0f, 0.0f);
+	m_rot = Vector3(0.0f, 0.0f, 0.0f);
 
 	m_fLengthInterval = sqrtf((m_posP.x - m_posR.x) * (m_posP.x - m_posR.x)
 		+ (m_posP.y - m_posR.y) * (m_posP.y - m_posR.y)
@@ -433,7 +433,7 @@ void CCamera::Update(void)
 //=============================================================================
 // ÉJÉÅÉâà íuê›íË
 //=============================================================================
-void CCamera::SetPosition(D3DXVECTOR3 posP, D3DXVECTOR3 posR)
+void CCamera::SetPosition(Vector3 posP, Vector3 posR)
 {
 	float fLengthXZ;
 
@@ -452,7 +452,7 @@ void CCamera::SetPosition(D3DXVECTOR3 posP, D3DXVECTOR3 posR)
 
 	if (fLengthXZ == 0.0f)
 	{
-		m_vecU = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
+		m_vecU = Vector3(0.0f, 0.0f, 1.0f);
 	}
 
 	D3DXQuaternionRotationYawPitchRoll(&m_quatRot, m_rot.y, m_rot.x, m_rot.z);

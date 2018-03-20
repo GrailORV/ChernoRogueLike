@@ -22,6 +22,17 @@
 
 using namespace Microsoft::WRL;
 
+//*****************************************************************************
+// 関数別名定義
+//*****************************************************************************
+using Vector2 = D3DXVECTOR2;
+using Vector3 = D3DXVECTOR3;
+using Vector4 = D3DXVECTOR4;
+using Matrix = D3DXMATRIX;
+using Quaternion = D3DXQUATERNION;
+
+using Color = D3DCOLOR;
+using XColor = D3DXCOLOR;
 
 //*****************************************************************************
 // グローバル関数定義

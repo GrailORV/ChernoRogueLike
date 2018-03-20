@@ -1,7 +1,7 @@
 //=============================================================================
 //
 // 3Dオブジェクトの処理 [scene3D.cpp]
-// Author : 
+// Author : SORA ENOMOTO
 //
 //=============================================================================
 #include "stdafx.h"
@@ -30,7 +30,7 @@
 //=============================================================================
 // CPlane生成
 //=============================================================================
-CPlane *CPlane::Create(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color)
+CPlane *CPlane::Create(int nType, UINT column, UINT row, float width, float height, Vector3 pos, Vector3 rot, XColor color)
 {
 	CPlane *pScene3D;
 
@@ -45,8 +45,8 @@ CPlane *CPlane::Create(int nType, UINT column, UINT row, float width, float heig
 //=============================================================================
 CPlane::CPlane(int nPriority, CScene::OBJTYPE objType) : CScene(nPriority, objType)
 {
-	m_pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	m_pos = Vector3(0.0f, 0.0f, 0.0f);
+	m_rot = Vector3(0.0f, 0.0f, 0.0f);
 
 	m_nType = 0;
 }
@@ -61,7 +61,7 @@ CPlane::~CPlane()
 //=============================================================================
 // 初期化処理
 //=============================================================================
-HRESULT CPlane::Init(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color)
+HRESULT CPlane::Init(int nType, UINT column, UINT row, float width, float height, Vector3 pos, Vector3 rot, XColor color)
 {
 	HRESULT hr{};
 
@@ -89,7 +89,7 @@ HRESULT CPlane::Init(int nType, UINT column, UINT row, float width, float height
 	m_pivot = vector3NS::ZERO;
 
 	// テクスチャ座標の設定
-	m_uv = D3DXVECTOR4(1.0f, 1.0f, 0.0f, 0.0f);
+	m_uv = Vector4(1.0f, 1.0f, 0.0f, 0.0f);
 
 	// 色の設定
 	m_color = color;
@@ -132,7 +132,7 @@ void CPlane::Draw(void)
 	// カメラの設定
 	pCamera->SetCamera();
 
-	D3DXMATRIX mtxScale, mtxRot, mtxTranslate;
+	Matrix mtxScale, mtxRot, mtxTranslate;
 
 	// ワールドマトリックスの初期化
 	D3DXMatrixIdentity(&m_mtxWorld);
@@ -162,7 +162,7 @@ void CPlane::Draw(void)
 	pDevice->SetFVF(FVFVertex3D);
 
 	// テクスチャ座標返還行列の設定
-	D3DXMATRIX texture(
+	Matrix texture(
 		m_uv.x, 0.0f, 0.0f, 0.0f,
 		0.0f, m_uv.y, 0.0f, 0.0f,
 		m_uv.z, m_uv.w, 1.0f, 0.0f,

@@ -1,7 +1,7 @@
 //=============================================================================
 //
 // 2Dオブジェクトの処理 [scene2D.cpp]
-// Author : 
+// Author : SORA ENOMOTO
 //
 //=============================================================================
 #include "stdafx.h"
@@ -74,7 +74,7 @@ HRESULT CScene2D::MakeVertexBuffer(void)
 //=============================================================================
 // CScene2D生成
 //=============================================================================
-CScene2D *CScene2D::Create(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot, float width, float height, D3DXCOLOR color)
+CScene2D *CScene2D::Create(int nType, Vector3 pos, Vector3 rot, float width, float height, XColor color)
 {
 	CScene2D *pScene2D;
 
@@ -111,7 +111,7 @@ CScene2D::~CScene2D()
 //=============================================================================
 // 初期化処理
 //=============================================================================
-HRESULT CScene2D::Init(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot, float width, float height, D3DXCOLOR color)
+HRESULT CScene2D::Init(int nType, Vector3 pos, Vector3 rot, float width, float height, XColor color)
 {
 	// タイプを設定
 	m_nType = nType;
@@ -133,7 +133,7 @@ HRESULT CScene2D::Init(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot, float width,
 	m_fHeight = height;
 
 	// テクスチャ座標の設定
-	m_uv = D3DXVECTOR4(1.0f, 1.0f, 0.0f, 0.0f);
+	m_uv = Vector4(1.0f, 1.0f, 0.0f, 0.0f);
 
 	// 色の設定
 	m_color = color;
@@ -178,7 +178,7 @@ void CScene2D::Draw(void)
 	pDevice->SetTexture(0, m_pTexture.Get());
 
 	// ワールド変換行列の設定
-	D3DXMATRIX world, scale, rot, translation, projection, view;
+	Matrix world, scale, rot, translation, projection, view;
 	D3DXMatrixScaling(&world, m_fWidth, m_fHeight, 1.0f);
 	D3DXMatrixTranslation(&translation, -m_pivot.x, -m_pivot.y, -m_pivot.z);
 	D3DXMatrixRotationZ(&rot, m_rot.z);
@@ -189,7 +189,7 @@ void CScene2D::Draw(void)
 	world *= translation;
 	pDevice->SetTransform(D3DTS_WORLD, &world);
 
-	projection = D3DXMATRIX(
+	projection = Matrix(
 		2.0f / pManager->GetWindowWidth(), 0.0f, 0.0f, 0.0f,
 		0.0f, -2.0f / pManager->GetWindowHeight(), 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
@@ -201,7 +201,7 @@ void CScene2D::Draw(void)
 	pDevice->SetTransform(D3DTS_VIEW, &view);
 
 	// テクスチャ座標返還行列の設定
-	D3DXMATRIX texture(
+	Matrix texture(
 		m_uv.x, 0.0f, 0.0f, 0.0f,
 		0.0f, m_uv.y, 0.0f, 0.0f,
 		m_uv.z, m_uv.w, 1.0f, 0.0f,
@@ -230,7 +230,7 @@ void CScene2D::Draw(void)
 	pDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
 	pDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT);
 
-	D3DXMATRIX uvDefault;
+	Matrix uvDefault;
 	D3DXMatrixIdentity(&uvDefault);
 	pDevice->SetTransform(D3DTS_TEXTURE0, &uvDefault);
 }

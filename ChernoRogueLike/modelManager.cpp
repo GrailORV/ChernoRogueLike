@@ -133,11 +133,12 @@ void CModelManager::LoadSceneMesh(int mode)
 		modelID.erase(0, 11);
 		modelID.erase(modelID.find('.'));
 		FbxNode* rootNode = scene->GetRootNode();
+		UINT count = 0;
 		if (rootNode)
 		{
 			for (int nCntNode = 0; nCntNode < rootNode->GetChildCount(); nCntNode++)
 			{
-				probeNode(rootNode->GetChild(nCntNode), modelID, 0);
+				probeNode(rootNode->GetChild(nCntNode), modelID, &count);
 			}
 		}
 	}
@@ -169,16 +170,13 @@ void CModelManager::OnLostDevice(void)
 		// メッシュの解放
 		for (auto itMesh = iterator->second->mesh.begin(); itMesh != iterator->second->mesh.end(); itMesh++)
 		{
-			for (auto itTex = itMesh->get()->tex.begin(); itTex != itMesh->get()->tex.end(); itTex++)
-			{
-				itTex->Reset();
-			}
-			itMesh->get()->tex.clear();
-
 			itMesh->get()->material.clear();
 			itMesh->get()->mesh.Reset();
 		}
 		iterator->second->mesh.clear();
+
+		iterator->second->texList.clear();
+
 	};
 
 	m_modelData.clear();
@@ -187,7 +185,7 @@ void CModelManager::OnLostDevice(void)
 //=============================================================================
 // ノードの探査関数
 //=============================================================================
-void CModelManager::probeNode(FbxNode* node, std::string name, UINT count)
+void CModelManager::probeNode(FbxNode* node, std::string name, UINT* count)
 {
 	if (node)
 	{
@@ -198,13 +196,13 @@ void CModelManager::probeNode(FbxNode* node, std::string name, UINT count)
 			if (mesh)
 			{
 				// モデルデータ格納領域確保
-				if (count == 0)
+				if (*count == 0)
 				{
 					m_modelData[name] = nullptr;
 					m_modelData[name] = std::make_unique<MODEL_DATA>();
 				}
 				m_modelData[name]->mesh.push_back(nullptr);
-				m_modelData[name]->mesh[count] = std::make_unique<MESH_DATA>();
+				m_modelData[name]->mesh[*count] = std::make_unique<MESH_DATA>();
 
 				CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 				IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
@@ -212,11 +210,11 @@ void CModelManager::probeNode(FbxNode* node, std::string name, UINT count)
 				DWORD numFace = mesh->GetPolygonCount();
 				DWORD numVertex = mesh->GetControlPointsCount();
 
-				HRESULT hr = D3DXCreateMeshFVF(numFace, numVertex, D3DXMESH_MANAGED, D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1, pDevice, m_modelData[name]->mesh[count]->mesh.ReleaseAndGetAddressOf());
+				HRESULT hr = D3DXCreateMeshFVF(numFace, numVertex, D3DXMESH_MANAGED, D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1, pDevice, m_modelData[name]->mesh[*count]->mesh.ReleaseAndGetAddressOf());
 
 				// インデックス配列取得
 				WORD* pIdx;
-				m_modelData[name]->mesh[count]->mesh->LockIndexBuffer(D3DLOCK_DISCARD, (LPVOID*)&pIdx);
+				m_modelData[name]->mesh[*count]->mesh->LockIndexBuffer(D3DLOCK_DISCARD, (LPVOID*)&pIdx);
 
 				for (UINT nCntFace = 0; nCntFace < numFace; nCntFace++)
 				{
@@ -228,12 +226,22 @@ void CModelManager::probeNode(FbxNode* node, std::string name, UINT count)
 					}
 				}
 
-				m_modelData[name]->mesh[count]->mesh->UnlockIndexBuffer();
+				m_modelData[name]->mesh[*count]->mesh->UnlockIndexBuffer();
+
+				// グローバルトランスフォームマトリクス取得
+				FbxAMatrix globalTransform = node->EvaluateGlobalTransform();
+				m_modelData[name]->mesh[*count]->offsetTransform =
+					Matrix(
+						float(globalTransform[0][0]), float(globalTransform[0][1]), float(globalTransform[0][2]), float(globalTransform[0][3]),
+						float(globalTransform[1][0]), float(globalTransform[1][1]), float(globalTransform[1][2]), float(globalTransform[1][3]),
+						float(globalTransform[2][0]), float(globalTransform[2][1]), float(globalTransform[2][2]), float(globalTransform[2][3]),
+						float(globalTransform[3][0]), float(globalTransform[3][1]), float(globalTransform[3][2]), float(globalTransform[3][3])
+					);
 
 				// 頂点配列取得
 				FbxVector4* v = mesh->GetControlPoints();
-				std::unique_ptr<D3DXVECTOR3[]> vtxBuff;
-				vtxBuff = std::make_unique<D3DXVECTOR3[]>(numVertex);
+				std::unique_ptr<Vector3[]> vtxBuff;
+				vtxBuff = std::make_unique<Vector3[]>(numVertex);
 				for (UINT nCntVtx = 0; nCntVtx < numVertex; nCntVtx++)
 				{
 					vtxBuff[nCntVtx].x = float(v[nCntVtx][0]);
@@ -243,9 +251,9 @@ void CModelManager::probeNode(FbxNode* node, std::string name, UINT count)
 
 				// エレメント取得
 				UINT numNormal = 0;
-				std::unique_ptr<D3DXVECTOR3[]> normalBuff;
+				std::unique_ptr<Vector3[]> normalBuff;
 				UINT numUV = 0;
-				std::unique_ptr<D3DXVECTOR2[]> uvBuff;
+				std::unique_ptr<Vector2[]> uvBuff;
 				UINT layerNum = mesh->GetLayerCount();
 				for (UINT nCntLayer = 0; nCntLayer < layerNum; nCntLayer++)
 				{
@@ -255,7 +263,7 @@ void CModelManager::probeNode(FbxNode* node, std::string name, UINT count)
 					if (normalElem)
 					{
 						numNormal = normalElem->GetDirectArray().GetCount();
-						normalBuff = std::make_unique<D3DXVECTOR3[]>(numNormal);
+						normalBuff = std::make_unique<Vector3[]>(numNormal);
 						FbxLayerElement::EMappingMode mappingMode = normalElem->GetMappingMode();
 						FbxLayerElement::EReferenceMode refMode = normalElem->GetReferenceMode();
 						if (mappingMode == FbxLayerElement::eByPolygonVertex || mappingMode == FbxLayerElement::eByControlPoint)
@@ -275,12 +283,8 @@ void CModelManager::probeNode(FbxNode* node, std::string name, UINT count)
 					FbxLayerElementUV* uvElem = layer->GetUVs();
 					if (uvElem)
 					{
-						if (strcmp(uvElem->GetName(), "map1") != 0)
-						{
-							continue;
-						}
 						numUV = uvElem->GetDirectArray().GetCount();
-						uvBuff = std::make_unique<D3DXVECTOR2[]>(numUV);
+						uvBuff = std::make_unique<Vector2[]>(numUV);
 						FbxLayerElement::EMappingMode mappingMode = uvElem->GetMappingMode();
 						FbxLayerElement::EReferenceMode refMode = uvElem->GetReferenceMode();
 						if (mappingMode == FbxLayerElement::eByPolygonVertex || mappingMode == FbxLayerElement::eByControlPoint)
@@ -290,7 +294,7 @@ void CModelManager::probeNode(FbxNode* node, std::string name, UINT count)
 								for (UINT nCntUV = 0; nCntUV < numUV; nCntUV++)
 								{
 									uvBuff[nCntUV].x = float(uvElem->GetDirectArray().GetAt(nCntUV)[0]);
-									uvBuff[nCntUV].y = float(uvElem->GetDirectArray().GetAt(nCntUV)[1]);
+									uvBuff[nCntUV].y = 1.0f - float(uvElem->GetDirectArray().GetAt(nCntUV)[1]);
 								}
 							}
 						}
@@ -298,28 +302,34 @@ void CModelManager::probeNode(FbxNode* node, std::string name, UINT count)
 				}
 
 				// 頂点情報書き込み
-				DWORD sizeFVF = D3DXGetFVFVertexSize(m_modelData[name]->mesh[count]->mesh->GetFVF());
+				DWORD sizeFVF = D3DXGetFVFVertexSize(m_modelData[name]->mesh[*count]->mesh->GetFVF());
 				BYTE* pVtx;
-				m_modelData[name]->mesh[count]->mesh->LockVertexBuffer(D3DLOCK_DISCARD, (LPVOID*)&pVtx);
+				m_modelData[name]->mesh[*count]->mesh->LockVertexBuffer(D3DLOCK_DISCARD, (LPVOID*)&pVtx);
 
 				for (UINT nCntVtx = 0; nCntVtx < numVertex; nCntVtx++)
 				{
 					BYTE* p = pVtx;
-					memcpy(p, &vtxBuff[nCntVtx], sizeof(D3DXVECTOR3));
-					p += sizeof(D3DXVECTOR3);
-					memcpy(p, &normalBuff[nCntVtx], sizeof(D3DXVECTOR3));
-					p += sizeof(D3DXVECTOR3);
-					memcpy(p, &uvBuff[nCntVtx], sizeof(D3DXVECTOR2));
+					memcpy(p, &vtxBuff[nCntVtx], sizeof(Vector3));
+					p += sizeof(Vector3);
+					if (normalBuff)
+					{
+						memcpy(p, &normalBuff[nCntVtx], sizeof(Vector3));
+					}
+					p += sizeof(Vector3);
+					if (uvBuff)
+					{
+						memcpy(p, &uvBuff[nCntVtx], sizeof(Vector2));
+					}
 					pVtx += sizeFVF;
 				}
 
-				m_modelData[name]->mesh[count]->mesh->UnlockVertexBuffer();
+				m_modelData[name]->mesh[*count]->mesh->UnlockVertexBuffer();
 
 				{// マテリアル取得
 					UINT numMaterial = node->GetMaterialCount();
-					m_modelData[name]->mesh[count]->numMat = numMaterial;
-					m_modelData[name]->mesh[count]->material.resize(numMaterial);
-					m_modelData[name]->mesh[count]->tex.resize(numMaterial);
+					m_modelData[name]->mesh[*count]->numMat = numMaterial;
+					m_modelData[name]->mesh[*count]->material.resize(numMaterial);
+					m_modelData[name]->mesh[*count]->texID.resize(numMaterial);
 					for (UINT nCntMat = 0; nCntMat < numMaterial; nCntMat++)
 					{
 						FbxSurfaceMaterial* material = node->GetMaterial(nCntMat);
@@ -328,9 +338,9 @@ void CModelManager::probeNode(FbxNode* node, std::string name, UINT count)
 						if (diffuse.IsValid())
 						{
 							const auto& color = diffuse.Get<FbxDouble3>();
-							m_modelData[name]->mesh[count]->material[nCntMat].Diffuse.r = float(color[0]);
-							m_modelData[name]->mesh[count]->material[nCntMat].Diffuse.g = float(color[1]);
-							m_modelData[name]->mesh[count]->material[nCntMat].Diffuse.b = float(color[2]);
+							m_modelData[name]->mesh[*count]->material[nCntMat].Diffuse.r = float(color[0]);
+							m_modelData[name]->mesh[*count]->material[nCntMat].Diffuse.g = float(color[1]);
+							m_modelData[name]->mesh[*count]->material[nCntMat].Diffuse.b = float(color[2]);
 							UINT layerTextureCount = diffuse.GetSrcObjectCount<FbxLayeredTexture>();
 							if (layerTextureCount == 0)
 							{
@@ -342,9 +352,13 @@ void CModelManager::probeNode(FbxNode* node, std::string name, UINT count)
 										FbxFileTexture* texture = diffuse.GetSrcObject<FbxFileTexture>(nCntTex);
 										if (texture)
 										{
-											std::string textureName = texture->GetRelativeFileName();
-											std::string texturePath = "data/MODEL/" + textureName;
-											D3DXCreateTextureFromFile(pDevice, texturePath.c_str(), m_modelData[name]->mesh[count]->tex[nCntMat].ReleaseAndGetAddressOf());
+											m_modelData[name]->mesh[*count]->texID[nCntMat] = texture->GetRelativeFileName();
+											if (!m_modelData[name]->texList[m_modelData[name]->mesh[*count]->texID[nCntMat]])
+											{
+												m_modelData[name]->texList[m_modelData[name]->mesh[*count]->texID[nCntMat]] = nullptr;
+												std::string texturePath = "data/MODEL/" + m_modelData[name]->mesh[*count]->texID[nCntMat];
+												D3DXCreateTextureFromFile(pDevice, texturePath.c_str(), m_modelData[name]->texList[m_modelData[name]->mesh[*count]->texID[nCntMat]].ReleaseAndGetAddressOf());
+											}
 										}
 									}
 								}
@@ -355,46 +369,47 @@ void CModelManager::probeNode(FbxNode* node, std::string name, UINT count)
 						if (ambient.IsValid())
 						{
 							const auto& color = ambient.Get<FbxDouble3>();
-							m_modelData[name]->mesh[count]->material[nCntMat].Ambient.r = float(color[0]);
-							m_modelData[name]->mesh[count]->material[nCntMat].Ambient.g = float(color[1]);
-							m_modelData[name]->mesh[count]->material[nCntMat].Ambient.b = float(color[2]);
+							m_modelData[name]->mesh[*count]->material[nCntMat].Ambient.r = float(color[0]);
+							m_modelData[name]->mesh[*count]->material[nCntMat].Ambient.g = float(color[1]);
+							m_modelData[name]->mesh[*count]->material[nCntMat].Ambient.b = float(color[2]);
 						}
 						// emissive
 						FbxProperty emissive = material->FindProperty(FbxSurfaceMaterial::sEmissive);
 						if (emissive.IsValid())
 						{
 							const auto& color = emissive.Get<FbxDouble3>();
-							m_modelData[name]->mesh[count]->material[nCntMat].Emissive.r = float(color[0]);
-							m_modelData[name]->mesh[count]->material[nCntMat].Emissive.g = float(color[1]);
-							m_modelData[name]->mesh[count]->material[nCntMat].Emissive.b = float(color[2]);
+							m_modelData[name]->mesh[*count]->material[nCntMat].Emissive.r = float(color[0]);
+							m_modelData[name]->mesh[*count]->material[nCntMat].Emissive.g = float(color[1]);
+							m_modelData[name]->mesh[*count]->material[nCntMat].Emissive.b = float(color[2]);
 						}
 						// specular
 						FbxProperty specular = material->FindProperty(FbxSurfaceMaterial::sSpecular);
 						if (specular.IsValid())
 						{
 							const auto& color = specular.Get<FbxDouble3>();
-							m_modelData[name]->mesh[count]->material[nCntMat].Specular.r = float(color[0]);
-							m_modelData[name]->mesh[count]->material[nCntMat].Specular.g = float(color[1]);
-							m_modelData[name]->mesh[count]->material[nCntMat].Specular.b = float(color[2]);
+							m_modelData[name]->mesh[*count]->material[nCntMat].Specular.r = float(color[0]);
+							m_modelData[name]->mesh[*count]->material[nCntMat].Specular.g = float(color[1]);
+							m_modelData[name]->mesh[*count]->material[nCntMat].Specular.b = float(color[2]);
 						}
 						// shininess
 						FbxProperty shininess = material->FindProperty(FbxSurfaceMaterial::sShininess);
 						if (shininess.IsValid())
 						{
 							const auto& power = shininess.Get<FbxDouble>();
-							m_modelData[name]->mesh[count]->material[nCntMat].Power = float(power);							
+							m_modelData[name]->mesh[*count]->material[nCntMat].Power = float(power);
 						}
 						// tranceparencyFactor
 						FbxProperty transFactor = material->FindProperty(FbxSurfaceMaterial::sTransparencyFactor);
 						if (transFactor.IsValid())
 						{
 							const auto& trans = transFactor.Get<FbxDouble>();
-							m_modelData[name]->mesh[count]->material[nCntMat].Diffuse.a = float(trans);
+							m_modelData[name]->mesh[*count]->material[nCntMat].Diffuse.a = float(trans);
 						}
 					}
 				}
 
-				m_modelData[name]->numMesh = ++count;
+				*count += 1;
+				m_modelData[name]->numMesh = *count;
 			}
 		}
 

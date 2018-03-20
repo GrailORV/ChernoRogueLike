@@ -14,22 +14,22 @@
 //*********************************************************
 namespace colorNS
 {
-	const D3DXCOLOR _WHITE = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	const D3DXCOLOR _BLACK = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
-	const D3DXCOLOR _RED = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
-	const D3DXCOLOR _GREEN = D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f);
-	const D3DXCOLOR _BLUE = D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f);
-	const D3DXCOLOR _TRANS = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
-	const D3DXCOLOR _BACKGROUND = D3DXCOLOR(0.0f, 0.0f, 0.5f, 1.0f);
+	const XColor _WHITE = XColor(1.0f, 1.0f, 1.0f, 1.0f);
+	const XColor _BLACK = XColor(0.0f, 0.0f, 0.0f, 1.0f);
+	const XColor _RED = XColor(1.0f, 0.0f, 0.0f, 1.0f);
+	const XColor _GREEN = XColor(0.0f, 1.0f, 0.0f, 1.0f);
+	const XColor _BLUE = XColor(0.0f, 0.0f, 1.0f, 1.0f);
+	const XColor _TRANS = XColor(0.0f, 0.0f, 0.0f, 0.0f);
+	const XColor _BACKGROUND = XColor(0.0f, 0.0f, 0.5f, 1.0f);
 }
 
 namespace vector3NS
 {
-	const D3DXVECTOR3 ZERO = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	const D3DXVECTOR3 ONE = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
-	const D3DXVECTOR3 UP = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-	const D3DXVECTOR3 RIGHT = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
-	const D3DXVECTOR3 FORWARD = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
+	const Vector3 ZERO = Vector3(0.0f, 0.0f, 0.0f);
+	const Vector3 ONE = Vector3(1.0f, 1.0f, 1.0f);
+	const Vector3 UP = Vector3(0.0f, 1.0f, 0.0f);
+	const Vector3 RIGHT = Vector3(1.0f, 0.0f, 0.0f);
+	const Vector3 FORWARD = Vector3(0.0f, 0.0f, 1.0f);
 }
 
 //*********************************************************
@@ -43,17 +43,17 @@ protected:
 
 	typedef struct
 	{
-		D3DXVECTOR3 position;	// 頂点座標
-		D3DCOLOR color;		// 頂点カラー
-		D3DXVECTOR2 uv;	// テクスチャ座標
+		Vector3 position;	// 頂点座標
+		Color color;		// 頂点カラー
+		Vector2 uv;	// テクスチャ座標
 	} Vertex2D;
 
 	typedef struct
 	{
-		D3DXVECTOR3 position;	// 頂点座標
-		D3DXVECTOR3 normal;		// 法線
-		D3DCOLOR color;			// 頂点カラー
-		D3DXVECTOR2 uv;			// テクスチャ座標
+		Vector3 position;	// 頂点座標
+		Vector3 normal;		// 法線
+		Color color;			// 頂点カラー
+		Vector2 uv;			// テクスチャ座標
 	} Vertex3D;
 
 
@@ -86,14 +86,14 @@ public:
 	static void DrawAll(void);
 	static void ReleaseAll(void);
 
-	virtual void SetPosition(D3DXVECTOR3 pos) = 0;
-	virtual D3DXVECTOR3 GetPosition(void) = 0;
+	virtual void SetPosition(Vector3 pos) = 0;
+	virtual Vector3 GetPosition(void) = 0;
 
-	virtual void SetRotation(D3DXVECTOR3 rot) = 0;
-	virtual D3DXVECTOR3 GetRotation(void) = 0;
+	virtual void SetRotation(Vector3 rot) = 0;
+	virtual Vector3 GetRotation(void) = 0;
 
 	virtual void SetMove(float x, float y, float z) {}
-	virtual D3DXVECTOR3 GetMove(void) { return D3DXVECTOR3(0.0f, 0.0f, 0.0f); }
+	virtual Vector3 GetMove(void) { return Vector3(0.0f, 0.0f, 0.0f); }
 
 	void SetObjType(OBJTYPE objType) { m_objType = objType; }
 	OBJTYPE GetObjType(void) { return m_objType; }

@@ -115,7 +115,7 @@ void CLight::SetLight(void)
 		m_aLight[0].Specular.b = 0.8078432f;
 
 		// ライトの方向の設定
-		m_aLight[0].Direction = D3DXVECTOR3(-0.5265408f, -0.5735765f, -0.6275069f);
+		m_aLight[0].Direction = Vector3(-0.5265408f, -0.5735765f, -0.6275069f);
 
 		// ライトをレンダリングパイプラインに設定
 		pDevice->SetLight(0, &m_aLight[0]);
@@ -142,7 +142,7 @@ void CLight::SetLight(void)
 		m_aLight[1].Specular.b = 0.3937255f;
 
 		// ライトの方向の設定
-		m_aLight[1].Direction = D3DXVECTOR3(0.4545195f, -0.7660444f, 0.4545195f);
+		m_aLight[1].Direction = Vector3(0.4545195f, -0.7660444f, 0.4545195f);
 
 		// ライトをレンダリングパイプラインに設定
 		pDevice->SetLight(1, &m_aLight[1]);
@@ -169,7 +169,7 @@ void CLight::SetLight(void)
 		m_aLight[2].Specular.b = 0.0f;
 
 		// ライトの方向の設定
-		m_aLight[2].Direction = D3DXVECTOR3(0.7198464f, 0.3420201f, 0.6040227f);
+		m_aLight[2].Direction = Vector3(0.7198464f, 0.3420201f, 0.6040227f);
 
 		// ライトをレンダリングパイプラインに設定
 		pDevice->SetLight(2, &m_aLight[2]);
@@ -179,7 +179,7 @@ void CLight::SetLight(void)
 	}
 
 	{// 環境光
-		D3DXCOLOR ambientColor;
+		XColor ambientColor;
 		ambientColor.r = 0.05333332f;
 		ambientColor.g = 0.09882354f;
 		ambientColor.b = 0.01819608f;

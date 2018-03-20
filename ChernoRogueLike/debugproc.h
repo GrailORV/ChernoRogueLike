@@ -19,9 +19,9 @@ private:
 
 	struct VertexDebug
 	{
-		D3DXVECTOR3 position;
+		Vector3 position;
 		float rhw;
-		D3DCOLOR color;
+		Color color;
 	};
 
 public:

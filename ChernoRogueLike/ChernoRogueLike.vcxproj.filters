@@ -31,6 +31,18 @@
     <Filter Include="Assets\Sounds\SE">
       <UniqueIdentifier>{3941ee4b-6933-4e4b-ae34-b858fdfdaced}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\Geometry">
+      <UniqueIdentifier>{b41300a6-c25e-42cc-9a6d-dd5ad62fd21d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Geometry">
+      <UniqueIdentifier>{0c6c6441-23b1-4d40-8ba2-56d89cee42ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Mode">
+      <UniqueIdentifier>{e16e7351-91bc-4bfe-a587-ec9d6abaa0b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Mode">
+      <UniqueIdentifier>{2dbeb224-0795-471e-9b4e-8adfb4725179}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -60,13 +72,7 @@
     <ClCompile Include="scene.cpp">
       <Filter>Sources\Util</Filter>
     </ClCompile>
-    <ClCompile Include="scene2D.cpp">
-      <Filter>Sources\Util</Filter>
-    </ClCompile>
     <ClCompile Include="sound.cpp">
-      <Filter>Sources\Util</Filter>
-    </ClCompile>
-    <ClCompile Include="plane.cpp">
       <Filter>Sources\Util</Filter>
     </ClCompile>
     <ClCompile Include="camera.cpp">
@@ -78,7 +84,22 @@
     <ClCompile Include="modelManager.cpp">
       <Filter>Sources\Util</Filter>
     </ClCompile>
+    <ClCompile Include="mode.cpp">
+      <Filter>Sources\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="plane.cpp">
+      <Filter>Sources\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="scene2D.cpp">
+      <Filter>Sources\Geometry</Filter>
+    </ClCompile>
     <ClCompile Include="model.cpp">
+      <Filter>Sources\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="debugMode.cpp">
+      <Filter>Sources\Mode</Filter>
+    </ClCompile>
+    <ClCompile Include="gameModeManager.cpp">
       <Filter>Sources\Util</Filter>
     </ClCompile>
   </ItemGroup>
@@ -110,13 +131,7 @@
     <ClInclude Include="scene.h">
       <Filter>Headers\Util</Filter>
     </ClInclude>
-    <ClInclude Include="scene2D.h">
-      <Filter>Headers\Util</Filter>
-    </ClInclude>
     <ClInclude Include="sound.h">
-      <Filter>Headers\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="plane.h">
       <Filter>Headers\Util</Filter>
     </ClInclude>
     <ClInclude Include="camera.h">
@@ -131,8 +146,26 @@
     <ClInclude Include="modelManager.h">
       <Filter>Headers\Util</Filter>
     </ClInclude>
-    <ClInclude Include="model.h">
+    <ClInclude Include="mode.h">
       <Filter>Headers\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="scene2D.h">
+      <Filter>Headers\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="plane.h">
+      <Filter>Headers\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="model.h">
+      <Filter>Headers\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="debugMode.h">
+      <Filter>Headers\Mode</Filter>
+    </ClInclude>
+    <ClInclude Include="gameModeManager.h">
+      <Filter>Headers\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="StartGameMode.h">
+      <Filter>Assets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

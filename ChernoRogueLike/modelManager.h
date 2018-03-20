@@ -16,13 +16,15 @@ struct MESH_DATA
 {
 	ComPtr<ID3DXMesh> mesh;
 	std::vector<D3DMATERIAL9> material;
-	std::vector<ComPtr<IDirect3DTexture9>> tex;
+	std::vector<std::string> texID;
+	Matrix offsetTransform;
 	DWORD numMat;
 };
 
 struct MODEL_DATA
 {
 	std::vector<std::unique_ptr<MESH_DATA>> mesh;
+	std::map<std::string, ComPtr<IDirect3DTexture9>> texList;
 	UINT numMesh;
 };
 
@@ -47,11 +49,11 @@ public:
 	void OnLostDevice(void);
 
 private:
-	void probeNode(FbxNode* node, std::string name, UINT count);
+	void probeNode(FbxNode* node, std::string name, UINT* count);
 	bool isMesh(FbxNode* node);
 
 	DWORD m_dwRef;
-	
+
 	std::map<std::string, std::unique_ptr<MODEL_DATA>> m_modelData;
 
 };

@@ -1,7 +1,7 @@
 //=============================================================================
 //
 // マネージャーの処理 [manager.cpp]
-// Author : 
+// Author : SORA ENOMOTO
 //
 //=============================================================================
 #include "stdafx.h"
@@ -12,6 +12,8 @@
 #include "scene2D.h"
 #include "plane.h"
 #include "model.h"
+#include "debugMode.h"
+#include "StartGameMode.h"
 
 //=============================================================================
 // CManagerコンストラクタ
@@ -155,18 +157,16 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 	}
 #endif
 
-	m_pTextureManager->LoadSceneTex(m_mode);
-	m_pModelManager->LoadSceneMesh(m_mode);
+	m_pTextureManager->LoadSceneTex(0);
+	m_pModelManager->LoadSceneMesh(0);
 
-	m_pScene = CScene2D::Create(0, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO, 160.0f, 200.0f, colorNS::_WHITE);
-	m_pScene->BindTexture("tex_haruka_princess");
-
-	CPlane* pPlane = CPlane::Create(0, 4, 4, 640.0f, 800.0f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO);
-	pPlane->BindTexture("tex_haruka_princess");
-
-	CModel* pModel = CModel::Create(0, "torus", D3DXVECTOR3(30.0f, 50.0f, 70.0f), D3DXVECTOR3(D3DX_PI / 4.0f, D3DX_PI / 4.0f, D3DX_PI / 6.0f));
-
-	m_pSound->Play(CSound::BGM_LABEL_NO_CURRY);
+	// ゲームモードマネージャの初期化
+	m_pGameModeManager = new CGameModeManager;
+	hr = m_pGameModeManager->Init<StartGameMode>();
+	if (FAILED(hr))
+	{
+		return hr;
+	}
 
 	return hr;
 }
@@ -176,6 +176,8 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 //=============================================================================
 void CManager::Update(void)
 {
+	CDebugProc::Print("F1を押すと消えるよ（はーと\n");
+
 	// キーボードの更新処理
 	if (m_pInputKeyboard)
 	{
@@ -216,22 +218,6 @@ void CManager::Update(void)
 	if (m_pRenderer)
 	{
 		m_pRenderer->Update();
-	}
-
-	CDebugProc::Print("F1を押すと消えるよ（はーと\n");
-
-	if (m_pInputKeyboard->GetKeyTrigger(DIK_RETURN))
-	{
-		if (m_pScene)
-		{
-			m_pScene->Uninit();
-			m_pScene = NULL;
-		}
-		else
-		{
-			m_pScene = CScene2D::Create(0, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO, 160.0f, 200.0f, colorNS::_WHITE);
-			m_pScene->BindTexture("tex_haruka_princess");
-		}
 	}
 
 #ifdef _DEBUG
