@@ -127,6 +127,7 @@ void CPlayer::Uninit(void)
 {
 	// オブジェクトを破棄
 	Release();
+
 }
 
 //=============================================================================
@@ -206,111 +207,6 @@ void CPlayer::Update(void)
 			}
 		}
 	}
-
-
-	//if (pInputKeyboard->GetKeyTrigger(DIK_UP)) {
-	//	m_bMove = true;
-	//	// 左上
-	//	if (pInputKeyboard->GetKeyTrigger(DIK_LEFT) && m_iCount >= FLAME_MAX) {
-	//		m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-	//		m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-	//		m_rotDest.y = D3DX_PI*0.75f + pCamera->GetRot().y;
-	//		m_iTurn++;
-	//	}
-	//	// 右上
-	//	else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT) && m_iCount >= FLAME_MAX) {
-	//		m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-	//		m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-	//		m_rotDest.y = D3DX_PI*-0.75f + pCamera->GetRot().y;
-	//		m_iTurn++;
-	//	}
-	//	// 上
-	//	else if(m_iCount >= FLAME_MAX){
-	//		m_move.x -= sinf(pCamera->GetRot().y + D3DX_PI)* MOVE;
-	//		m_move.z -= cosf(pCamera->GetRot().y + D3DX_PI)* MOVE;
-	//		m_rotDest.y = D3DX_PI*1.f + pCamera->GetRot().y;
-	//		m_iTurn++;
-	//	}
-	//}
-
-
-	//else if (pInputKeyboard->GetKeyTrigger(DIK_DOWN)) {
-	//	m_bMove = true;
-	//	// 左下
-	//	if (pInputKeyboard->GetKeyTrigger(DIK_LEFT) && m_iCount >= FLAME_MAX) {
-	//		m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-	//		m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-	//		m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
-	//		m_iTurn++;
-	//	}
-	//	// 右下
-	//	else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT) && m_iCount >= FLAME_MAX) {
-	//		m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-	//		m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-	//		m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
-	//		m_iTurn++;
-	//	}
-	//	// 後ろ
-	//	else if(m_iCount >= FLAME_MAX){
-	//		m_move.x += sinf(pCamera->GetRot().y - D3DX_PI)* MOVE;
-	//		m_move.z += cosf(pCamera->GetRot().y - D3DX_PI)* MOVE;
-	//		m_rotDest.y = D3DX_PI*0.f + pCamera->GetRot().y;
-	//		m_iTurn++;
-	//	}
-	//}
-
-
-	//else if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
-	//	m_bMove = true;
-	//	// 左上
-	//	if (pInputKeyboard->GetKeyTrigger(DIK_UP) && m_iCount >= FLAME_MAX) {
-	//		m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-	//		m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-	//		m_rotDest.y = D3DX_PI*0.75f + pCamera->GetRot().y;
-	//		m_iTurn++;
-	//	}
-	//	// 右上
-	//	else if (pInputKeyboard->GetKeyTrigger(DIK_DOWN) && m_iCount >= FLAME_MAX) {
-	//		m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-	//		m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-	//		m_rotDest.y = D3DX_PI*-0.25f + pCamera->GetRot().y;
-	//		m_iTurn++;
-	//	}
-	//	//左
-	//	else if(m_iCount >= FLAME_MAX){
-	//		m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-	//		m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-	//		m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
-	//		m_iTurn++;
-	//	}
-	//}
-
-
-
-	//else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
-	//	m_bMove = true;
-	//	// 左上
-	//	if (pInputKeyboard->GetKeyTrigger(DIK_UP) && m_iCount >= FLAME_MAX) {
-	//		m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-	//		m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-	//		m_rotDest.y = D3DX_PI*0.75f + pCamera->GetRot().y;
-	//		m_iTurn++;
-	//	}
-	//	// 右上
-	//	else if (pInputKeyboard->GetKeyTrigger(DIK_DOWN) && m_iCount >= FLAME_MAX) {
-	//		m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-	//		m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-	//		m_rotDest.y = D3DX_PI*-0.25f + pCamera->GetRot().y;
-	//		m_iTurn++;
-	//	}
-	//	//右
-	//	else if(m_iCount >= FLAME_MAX){
-	//		m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-	//		m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-	//		m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
-	//		m_iTurn++;
-	//	}
-	//}
 
 	if (m_bMove)
 	{
@@ -527,4 +423,3 @@ void CPlayer::BindTexture(const char* texID)
 
 	pTextureManager->BindtextureFromString(texID, m_pTexture.GetAddressOf());
 }
-

@@ -47,6 +47,8 @@ public:
 
 	void SetType(int nType) { m_nType = nType; }
 
+	int GetTurn(void) { return m_iTurn; }
+
 private:
 	ComPtr<IDirect3DTexture9> m_pTexture;			// テクスチャへのポインタ
 	ComPtr<IDirect3DVertexBuffer9> m_pVtxBuff;		// 頂点バッファへのポインタ
