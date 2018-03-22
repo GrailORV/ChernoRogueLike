@@ -7,12 +7,12 @@
 #pragma once
 
 #include "main.h"
-#include "scene.h"
+#include "scene2D.h"
 
 //*********************************************************
 // 3Dオブジェクトクラス
 //*********************************************************
-class CEnemy : public CScene
+class CEnemy : public CScene2D
 {
 public:
 	CEnemy(int nPriority = 3, OBJTYPE objType = OBJTYPE_PLANE);
@@ -25,10 +25,6 @@ public:
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
-
-	HRESULT MakeVertexBuffer(void);
-
-	void BindTexture(const char* texID);
 
 	void SetPosition(D3DXVECTOR3 pos) { m_pos = pos; }
 	D3DXVECTOR3 GetPosition(void) { return m_pos; }
@@ -51,26 +47,13 @@ private:
 	ComPtr<IDirect3DTexture9> m_pTexture;			// テクスチャへのポインタ
 	ComPtr<IDirect3DVertexBuffer9> m_pVtxBuff;		// 頂点バッファへのポインタ
 	ComPtr<IDirect3DIndexBuffer9> m_pIdxBuff;
-	static const int FLAME_MAX;
 
 	D3DXMATRIX m_mtxWorld;					// ワールドマトリックス
 
 	UINT m_column, m_row;
 	UINT m_numFace, m_numIndex, m_numVertex;
-	D3DXVECTOR3 m_pos;						// 位置
-	D3DXVECTOR3 m_pivot;
-	D3DXVECTOR3 m_rot;						// 向き
-	D3DXVECTOR3 m_move;
-	D3DXVECTOR3 m_rotDest;
-	float m_width;
-	float m_height;
-	D3DXVECTOR4 m_uv;
-	D3DXCOLOR m_color;
 
 	Vector3 m_moveBuff;
-	bool m_bMove;
-	bool m_inputEnable;
-	bool m_inputSecondEnable;
 
 	int m_nType;							// 種類
 

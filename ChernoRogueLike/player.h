@@ -9,6 +9,7 @@
 #include "main.h"
 #include "scene.h"
 
+
 //*********************************************************
 // 3Dオブジェクトクラス
 //*********************************************************
@@ -55,6 +56,10 @@ private:
 	ComPtr<IDirect3DIndexBuffer9> m_pIdxBuff;
 	static const int FLAME_MAX;
 
+	// マップのサイズ
+	static const int MAP_SIZE_X = 50;
+	static const int MAP_SIZE_Z = 50;
+
 	D3DXMATRIX m_mtxWorld;					// ワールドマトリックス
 
 	UINT m_column, m_row;
@@ -80,4 +85,6 @@ private:
 
 	int m_nType;							// 種類
 
+	// マップサイズ（２次元配列）
+	int m_MapSize[MAP_SIZE_X][MAP_SIZE_Z];
 };

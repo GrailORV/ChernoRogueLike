@@ -87,6 +87,9 @@
     <ClCompile Include="enemy.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="map.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -144,6 +147,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="enemy.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="map.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
