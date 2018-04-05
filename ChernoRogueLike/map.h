@@ -29,7 +29,7 @@ public:
 
 	static CMap *Create(int nType, D3DXVECTOR3 pos);
 
-	HRESULT Init(D3DXVECTOR3 pos, D3DXVECTOR3 rot);
+	HRESULT Init(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot);
 	HRESULT Init(void) { return S_OK; }
 	void Uninit(void);
 	void Update(void);
@@ -41,12 +41,8 @@ public:
 	void SetRotation(D3DXVECTOR3 rot) { m_rot = rot; }
 	D3DXVECTOR3 GetRotation(void) { return m_rot; }
 
-	typedef struct
-	{
 
-	};
-
-private:
-	//D3DXVECTOR3 m_pos;
-	//D3DXVECTOR3 m_rot;
+protected:
+	D3DXVECTOR3 m_pos;
+	D3DXVECTOR3 m_rot;
 };

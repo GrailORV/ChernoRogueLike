@@ -14,7 +14,8 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-
+#define MAP_SIZE_X	3
+#define MAP_SIZE_Z	3
 
 //*****************************************************************************
 // 構造体定義
@@ -42,8 +43,11 @@ CMap *CMap::Create(int nType, D3DXVECTOR3 pos)
 //=============================================================================
 // CPlaneコンストラクタ
 //=============================================================================
-CMap::CMap(int nPriority, CScene::OBJTYPE objType) : CScene2D(nPriority, objType)
+CMap::CMap()
 {
+	static int nMapSize[MAP_SIZE_X][MAP_SIZE_Z];
+
+
 	m_pos = vector3NS::ZERO;
 	m_rot = vector3NS::ZERO;
 }
@@ -59,12 +63,8 @@ CMap::~CMap()
 //=============================================================================
 // 初期化処理
 //=============================================================================
-HRESULT CMap::Init(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
+HRESULT CMap::Init(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 {
-	CScene2D::Init(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot, float width, float height, D3DXCOLOR color = colorNS::_WHITE);
-
-	CMap* CMap = CMap::Create(0, 4, 4, 50.f, 50.f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO);
-	pEnemy->BindTexture("morizo");
 
 	return S_OK;
 }
@@ -72,7 +72,7 @@ HRESULT CMap::Init(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 //=============================================================================
 // 終了処理
 //=============================================================================
-void CEnemy::Uninit(void)
+void CMap::Uninit(void)
 {
 	CScene2D::Uninit();
 }
@@ -80,17 +80,17 @@ void CEnemy::Uninit(void)
 //=============================================================================
 // 更新処理
 //=============================================================================
-void CEnemy::Update(void)
+void CMap::Update(void)
 {
 	CScene2D::Update();
 
-	CDebugProc::Print("OK\n");
+	CDebugProc::Print("マップ\n");
 }
 
 //=============================================================================
 // 描画処理
 //=============================================================================
-void CEnemy::Draw(void)
+void CMap::Draw(void)
 {
 	CScene2D::Draw();
 }
