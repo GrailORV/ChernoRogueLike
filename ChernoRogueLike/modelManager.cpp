@@ -155,6 +155,7 @@ void CModelManager::BindModelFromString(std::string modelID, MODEL_DATA** ppMode
 	if (!m_modelData[modelID])
 	{
 		*ppModel = m_modelData["torus"].get();
+		return;
 	}
 	*ppModel = m_modelData[modelID].get();
 }
