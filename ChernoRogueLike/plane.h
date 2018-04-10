@@ -21,7 +21,6 @@ public:
 	static CPlane *Create(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color = colorNS::_WHITE);
 
 	HRESULT Init(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color = colorNS::_WHITE);
-	HRESULT Init(void) { return S_OK; }
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);

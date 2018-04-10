@@ -5,13 +5,13 @@
 //
 //=============================================================================
 #pragma once
-#include "main.h"
-#include "scene2D.h"
+#include "scene.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-
+#define MAP_SIZE_X	3
+#define MAP_SIZE_Z	3
 
 //*****************************************************************************
 // 構造体
@@ -21,7 +21,7 @@
 //*****************************************************************************
 // マップクラス
 //*****************************************************************************
-class CMap : public CScene2D
+class CMap : public CScene
 {
 public:
 	CMap();
@@ -35,14 +35,19 @@ public:
 	void Update(void);
 	void Draw(void);
 
-	void SetPosition(D3DXVECTOR3 pos) { m_pos = pos; }
-	D3DXVECTOR3 GetPosition(void) { return m_pos; }
+	int GetMapPos(void) { return m_nMapSize[m_nMapX][m_nMapZ]; }
 
-	void SetRotation(D3DXVECTOR3 rot) { m_rot = rot; }
-	D3DXVECTOR3 GetRotation(void) { return m_rot; }
+	Vector3 GetPosition(void) { return m_pos; }
+	void SetPosition(Vector3 pos) { m_pos = pos; }
 
+	Vector3 GetRotation(void) { return m_rot; }
+	void SetRotation(Vector3 rot) { m_rot = rot; }
 
 protected:
-	D3DXVECTOR3 m_pos;
-	D3DXVECTOR3 m_rot;
+	Vector3 m_pos;
+	Vector3 m_rot;
+
+	int m_nMapX;
+	int m_nMapZ;
+	static int m_nMapSize[MAP_SIZE_X][MAP_SIZE_Z];
 };

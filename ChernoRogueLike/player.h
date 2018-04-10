@@ -7,13 +7,13 @@
 #pragma once
 
 #include "main.h"
-#include "scene.h"
+#include "plane.h"
 
 
 //*********************************************************
 // 3Dオブジェクトクラス
 //*********************************************************
-class CPlayer : public CScene
+class CPlayer : public CPlane
 {
 public:
 	CPlayer(int nPriority = 3, OBJTYPE objType = OBJTYPE_PLANE);
@@ -27,15 +27,8 @@ public:
 	void Update(void);
 	void Draw(void);
 
-	HRESULT MakeVertexBuffer(void);
-
-	void BindTexture(const char* texID);
-
 	void SetPosition(D3DXVECTOR3 pos) { m_pos = pos; }
 	D3DXVECTOR3 GetPosition(void) { return m_pos; }
-
-	void SetPivot(D3DXVECTOR3 pivot) { m_pivot = pivot; }
-	D3DXVECTOR3 GetPivot(void) { return m_pivot; }
 
 	void SetRotation(D3DXVECTOR3 rot) { m_rot = rot; }
 	D3DXVECTOR3 GetRotation(void) { return m_rot; }
@@ -60,12 +53,8 @@ private:
 	static const int MAP_SIZE_X = 50;
 	static const int MAP_SIZE_Z = 50;
 
-	D3DXMATRIX m_mtxWorld;					// ワールドマトリックス
-
-	UINT m_column, m_row;
 	UINT m_numFace, m_numIndex, m_numVertex;
 	D3DXVECTOR3 m_pos;						// 位置
-	D3DXVECTOR3 m_pivot;
 	D3DXVECTOR3 m_rot;						// 向き
 	D3DXVECTOR3 m_move;
 	D3DXVECTOR3 m_rotDest;

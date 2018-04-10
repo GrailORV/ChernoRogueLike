@@ -14,8 +14,7 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define MAP_SIZE_X	3
-#define MAP_SIZE_Z	3
+
 
 //*****************************************************************************
 // 構造体定義
@@ -32,12 +31,12 @@
 //=============================================================================
 CMap *CMap::Create(int nType, D3DXVECTOR3 pos)
 {
-	CMap *pScene2D;
+	CMap *pMap;
 
-	pScene2D = new CMap;
-	pScene2D->Init();
+	pMap = new CMap;
+	pMap->Init();
 
-	return pScene2D;
+	return pMap;
 }
 
 //=============================================================================
@@ -45,8 +44,13 @@ CMap *CMap::Create(int nType, D3DXVECTOR3 pos)
 //=============================================================================
 CMap::CMap()
 {
-	static int nMapSize[MAP_SIZE_X][MAP_SIZE_Z];
-
+	for (int nCntX = 0; nCntX < MAP_SIZE_X; nCntX++)
+	{
+		for (int nCntZ = 0; nCntZ < MAP_SIZE_Z; nCntX++)
+		{
+			m_nMapSize[nCntX][nCntZ] = 0;
+		}
+	}
 
 	m_pos = vector3NS::ZERO;
 	m_rot = vector3NS::ZERO;
@@ -65,7 +69,6 @@ CMap::~CMap()
 //=============================================================================
 HRESULT CMap::Init(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 {
-
 	return S_OK;
 }
 
@@ -74,7 +77,7 @@ HRESULT CMap::Init(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 //=============================================================================
 void CMap::Uninit(void)
 {
-	CScene2D::Uninit();
+
 }
 
 //=============================================================================
@@ -82,8 +85,6 @@ void CMap::Uninit(void)
 //=============================================================================
 void CMap::Update(void)
 {
-	CScene2D::Update();
-
 	CDebugProc::Print("マップ\n");
 }
 
@@ -92,5 +93,5 @@ void CMap::Update(void)
 //=============================================================================
 void CMap::Draw(void)
 {
-	CScene2D::Draw();
+
 }
