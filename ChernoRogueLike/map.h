@@ -16,7 +16,12 @@
 //*****************************************************************************
 // 構造体
 //*****************************************************************************
-
+typedef enum
+{
+	OBJ_NONE = 0,
+	OBJ_WALL,	
+	OBJ_PLAYER,
+}OBJ_TYPE;
 
 //*****************************************************************************
 // マップクラス
@@ -27,13 +32,14 @@ public:
 	CMap();
 	~CMap();
 
-	static CMap *Create(int nType, D3DXVECTOR3 pos);
+	static CMap *Create(int MapSizeX, int MapSizeZ);
 
-	HRESULT Init(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot);
+	HRESULT Init(int MapSizeX, int MapSizeZ);
 	HRESULT Init(void) { return S_OK; }
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
+	void MapOpen(void);
 
 	int GetMapPos(void) { return m_nMapSize[m_nMapX][m_nMapZ]; }
 
@@ -49,5 +55,5 @@ protected:
 
 	int m_nMapX;
 	int m_nMapZ;
-	static int m_nMapSize[MAP_SIZE_X][MAP_SIZE_Z];
+	int m_nMapSize[MAP_SIZE_X][MAP_SIZE_Z];
 };

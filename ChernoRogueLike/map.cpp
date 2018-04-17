@@ -24,17 +24,23 @@
 //*****************************************************************************
 // 静的変数
 //*****************************************************************************
-
+static int g_nMapSize[][5] = {
+	{1,1,1,1,1},
+	{1,0,0,0,1},
+	{1,0,2,0,1},
+	{1,0,0,0,1},
+	{1,1,1,1,1}
+};
 
 //=============================================================================
 // CPlane生成
 //=============================================================================
-CMap *CMap::Create(int nType, D3DXVECTOR3 pos)
+CMap *CMap::Create(int MapSizeX, int MapSizeZ)
 {
 	CMap *pMap;
 
 	pMap = new CMap;
-	pMap->Init();
+	pMap->Init(MapSizeX, MapSizeZ);
 
 	return pMap;
 }
@@ -44,14 +50,6 @@ CMap *CMap::Create(int nType, D3DXVECTOR3 pos)
 //=============================================================================
 CMap::CMap()
 {
-	for (int nCntX = 0; nCntX < MAP_SIZE_X; nCntX++)
-	{
-		for (int nCntZ = 0; nCntZ < MAP_SIZE_Z; nCntX++)
-		{
-			m_nMapSize[nCntX][nCntZ] = 0;
-		}
-	}
-
 	m_pos = vector3NS::ZERO;
 	m_rot = vector3NS::ZERO;
 }
@@ -67,7 +65,7 @@ CMap::~CMap()
 //=============================================================================
 // 初期化処理
 //=============================================================================
-HRESULT CMap::Init(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot)
+HRESULT CMap::Init(int MapSizeX, int MapSizeZ)
 {
 	return S_OK;
 }
@@ -86,6 +84,11 @@ void CMap::Uninit(void)
 void CMap::Update(void)
 {
 	CDebugProc::Print("マップ\n");
+	CDebugProc::Print("%d %d %d %d %d \n", g_nMapSize[0][0], g_nMapSize[0][1], g_nMapSize[0][2], g_nMapSize[0][3], g_nMapSize[0][4]);
+	CDebugProc::Print("%d %d %d %d %d \n", g_nMapSize[1][0], g_nMapSize[1][1], g_nMapSize[1][2], g_nMapSize[1][3], g_nMapSize[1][4]);
+	CDebugProc::Print("%d %d %d %d %d \n", g_nMapSize[2][0], g_nMapSize[2][1], g_nMapSize[2][2], g_nMapSize[2][3], g_nMapSize[2][4]);
+	CDebugProc::Print("%d %d %d %d %d \n", g_nMapSize[3][0], g_nMapSize[3][1], g_nMapSize[3][2], g_nMapSize[3][3], g_nMapSize[3][4]);
+	CDebugProc::Print("%d %d %d %d %d \n", g_nMapSize[4][0], g_nMapSize[4][1], g_nMapSize[4][2], g_nMapSize[4][3], g_nMapSize[4][4]);
 }
 
 //=============================================================================
@@ -94,4 +97,46 @@ void CMap::Update(void)
 void CMap::Draw(void)
 {
 
+}
+
+void CMap::MapOpen(void)
+{
+	//// ファイル構造体
+	//FILE *fp;
+
+	//OBJ_TYPE pObjType;
+
+	//char *fname = "date/MAP/MapTest.csv";
+
+	//// ファイルオープン
+	//fopen_s(&fp, fname, "r");
+
+	//if (!fp)
+	//{
+	//	MessageBox(NULL, "マップデータを読み込めませんでした。\n", NULL, MB_OK);
+	//	return;
+	//}
+
+	//for (float nCntMap_Z = 0; nCntMap_Z < MAP_SIZE_Z; nCntMap_Z++)
+	//{
+	//	for (float nCntMap_X = 0; nCntMap_X < MAP_SIZE_X; nCntMap_X++)
+	//	{
+	//		// 読み込み
+	//		fscanf(fp, "%d,", &pObjType);
+
+	//		switch (pObjType)
+	//		{
+	//		case OBJ_NONE:
+	//			break;
+
+	//		case OBJ_WALL:
+	//			break;
+
+	//		case OBJ_PLAYER:
+	//			break;
+
+	//		}
+	//	}
+	//}
+	//fclose(fp);
 }

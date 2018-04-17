@@ -9,9 +9,20 @@
 #include "main.h"
 #include "plane.h"
 
+//*****************************************************************************
+// 構造体
+//*****************************************************************************
+typedef enum
+{
+	UP = 0,
+	DOWN,
+	LEFT,
+	RIGHT,
+	NONE
+}PLAYER_MOVE;
 
 //*********************************************************
-// 3Dオブジェクトクラス
+// プレイヤークラス
 //*********************************************************
 class CPlayer : public CPlane
 {
@@ -27,48 +38,34 @@ public:
 	void Update(void);
 	void Draw(void);
 
-	void SetPosition(D3DXVECTOR3 pos) { m_pos = pos; }
-	D3DXVECTOR3 GetPosition(void) { return m_pos; }
-
-	void SetRotation(D3DXVECTOR3 rot) { m_rot = rot; }
-	D3DXVECTOR3 GetRotation(void) { return m_rot; }
-
-	void SetUV(float width, float height, float x, float y) { m_uv = D3DXVECTOR4(width, height, x, y); }
-	D3DXVECTOR4 GetUV(void) { return m_uv; }
-
-	void SetColor(D3DXCOLOR color) { m_color = color; }
-	D3DXCOLOR GetColor(void) { return m_color; }
-
 	void SetType(int nType) { m_nType = nType; }
 
 	int GetTurn(void) { return m_iTurn; }
 
 private:
-	ComPtr<IDirect3DTexture9> m_pTexture;			// テクスチャへのポインタ
-	ComPtr<IDirect3DVertexBuffer9> m_pVtxBuff;		// 頂点バッファへのポインタ
-	ComPtr<IDirect3DIndexBuffer9> m_pIdxBuff;
-	static const int FLAME_MAX;
+	static const int FRAME_MAX;
+	static const UINT MOVE_FRAME;
+
+	void InputMove(bool& inputEnable);
 
 	// マップのサイズ
 	static const int MAP_SIZE_X = 50;
 	static const int MAP_SIZE_Z = 50;
 
-	UINT m_numFace, m_numIndex, m_numVertex;
-	D3DXVECTOR3 m_pos;						// 位置
-	D3DXVECTOR3 m_rot;						// 向き
 	D3DXVECTOR3 m_move;
+	D3DXVECTOR3 m_prePos;
 	D3DXVECTOR3 m_rotDest;
-	float m_width;
-	float m_height;
-	D3DXVECTOR4 m_uv;
-	D3DXCOLOR m_color;
 
 	Vector3 m_moveBuff;
 	bool m_bMove;
 	bool m_inputEnable;
 	bool m_inputSecondEnable;
 
+	int m_posX;
+	int m_posZ;
+
 	int m_frameCount;
+	UINT m_moveFrameCnt;
 	int m_iCount;
 	int m_iTurn;
 

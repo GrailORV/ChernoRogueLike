@@ -19,6 +19,8 @@
 #include "textureManager.h"
 #include "modelManager.h"
 
+class CPlayer;
+class CMap;
 class CScene2D;
 
 //*********************************************************
@@ -80,6 +82,8 @@ private:
 	ComPtr<CLight> m_pLight;
 
 	CScene2D* m_pScene;
+	CPlayer* m_pPlayer;
+	CMap* m_pMap;
 
 	UINT m_width;
 	UINT m_height;
