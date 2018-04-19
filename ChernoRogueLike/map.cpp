@@ -24,18 +24,15 @@
 //*****************************************************************************
 // 静的変数
 //*****************************************************************************
-static int g_nMapSize[][5] = {
-	{1,1,1,1,1},
-	{1,0,0,0,1},
-	{1,0,2,0,1},
-	{1,0,0,0,1},
-	{1,1,1,1,1}
-};
+MapLocation CMap::m_respawnPoint(1, 1);
+uint8_t** CMap::m_mapState = nullptr;
+uint16_t CMap::m_mapMaxX = 3;
+uint16_t CMap::m_mapMaxZ = 3;
 
 //=============================================================================
 // CPlane生成
 //=============================================================================
-CMap *CMap::Create(int MapSizeX, int MapSizeZ)
+CMap *CMap::Create(const uint16_t MapSizeX, const uint16_t MapSizeZ)
 {
 	CMap *pMap;
 
@@ -50,8 +47,6 @@ CMap *CMap::Create(int MapSizeX, int MapSizeZ)
 //=============================================================================
 CMap::CMap()
 {
-	m_pos = vector3NS::ZERO;
-	m_rot = vector3NS::ZERO;
 }
 
 //=============================================================================
@@ -65,8 +60,47 @@ CMap::~CMap()
 //=============================================================================
 // 初期化処理
 //=============================================================================
-HRESULT CMap::Init(int MapSizeX, int MapSizeZ)
+HRESULT CMap::Init(const uint16_t MapSizeX, const uint16_t MapSizeZ)
 {
+	if (MapSizeX < 3)
+	{
+		m_mapMaxX = 3;
+	}
+	else
+	{
+		m_mapMaxX = MapSizeX;
+	}
+
+	if (MapSizeZ < 3)
+	{
+		m_mapMaxZ = 3;
+	}
+	else
+	{
+		m_mapMaxZ = MapSizeZ;
+	}
+
+	m_mapState = new uint8_t*[m_mapMaxX];
+	for (UINT x = 0; x < m_mapMaxX; x++)
+	{
+		m_mapState[x] = new uint8_t[m_mapMaxZ];
+		for (UINT z = 0; z < m_mapMaxZ; z++)
+		{
+			if (x == 0 || x == m_mapMaxX - 1 ||
+				z == 0 || z == m_mapMaxZ - 1)
+			{
+				m_mapState[x][z] = 1;
+			}
+			else
+			{
+				m_mapState[x][z] = 0;
+			}
+		}
+	}
+
+	m_respawnPoint = MapLocation(m_mapMaxX / 2, m_mapMaxZ / 2);
+
+
 	return S_OK;
 }
 
@@ -75,7 +109,20 @@ HRESULT CMap::Init(int MapSizeX, int MapSizeZ)
 //=============================================================================
 void CMap::Uninit(void)
 {
-
+	for (UINT x = 0; x < m_mapMaxX; x++)
+	{
+		if (!m_mapState[x])
+		{
+			continue;
+		}
+		delete[] m_mapState[x];
+		m_mapState[x] = nullptr;
+	}
+	if (m_mapState)
+	{
+		delete[] m_mapState;
+		m_mapState = nullptr;
+	}
 }
 
 //=============================================================================
@@ -84,11 +131,14 @@ void CMap::Uninit(void)
 void CMap::Update(void)
 {
 	CDebugProc::Print("マップ\n");
-	CDebugProc::Print("%d %d %d %d %d \n", g_nMapSize[0][0], g_nMapSize[0][1], g_nMapSize[0][2], g_nMapSize[0][3], g_nMapSize[0][4]);
-	CDebugProc::Print("%d %d %d %d %d \n", g_nMapSize[1][0], g_nMapSize[1][1], g_nMapSize[1][2], g_nMapSize[1][3], g_nMapSize[1][4]);
-	CDebugProc::Print("%d %d %d %d %d \n", g_nMapSize[2][0], g_nMapSize[2][1], g_nMapSize[2][2], g_nMapSize[2][3], g_nMapSize[2][4]);
-	CDebugProc::Print("%d %d %d %d %d \n", g_nMapSize[3][0], g_nMapSize[3][1], g_nMapSize[3][2], g_nMapSize[3][3], g_nMapSize[3][4]);
-	CDebugProc::Print("%d %d %d %d %d \n", g_nMapSize[4][0], g_nMapSize[4][1], g_nMapSize[4][2], g_nMapSize[4][3], g_nMapSize[4][4]);
+	for (UINT z = 0; z < m_mapMaxZ; z++)
+	{
+		for (UINT x = 0; x < m_mapMaxX; x++)
+		{
+			CDebugProc::Print("%d ", m_mapState[x][z]);
+		}
+		CDebugProc::Print("\n");
+	}
 }
 
 //=============================================================================
@@ -99,44 +149,30 @@ void CMap::Draw(void)
 
 }
 
-void CMap::MapOpen(void)
+//=============================================================================
+// ロケーションからマップ状態取得
+//=============================================================================
+uint8_t CMap::GetMapStateFromLocation(_In_ uint16_t x, _In_ uint16_t z)
 {
-	//// ファイル構造体
-	//FILE *fp;
+	if (x >= m_mapMaxX || z >= m_mapMaxZ)
+	{
+		return 0;
+	}
 
-	//OBJ_TYPE pObjType;
-
-	//char *fname = "date/MAP/MapTest.csv";
-
-	//// ファイルオープン
-	//fopen_s(&fp, fname, "r");
-
-	//if (!fp)
-	//{
-	//	MessageBox(NULL, "マップデータを読み込めませんでした。\n", NULL, MB_OK);
-	//	return;
-	//}
-
-	//for (float nCntMap_Z = 0; nCntMap_Z < MAP_SIZE_Z; nCntMap_Z++)
-	//{
-	//	for (float nCntMap_X = 0; nCntMap_X < MAP_SIZE_X; nCntMap_X++)
-	//	{
-	//		// 読み込み
-	//		fscanf(fp, "%d,", &pObjType);
-
-	//		switch (pObjType)
-	//		{
-	//		case OBJ_NONE:
-	//			break;
-
-	//		case OBJ_WALL:
-	//			break;
-
-	//		case OBJ_PLAYER:
-	//			break;
-
-	//		}
-	//	}
-	//}
-	//fclose(fp);
+	return m_mapState[x][z];
 }
+
+//=============================================================================
+// ロケーションからマップ状態セット
+//=============================================================================
+void CMap::SetMapStateFromLocation(_In_ uint16_t x, _In_ uint16_t z, _In_  uint8_t state)
+{
+	if (x >= m_mapMaxX || z >= m_mapMaxZ)
+	{
+		return;
+	}
+
+	m_mapState[x][z] = state;
+}
+
+

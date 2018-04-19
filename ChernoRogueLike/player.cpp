@@ -48,16 +48,15 @@ CPlayer::CPlayer(int nPriority, CScene::OBJTYPE objtype) :
 	CPlane(nPriority, objtype),
 	m_rotDest(vector3NS::ZERO),
 	m_prePos(vector3NS::ZERO),
-	m_moveFrameCnt(0)
+	m_moveFrameCnt(0),
+	m_currentMapLocation(0, 0),
+	m_moveBuff(0, 0)
 {
 	m_iCount = 0;
 	m_iTurn = 0;
 	m_frameCount = 0;
-	m_posX = 0;
-	m_posZ = 0;
 	m_pos = vector3NS::ZERO;
 	m_move = vector3NS::ZERO;
-	m_moveBuff = vector3NS::ZERO;
 	m_bMove = false;
 	m_inputEnable = false;
 	m_inputSecondEnable = false;
@@ -76,6 +75,9 @@ CPlayer::~CPlayer()
 //=============================================================================
 HRESULT CPlayer::Init(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color)
 {
+	m_currentMapLocation = CMap::GetRespawnPoint();
+	CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, 2);
+
 	CPlane::Init(nType, column, row, width, height, pos, rot, color);
 
 	return S_OK;
@@ -96,6 +98,27 @@ void CPlayer::Uninit(void)
 //=============================================================================
 void CPlayer::Update(void)
 {
+
+	Move();
+
+	CDebugProc::Print("ターン数 : %d\n", m_iTurn);
+	CDebugProc::Print("フレーム数 : %d\n", m_iCount);
+	CDebugProc::Print("RotAngle : %f\n", D3DXToDegree(m_rot.y));
+}
+
+//=============================================================================
+// 描画処理
+//=============================================================================
+void CPlayer::Draw(void)
+{
+	CPlane::Draw();
+}
+
+//=============================================================================
+// 移動処理
+//=============================================================================
+void CPlayer::Move(void)
+{
 	if (m_inputEnable)
 	{
 		InputMove(m_inputEnable);
@@ -110,29 +133,23 @@ void CPlayer::Update(void)
 		if (m_frameCount > FRAME_MAX)
 		{
 			m_frameCount = 0;
-			if (D3DXVec3Length(&m_moveBuff) <= 0.0f)
-			{
-				m_inputEnable = true;
-				m_inputSecondEnable = true;
-			}
-			else
-			{
-				// ここに回転処理入れる
-
-				m_bMove = true;
-				m_iTurn++;
-				m_move += m_moveBuff;
-				m_prePos = m_pos;
-				m_moveBuff = Vector3(0.0f, 0.0f, 0.0f);
-			}
+			MoveMap(m_moveBuff);
 		}
 	}
 
+	MovePosition(MOVE_FRAME);
+}
+
+//=============================================================================
+// 実移動処理
+//=============================================================================
+void CPlayer::MovePosition(UINT moveFrame)
+{
 	if (m_bMove)
 	{
 		m_moveFrameCnt++;
-		D3DXVec3Lerp(&m_pos, &m_prePos, &(m_prePos + m_move), float(m_moveFrameCnt) / float(MOVE_FRAME));
-		if (m_moveFrameCnt > MOVE_FRAME)
+		D3DXVec3Lerp(&m_pos, &m_prePos, &(m_prePos + m_move), float(m_moveFrameCnt) / float(moveFrame));
+		if (m_moveFrameCnt > moveFrame)
 		{
 			m_moveFrameCnt = 0;
 			m_move = vector3NS::ZERO;
@@ -141,25 +158,32 @@ void CPlayer::Update(void)
 			m_inputSecondEnable = true;
 		}
 	}
-
-	/*m_pos += m_move;
-	m_move *= 0.8f;
-	if (D3DXVec3Length(&m_move) < 0.01f)
-	{
-		m_move = Vector3(0.0f, 0.0f, 0.0f);
-	}*/
-
-
-	CDebugProc::Print("ターン数 : %d\n", m_iTurn);
-	CDebugProc::Print("フレーム数 : %d\n", m_iCount);
 }
 
 //=============================================================================
-// 描画処理
+// マップ移動処理
 //=============================================================================
-void CPlayer::Draw(void)
+void CPlayer::MoveMap(INT8_2 moveBuff)
 {
-	CPlane::Draw();
+	m_bMove = true;
+	m_prePos = m_pos;
+	m_moveBuff = INT8_2(0, 0);
+
+	float angleBuff = (D3DX_PI / 2.0f - atan2f(float(moveBuff.z), float(moveBuff.x)));
+	float rotAngle = (signbit(angleBuff) * 2.0f - 1.0f) * D3DX_PI + angleBuff;
+	m_rot.y = rotAngle;
+
+	if (CMap::GetMapStateFromLocation(m_currentMapLocation.mapX + moveBuff.x, m_currentMapLocation.mapZ - moveBuff.z) == CMap::MAP_STATE_WALL)
+	{
+		return;
+	}
+
+	m_iTurn++;
+	m_move += Vector3(moveBuff.x, 0.0f, moveBuff.z) * MOVE;
+	CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, 0);
+	m_currentMapLocation.mapX += moveBuff.x;
+	m_currentMapLocation.mapZ -= moveBuff.z;
+	CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, 2);
 }
 
 //=============================================================================
@@ -170,27 +194,27 @@ void CPlayer::InputMove(bool& inputEnable)
 	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 	CInputKeyboard* pInputKeyboard = pManager->GetInputKeyboard();
 
-	if (pInputKeyboard->GetKeyPress(DIK_UP) && m_moveBuff.z <= 0.0f)
+	if (pInputKeyboard->GetKeyPress(DIK_UP) && m_moveBuff.z <= 0)
 	{
-		m_moveBuff.z += MOVE;
+		m_moveBuff.z++;
 		inputEnable = false;
 		return;
 	}
-	if (pInputKeyboard->GetKeyPress(DIK_DOWN) && m_moveBuff.z >= 0.0f)
+	if (pInputKeyboard->GetKeyPress(DIK_DOWN) && m_moveBuff.z >= 0)
 	{
-		m_moveBuff.z += -MOVE;
+		m_moveBuff.z--;
 		inputEnable = false;
 		return;
 	}
-	if (pInputKeyboard->GetKeyPress(DIK_LEFT) && m_moveBuff.x >= 0.0f)
+	if (pInputKeyboard->GetKeyPress(DIK_LEFT) && m_moveBuff.x >= 0)
 	{
-		m_moveBuff.x += -MOVE;
+		m_moveBuff.x--;
 		inputEnable = false;
 		return;
 	}
-	if (pInputKeyboard->GetKeyPress(DIK_RIGHT) && m_moveBuff.x <= 0.0f)
+	if (pInputKeyboard->GetKeyPress(DIK_RIGHT) && m_moveBuff.x <= 0)
 	{
-		m_moveBuff.x += MOVE;
+		m_moveBuff.x++;
 		inputEnable = false;
 		return;
 	}

@@ -8,18 +8,19 @@
 
 #include "main.h"
 #include "plane.h"
+#include "map.h"
 
 //*****************************************************************************
 // 構造体
 //*****************************************************************************
-typedef enum
+struct INT8_2
 {
-	UP = 0,
-	DOWN,
-	LEFT,
-	RIGHT,
-	NONE
-}PLAYER_MOVE;
+	int8_t x, z;
+	INT8_2(int8_t inX, int8_t inZ)
+	{
+		x = inX; z = inZ;
+	}
+};
 
 //*********************************************************
 // プレイヤークラス
@@ -42,27 +43,26 @@ public:
 
 	int GetTurn(void) { return m_iTurn; }
 
+	void MovePosition(UINT moveFrame);
+	void MoveMap(INT8_2 moveBuff);
+
 private:
 	static const int FRAME_MAX;
 	static const UINT MOVE_FRAME;
 
-	void InputMove(bool& inputEnable);
+	MapLocation m_currentMapLocation;
 
-	// マップのサイズ
-	static const int MAP_SIZE_X = 50;
-	static const int MAP_SIZE_Z = 50;
+	void Move(void);
+	void InputMove(bool& inputEnable);
 
 	D3DXVECTOR3 m_move;
 	D3DXVECTOR3 m_prePos;
 	D3DXVECTOR3 m_rotDest;
+	INT8_2 m_moveBuff;
 
-	Vector3 m_moveBuff;
 	bool m_bMove;
 	bool m_inputEnable;
 	bool m_inputSecondEnable;
-
-	int m_posX;
-	int m_posZ;
 
 	int m_frameCount;
 	UINT m_moveFrameCnt;
@@ -70,7 +70,4 @@ private:
 	int m_iTurn;
 
 	int m_nType;							// 種類
-
-	// マップサイズ（２次元配列）
-	int m_MapSize[MAP_SIZE_X][MAP_SIZE_Z];
 };
