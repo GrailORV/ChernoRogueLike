@@ -9,9 +9,6 @@
 
 #include "manager.h"
 #include "scene.h"
-#include "scene2D.h"
-#include "plane.h"
-#include "model.h"
 #include "debugMode.h"
 #include "StartGameMode.h"
 

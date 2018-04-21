@@ -43,6 +43,9 @@
     <Filter Include="Sources\Mode">
       <UniqueIdentifier>{2dbeb224-0795-471e-9b4e-8adfb4725179}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\Shader">
+      <UniqueIdentifier>{9313f790-0d54-4a3d-b275-7428e3641081}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -101,6 +104,15 @@
     </ClCompile>
     <ClCompile Include="gameModeManager.cpp">
       <Filter>Sources\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="box.cpp">
+      <Filter>Sources\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="sphere.cpp">
+      <Filter>Sources\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="boxManager.cpp">
+      <Filter>Sources\Geometry</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -167,6 +179,15 @@
     <ClInclude Include="StartGameMode.h">
       <Filter>Assets</Filter>
     </ClInclude>
+    <ClInclude Include="box.h">
+      <Filter>Headers\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="sphere.h">
+      <Filter>Headers\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="boxManager.h">
+      <Filter>Headers\Geometry</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ChernoRogueLike.rc">
@@ -185,5 +206,10 @@
     <Media Include="data\SE\se_decision.wav">
       <Filter>Assets\Sounds\SE</Filter>
     </Media>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Instancing.hlsl">
+      <Filter>Assets\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -131,7 +131,7 @@ LRESULT CALLBACK CWinApp::WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPA
 	static DWORD dwCurrentTime;
 	static DWORD dwFrameCount;
 #ifdef _DEBUG
-	static int nCountFPS = 0;		// FPSカウンタ
+	static double nCountFPS = 0;		// FPSカウンタ
 #endif
 
 	// マネージャー取得
@@ -174,7 +174,7 @@ LRESULT CALLBACK CWinApp::WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPA
 			if ((dwCurrentTime - dwFPSLastTime) >= 500)	// 0.5秒ごとに実行
 			{
 #ifdef _DEBUG
-				nCountFPS = dwFrameCount * 1000 / (dwCurrentTime - dwFPSLastTime);
+				nCountFPS = dwFrameCount * 1000 / double(dwCurrentTime - dwFPSLastTime);
 #endif
 				dwFPSLastTime = dwCurrentTime;
 				dwFrameCount = 0;
@@ -184,15 +184,15 @@ LRESULT CALLBACK CWinApp::WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPA
 			{
 				dwExecLastTime = dwCurrentTime;
 
+#ifdef _DEBUG
+				CDebugProc::Print("FPS:%f\n", nCountFPS);
+#endif
+
 				// マネージャの更新処理
 				pManager->Update();
 
 				// マネージャの描画処理
 				pManager->Draw();
-
-#ifdef _DEBUG
-
-#endif
 
 				dwFrameCount++;
 			}

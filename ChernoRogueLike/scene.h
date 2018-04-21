@@ -40,6 +40,7 @@ class CScene
 protected:
 	static const DWORD FVFVertex2D = D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1 | D3DFVF_TEXCOORDSIZE2(0);
 	static const DWORD FVFVertex3D = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1 | D3DFVF_TEXCOORDSIZE2(0);
+	static const DWORD FVFVertexGeo = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1;
 
 	typedef struct
 	{
@@ -52,7 +53,7 @@ protected:
 	{
 		Vector3 position;	// 頂点座標
 		Vector3 normal;		// 法線
-		Color color;			// 頂点カラー
+		Color color;		// 頂点カラー
 		Vector2 uv;			// テクスチャ座標
 	} Vertex3D;
 
@@ -66,9 +67,14 @@ public:
 		OBJTYPE_NONE = 0,
 		OBJTYPE_2D,					// 2Dポリゴン
 		OBJTYPE_PLANE,				// プレーン
-		OBJTYPE_MODEL,					// Xファイル
+		OBJTYPE_BOX,				// ボックス
+		OBJTYPE_SPHERE,				// スフィア
+		OBJTYPE_CYLINDER,			// シリンダー
+		OBJTYPE_CONE,				// コーン
+		OBJTYPE_MODEL,				// モデル
 		OBJTYPE_BILLBOARD,			// ビルボード
 		OBJTYPE_FADE,				// フェード
+		OBJTYPE_MANAGER,
 		OBJTYPE_MAX
 	} OBJTYPE;
 

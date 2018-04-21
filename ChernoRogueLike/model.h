@@ -22,7 +22,6 @@ public:
 	static CModel *Create(int nType, const std::string modelID, Vector3 pos, Vector3 rot, Vector3 scale = vector3NS::ONE);
 
 	HRESULT Init(int nType, const std::string modelID, Vector3 pos, Vector3 rot, Vector3 scale = vector3NS::ONE);
-	HRESULT Init(void) { return S_OK; }
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);

@@ -13,6 +13,8 @@
 #include "sound.h"
 #include "debugproc.h"
 #include "winApp.h"
+#include "box.h"
+#include "boxManager.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -46,11 +48,12 @@ HRESULT CDebugMode::Init(void)
 {
 	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 	CSound* pSound = pManager->GetSound();
+	CCamera* pCamera = pManager->GetCamera();
 
-	m_pModel = CModel::Create(0, "butterfly", vector3NS::ZERO, vector3NS::ZERO);
-	m_pModel->SetScale(Vector3(10.0f, 10.0f, 10.0f));
+	pCamera->SetPosition(Vector3(350.0f, 1700.0f, -1300.0f), Vector3(350.0f, 0.0f, 2000.0f));
 
-	pSound->Play(CSound::BGM_LABEL_NO_CURRY);
+	CBoxManager* boxManager = CBoxManager::Create(0);
+	boxManager->BindTexture("net_of_box");
 
 	return S_OK;
 }
@@ -72,7 +75,36 @@ void CDebugMode::Uninit(void)
 //=============================================================================
 void CDebugMode::Update(void)
 {
-	CDebugProc::Print("でばっぐもーどだょ\n");
+	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
+	CInputKeyboard* pInputKeyboard = pManager->GetInputKeyboard();
+
+	if (pInputKeyboard->GetKeyPress(DIK_SPACE))
+	{
+		uint32_t boxNum = CBoxManager::GetBoxNum();
+		if (boxNum < 10000)
+		{
+
+			CBox::Create(
+				0,
+				Vector3(80.0f, 80.0f, 80.0f),
+				Vector3(80.0f*float(boxNum % 10), 80.0f*float(boxNum / 10 / 10), 80.0f*float(boxNum / 10 % 10)),
+				vector3NS::ZERO,
+				XColor((boxNum + 2) % 3 / 2 * 0.5f + 0.5f, (boxNum + 1) % 3 / 2 * 0.5f + 0.5f, boxNum % 3 / 2 * 0.5f + 0.5f, 1.0f));
+		}
+	}
+
+	if (pInputKeyboard->GetKeyPress(DIK_DELETE))
+	{
+		if (CBoxManager::GetBoxList().size())
+		{
+			CBoxManager::GetBoxList()[CBoxManager::GetBoxList().size() - 1]->Uninit();
+		}
+	}
+
+	CDebugProc::Print("でばっぐもーどだょ\n\n");
+	CDebugProc::Print("ボックス数：%d\n", CBoxManager::GetBoxNum());
+	CDebugProc::Print("すぺーすでふえるょ\n");
+	CDebugProc::Print("でりーとできえるょ\n");
 }
 
 //=============================================================================

@@ -1,6 +1,6 @@
 //=============================================================================
 //
-// プレーンの処理 [plane.h]
+// スフィアの処理 [sphere.h]
 // Author : SORA ENOMOTO
 //
 //=============================================================================
@@ -12,20 +12,23 @@
 //*********************************************************
 // 3Dオブジェクトクラス
 //*********************************************************
-class CPlane : public CScene
+class CSphere : public CScene
 {
+private:
+	static const UINT PER_DIMENSION = 4;
+
 public:
-	CPlane(int nPriority = 3, OBJTYPE objType = OBJTYPE_PLANE);
-	~CPlane();
+	CSphere(int nPriority = 3, OBJTYPE objType = OBJTYPE_BOX);
+	~CSphere();
 
-	static CPlane *Create(int nType, UINT column, UINT row, float width, float height, Vector3 pos, Vector3 rot, XColor color = colorNS::_WHITE);
+	static CSphere *Create(int nType, UINT tessellation, Vector3 size, Vector3 pos, Vector3 rot, XColor color = colorNS::_WHITE);
 
-	HRESULT Init(int nType, UINT column, UINT row, float width, float height, Vector3 pos, Vector3 rot, XColor color = colorNS::_WHITE);
+	HRESULT Init(int nType, UINT tessellation, Vector3 size, Vector3 pos, Vector3 rot, XColor color = colorNS::_WHITE);
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
 
-	HRESULT MakeVertexBuffer(void);
+	HRESULT MakeVertexBuffer(UINT tessellation);
 
 	void BindTexture(const char* texID);
 
@@ -38,8 +41,8 @@ public:
 	void SetRotation(Vector3 rot) { m_rot = rot; }
 	Vector3 GetRotation(void) { return m_rot; }
 
-	void SetUV(float width, float height, float x, float y) { m_uv = Vector4(width, height, x, y); }
-	Vector4 GetUV(void) { return m_uv; }
+	void SetSize(Vector3 size) { m_size = size; }
+	Vector3 GetSize(void) { return m_size; }
 
 	void SetColor(XColor color) { m_color = color; }
 	XColor GetColor(void) { return m_color; }
@@ -53,14 +56,11 @@ private:
 
 	Matrix m_mtxWorld;					// ワールドマトリックス
 
-	UINT m_column, m_row;
-	UINT m_numFace, m_numIndex, m_numVertex;
+	UINT m_numVtx, m_numIdx, m_numFace;
 	Vector3 m_pos;						// 位置
 	Vector3 m_pivot;
 	Vector3 m_rot;						// 向き
-	float m_width;
-	float m_height;
-	Vector4 m_uv;
+	Vector3 m_size;
 	XColor m_color;
 
 	int m_nType;							// 種類

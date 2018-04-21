@@ -14,6 +14,7 @@
 #include "camera.h"
 #include "scene.h"
 #include "scene2D.h"
+#include "box.h"
 
 //*****************************************************************************
 // É}ÉNÉçíËã`
