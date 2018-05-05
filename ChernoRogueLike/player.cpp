@@ -99,7 +99,9 @@ void CPlayer::Uninit(void)
 void CPlayer::Update(void)
 {
 
+	Behavior();
 	Move();
+
 
 	CDebugProc::Print("ターン数 : %d\n", m_iTurn);
 	CDebugProc::Print("フレーム数 : %d\n", m_iCount);
@@ -187,35 +189,73 @@ void CPlayer::MoveMap(INT8_2 moveBuff)
 }
 
 //=============================================================================
-// 入力処理
+// 移動の入力処理
 //=============================================================================
 void CPlayer::InputMove(bool& inputEnable)
 {
 	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 	CInputKeyboard* pInputKeyboard = pManager->GetInputKeyboard();
 
+	// 上方向に移動
 	if (pInputKeyboard->GetKeyPress(DIK_UP) && m_moveBuff.z <= 0)
 	{
 		m_moveBuff.z++;
 		inputEnable = false;
 		return;
 	}
+
+	// 下方向に移動
 	if (pInputKeyboard->GetKeyPress(DIK_DOWN) && m_moveBuff.z >= 0)
 	{
 		m_moveBuff.z--;
 		inputEnable = false;
 		return;
 	}
+	// 左方向に移動
 	if (pInputKeyboard->GetKeyPress(DIK_LEFT) && m_moveBuff.x >= 0)
 	{
 		m_moveBuff.x--;
 		inputEnable = false;
 		return;
 	}
+	// 右方向に移動
 	if (pInputKeyboard->GetKeyPress(DIK_RIGHT) && m_moveBuff.x <= 0)
 	{
 		m_moveBuff.x++;
 		inputEnable = false;
 		return;
 	}
+	
+}
+
+//=============================================================================
+// 行動の入力処理
+//=============================================================================
+void CPlayer::Behavior()
+{
+	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
+	CInputKeyboard* pInputKeyboard = pManager->GetInputKeyboard();
+
+	// 攻撃
+	if (pInputKeyboard->GetKeyTrigger(DIK_SPACE))
+	{
+		Attack();
+		return;
+	}
+}
+
+//=============================================================================
+// 攻撃処理
+//=============================================================================
+void CPlayer::Attack()
+{
+	// 目の前に敵がいるか判定
+	if (CMap::GetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ) == CMap::MAP_STATE_ENEMY)
+	{
+
+		m_iTurn++;
+	}
+	// いなかった場合、空振りしてターン消費
+	else
+		m_iTurn++;
 }

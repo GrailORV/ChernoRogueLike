@@ -91,6 +91,10 @@ HRESULT CMap::Init(const uint16_t MapSizeX, const uint16_t MapSizeZ)
 			{
 				m_mapState[x][z] = 1;
 			}
+			else if (x == m_mapMaxX / 2 && z == m_mapMaxZ / 2)
+			{
+				m_mapState[x][z] = 3;
+			}
 			else
 			{
 				m_mapState[x][z] = 0;
@@ -98,7 +102,7 @@ HRESULT CMap::Init(const uint16_t MapSizeX, const uint16_t MapSizeZ)
 		}
 	}
 
-	m_respawnPoint = MapLocation(m_mapMaxX / 2, m_mapMaxZ / 2);
+	m_respawnPoint = MapLocation(m_mapMaxX / 1.5, m_mapMaxZ / 1.5);
 
 
 	return S_OK;
