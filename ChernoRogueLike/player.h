@@ -9,6 +9,7 @@
 #include "main.h"
 #include "scene.h"
 
+class CMenu;
 //*********************************************************
 // 3Dオブジェクトクラス
 //*********************************************************
@@ -65,10 +66,9 @@ private:
 	float m_height;
 	D3DXVECTOR4 m_uv;
 	D3DXCOLOR m_color;
-
+	CMenu* m_pMenu;
 	int m_iCount;
 	int m_iTurn;
 
 	int m_nType;							// 種類
-
 };

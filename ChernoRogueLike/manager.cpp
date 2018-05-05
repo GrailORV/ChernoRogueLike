@@ -139,7 +139,7 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 	}
 
 	// ƒ‰ƒCƒg‚Ì‰Šú‰»ˆ—
-	m_pLight = new CLight;
+m_pLight = new CLight;
 	hr = m_pLight->Init();
 	if (FAILED(hr))
 	{

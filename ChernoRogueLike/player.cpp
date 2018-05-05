@@ -14,6 +14,7 @@
 #include "WinApp.h"
 #include "input.h"
 #include "debugproc.h"
+#include "Menu.h"
 
 //*****************************************************************************
 // É}ÉNÉçíËã`
@@ -67,7 +68,7 @@ CPlayer::~CPlayer()
 HRESULT CPlayer::Init(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color)
 {
 	HRESULT hr{};
-
+	m_pMenu = CMenu::Create(1, 2, 4, 400.0f, 200.0f, D3DXVECTOR3(650.0f, 0, 0), D3DXVECTOR3(0, 0, 0), color);
 
 	m_iTurn = 0;
 	m_iCount = 0;
