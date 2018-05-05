@@ -84,6 +84,15 @@
     <ClCompile Include="player.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="inventory.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="item.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -138,6 +147,15 @@
       <Filter>Headers\Util</Filter>
     </ClInclude>
     <ClInclude Include="player.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="inventory.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="item.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
