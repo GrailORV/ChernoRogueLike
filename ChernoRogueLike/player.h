@@ -46,7 +46,6 @@ public:
 	void MovePosition(UINT moveFrame);
 	void MoveMap(INT8_2 moveBuff);
 
-
 private:
 	static const int FRAME_MAX;
 	static const UINT MOVE_FRAME;
@@ -56,6 +55,7 @@ private:
 	void Move(void);
 	void InputMove(bool& inputEnable);
 	void Attack();
+	void Item();
 	void Behavior();
 
 	D3DXVECTOR3 m_move;
@@ -71,6 +71,5 @@ private:
 	UINT m_moveFrameCnt;
 	int m_iCount;
 	int m_iTurn;
-
 	int m_nType;							// Ží—Þ
 };

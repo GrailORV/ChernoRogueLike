@@ -48,6 +48,8 @@ public:
 		MAP_STATE_WALL,
 		MAP_STATE_PLAYER,
 		MAP_STATE_ENEMY,
+		MAP_STATE_ITEM,
+		MAP_STATE_MAX
 	};
 
 	static CMap *Create(const uint16_t MapSizeX, const uint16_t MapSizeZ);

@@ -20,7 +20,10 @@
 //*****************************************************************************
 // 構造体定義
 //*****************************************************************************
+typedef enum
+{
 
+};
 
 //*****************************************************************************
 // 静的変数
@@ -101,6 +104,7 @@ void CPlayer::Update(void)
 
 	Behavior();
 	Move();
+	Item();
 
 
 	CDebugProc::Print("ターン数 : %d\n", m_iTurn);
@@ -175,7 +179,8 @@ void CPlayer::MoveMap(INT8_2 moveBuff)
 	float rotAngle = (signbit(angleBuff) * 2.0f - 1.0f) * D3DX_PI + angleBuff;
 	m_rot.y = rotAngle;
 
-	if (CMap::GetMapStateFromLocation(m_currentMapLocation.mapX + moveBuff.x, m_currentMapLocation.mapZ - moveBuff.z) == CMap::MAP_STATE_WALL)
+	if (CMap::GetMapStateFromLocation(m_currentMapLocation.mapX + moveBuff.x, m_currentMapLocation.mapZ - moveBuff.z) == CMap::MAP_STATE_WALL &&
+		CMap::GetMapStateFromLocation(m_currentMapLocation.mapX + moveBuff.x, m_currentMapLocation.mapZ - moveBuff.z) == CMap::MAP_STATE_ENEMY)
 	{
 		return;
 	}
@@ -239,8 +244,15 @@ void CPlayer::Behavior()
 	// 攻撃
 	if (pInputKeyboard->GetKeyTrigger(DIK_SPACE))
 	{
+		// 攻撃処理
 		Attack();
-		return;
+	}
+
+	// Pキーでメニューウィンドウ表示
+	if (pInputKeyboard->GetKeyTrigger(DIK_P))
+	{
+		// ウィンドウ表示
+
 	}
 }
 
@@ -252,10 +264,25 @@ void CPlayer::Attack()
 	// 目の前に敵がいるか判定
 	if (CMap::GetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ) == CMap::MAP_STATE_ENEMY)
 	{
+		// ダメージ与える
 
 		m_iTurn++;
 	}
-	// いなかった場合、空振りしてターン消費
+
+	// 敵がいなかったら空振り
 	else
 		m_iTurn++;
+}
+
+//=============================================================================
+// アイテム取得処理
+//=============================================================================
+void CPlayer::Item()
+{
+	// 足元にアイテムがあるか判定
+	if (CMap::GetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ) == CMap::MAP_STATE_ITEM)
+	{
+		// アイテム取得処理
+
+	}
 }
