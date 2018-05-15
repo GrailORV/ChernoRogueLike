@@ -16,6 +16,8 @@
 #include "model.h"
 #include "map.h"
 
+CEnemy *CManager::m_pEnemy = NULL;
+
 //=============================================================================
 // CManagerコンストラクタ
 //=============================================================================
@@ -24,6 +26,7 @@ CManager::CManager(UINT width, UINT height) :
 	m_height(height),
 	m_dwRef(0)
 {
+	
 }
 
 //=============================================================================
@@ -171,6 +174,9 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 
 	CPlayer* pPlayer = CPlayer::Create(0, 4, 4, 50.f, 50.f, D3DXVECTOR3(0.0f, 0.1f, 0.0f), vector3NS::ZERO);
 	pPlayer->BindTexture("ore");
+
+	m_pEnemy = CEnemy::Create(0, 4, 4, 50.f, 50.f, D3DXVECTOR3(0.0f, 0.1f, 0.0f), vector3NS::ZERO);
+	m_pEnemy->BindTexture("ore");
 
 	CModel* pModel = CModel::Create(0, "torus", D3DXVECTOR3(30.0f, 50.0f, 70.0f), D3DXVECTOR3(D3DX_PI / 4.0f, D3DX_PI / 4.0f, D3DX_PI / 6.0f));
 

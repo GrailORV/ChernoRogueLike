@@ -11,6 +11,7 @@
 #include "manager.h"
 #include "input.h"
 #include "debugproc.h"
+#include "enemy.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -36,12 +37,12 @@ const UINT CPlayer::MOVE_FRAME = 20;
 //=============================================================================
 CPlayer *CPlayer::Create(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color)
 {
-	CPlayer *pPlane;
+	CPlayer *pPlayer;
 
-	pPlane = new CPlayer;
-	pPlane->Init(nType, column, row, width, height, pos, rot, color);
+	pPlayer = new CPlayer;
+	pPlayer->Init(nType, column, row, width, height, pos, rot, color);
 
-	return pPlane;
+	return pPlayer;
 }
 
 //=============================================================================
@@ -53,7 +54,8 @@ CPlayer::CPlayer(int nPriority, CScene::OBJTYPE objtype) :
 	m_prePos(vector3NS::ZERO),
 	m_moveFrameCnt(0),
 	m_currentMapLocation(0, 0),
-	m_moveBuff(0, 0)
+	m_moveBuff(0, 0),
+	m_front(0, 0)
 {
 	m_iCount = 0;
 	m_iTurn = 0;
@@ -63,6 +65,7 @@ CPlayer::CPlayer(int nPriority, CScene::OBJTYPE objtype) :
 	m_bMove = false;
 	m_inputEnable = false;
 	m_inputSecondEnable = false;
+	m_bTurningPlayer = false;
 }
 
 //=============================================================================
@@ -79,9 +82,20 @@ CPlayer::~CPlayer()
 HRESULT CPlayer::Init(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color)
 {
 	m_currentMapLocation = CMap::GetRespawnPoint();
-	CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, 2);
+	CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, CMap::MAP_STATE_PLAYER);
 
 	CPlane::Init(nType, column, row, width, height, pos, rot, color);
+
+	float leftMapLimit = (CMap::GetMapWidth() - 1) * -25.0f;
+	float depthMapLimit = (CMap::GetMapDepth() - 1) * 25.0f;
+	m_pos = Vector3(
+		leftMapLimit + 50.0f * m_currentMapLocation.mapX,
+		0.1f,
+		depthMapLimit - m_currentMapLocation.mapZ * 50.0f);
+
+	m_Status.ATK = 1;
+
+	m_ATK = m_Status.ATK;
 
 	return S_OK;
 }
@@ -101,15 +115,13 @@ void CPlayer::Uninit(void)
 //=============================================================================
 void CPlayer::Update(void)
 {
-
 	Behavior();
 	Move();
 	Item();
 
-
 	CDebugProc::Print("ターン数 : %d\n", m_iTurn);
-	CDebugProc::Print("フレーム数 : %d\n", m_iCount);
 	CDebugProc::Print("RotAngle : %f\n", D3DXToDegree(m_rot.y));
+
 }
 
 //=============================================================================
@@ -157,6 +169,7 @@ void CPlayer::MovePosition(UINT moveFrame)
 		D3DXVec3Lerp(&m_pos, &m_prePos, &(m_prePos + m_move), float(m_moveFrameCnt) / float(moveFrame));
 		if (m_moveFrameCnt > moveFrame)
 		{
+			m_pos = m_prePos + m_move;
 			m_moveFrameCnt = 0;
 			m_move = vector3NS::ZERO;
 			m_bMove = false;
@@ -178,19 +191,21 @@ void CPlayer::MoveMap(INT8_2 moveBuff)
 	float angleBuff = (D3DX_PI / 2.0f - atan2f(float(moveBuff.z), float(moveBuff.x)));
 	float rotAngle = (signbit(angleBuff) * 2.0f - 1.0f) * D3DX_PI + angleBuff;
 	m_rot.y = rotAngle;
+	m_front = INT8_2(moveBuff.x, -moveBuff.z);
 
-	if (CMap::GetMapStateFromLocation(m_currentMapLocation.mapX + moveBuff.x, m_currentMapLocation.mapZ - moveBuff.z) == CMap::MAP_STATE_WALL &&
-		CMap::GetMapStateFromLocation(m_currentMapLocation.mapX + moveBuff.x, m_currentMapLocation.mapZ - moveBuff.z) == CMap::MAP_STATE_ENEMY)
+	if (CMap::GetMapStateFromLocation(m_currentMapLocation.mapX + moveBuff.x, m_currentMapLocation.mapZ - moveBuff.z) == CMap::MAP_STATE_WALL ||
+		CMap::GetMapStateFromLocation(m_currentMapLocation.mapX + moveBuff.x, m_currentMapLocation.mapZ - moveBuff.z) == CMap::MAP_STATE_ENEMY ||
+		m_bTurningPlayer)
 	{
 		return;
 	}
 
 	m_iTurn++;
 	m_move += Vector3(moveBuff.x, 0.0f, moveBuff.z) * MOVE;
-	CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, 0);
+	CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, CMap::MAP_STATE_FLOOR);
 	m_currentMapLocation.mapX += moveBuff.x;
 	m_currentMapLocation.mapZ -= moveBuff.z;
-	CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, 2);
+	CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, CMap::MAP_STATE_PLAYER);
 }
 
 //=============================================================================
@@ -249,10 +264,20 @@ void CPlayer::Behavior()
 	}
 
 	// Pキーでメニューウィンドウ表示
-	if (pInputKeyboard->GetKeyTrigger(DIK_P))
+	else if (pInputKeyboard->GetKeyTrigger(DIK_P))
 	{
 		// ウィンドウ表示
 
+	}
+
+	// 方向転換キー（押し続けている間）
+	if (pInputKeyboard->GetKeyPress(DIK_O))
+	{
+		m_bTurningPlayer = true;
+	}
+	else
+	{
+		m_bTurningPlayer = false;
 	}
 }
 
@@ -261,11 +286,12 @@ void CPlayer::Behavior()
 //=============================================================================
 void CPlayer::Attack()
 {
+	CEnemy *pEnemy = CManager::GetEnemy();
 	// 目の前に敵がいるか判定
-	if (CMap::GetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ) == CMap::MAP_STATE_ENEMY)
+	if (CMap::GetMapStateFromLocation(m_currentMapLocation.mapX + m_front.x, m_currentMapLocation.mapZ + m_front.z) == CMap::MAP_STATE_ENEMY)
 	{
-		// ダメージ与える
-
+		// 攻撃力分のダメージ与える
+		pEnemy->AddLife(-m_ATK);
 		m_iTurn++;
 	}
 
@@ -282,7 +308,9 @@ void CPlayer::Item()
 	// 足元にアイテムがあるか判定
 	if (CMap::GetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ) == CMap::MAP_STATE_ITEM)
 	{
-		// アイテム取得処理
-
+		/*アイテムを取得します。
+		　インベントリに追加されたりされなかったり・・・
+		 　今はとりあえずマップから消しときます*/
+		CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, CMap::MAP_STATE_FLOOR);
 	}
 }

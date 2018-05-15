@@ -49,6 +49,7 @@ public:
 		MAP_STATE_PLAYER,
 		MAP_STATE_ENEMY,
 		MAP_STATE_ITEM,
+		MAP_STATE_GOAL,
 		MAP_STATE_MAX
 	};
 
@@ -65,6 +66,9 @@ public:
 
 	Vector3 GetRotation(void) { return vector3NS::ZERO; }
 	void SetRotation(Vector3 rot) {}
+
+	static uint32_t GetMapWidth() { return m_mapMaxX; }
+	static uint32_t GetMapDepth() { return m_mapMaxZ; }
 
 	static MapLocation GetRespawnPoint(void) { return m_respawnPoint; }
 

@@ -93,7 +93,7 @@ HRESULT CMap::Init(const uint16_t MapSizeX, const uint16_t MapSizeZ)
 			}
 			else if (x == m_mapMaxX / 2 && z == m_mapMaxZ / 2)
 			{
-				m_mapState[x][z] = 3;
+				m_mapState[x][z] = 4;
 			}
 			else
 			{
@@ -178,5 +178,3 @@ void CMap::SetMapStateFromLocation(_In_ uint16_t x, _In_ uint16_t z, _In_  uint8
 
 	m_mapState[x][z] = state;
 }
-
-

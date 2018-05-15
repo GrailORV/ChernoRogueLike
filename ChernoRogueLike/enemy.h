@@ -7,14 +7,27 @@
 #pragma once
 
 #include "main.h"
-#include "scene2D.h"
+#include "plane.h"
+#include "map.h"
+
+//*****************************************************************************
+// 構造体
+//*****************************************************************************
+typedef struct
+{
+	int8_t Life;
+	uint8_t ATK;
+	int nType;
+}ENEMY_STATUS;
 
 //*********************************************************
 // 3Dオブジェクトクラス
 //*********************************************************
-class CEnemy : public CScene2D
+class CEnemy : public CPlane
 {
 public:
+
+
 	CEnemy(int nPriority = 3, OBJTYPE objType = OBJTYPE_PLANE);
 	~CEnemy();
 
@@ -26,35 +39,34 @@ public:
 	void Update(void);
 	void Draw(void);
 
-	void SetPosition(D3DXVECTOR3 pos) { m_pos = pos; }
-	D3DXVECTOR3 GetPosition(void) { return m_pos; }
-
-	void SetPivot(D3DXVECTOR3 pivot) { m_pivot = pivot; }
-	D3DXVECTOR3 GetPivot(void) { return m_pivot; }
-
-	void SetRotation(D3DXVECTOR3 rot) { m_rot = rot; }
-	D3DXVECTOR3 GetRotation(void) { return m_rot; }
-
-	void SetUV(float width, float height, float x, float y) { m_uv = D3DXVECTOR4(width, height, x, y); }
-	D3DXVECTOR4 GetUV(void) { return m_uv; }
-
-	void SetColor(D3DXCOLOR color) { m_color = color; }
-	D3DXCOLOR GetColor(void) { return m_color; }
-
 	void SetType(int nType) { m_nType = nType; }
 
+	uint8_t GetLife(void) { return m_EnemyStatus.Life; }
+	void AddLife(uint8_t Num) { m_EnemyStatus.Life += Num; }
+
 private:
-	ComPtr<IDirect3DTexture9> m_pTexture;			// テクスチャへのポインタ
-	ComPtr<IDirect3DVertexBuffer9> m_pVtxBuff;		// 頂点バッファへのポインタ
-	ComPtr<IDirect3DIndexBuffer9> m_pIdxBuff;
 
-	D3DXMATRIX m_mtxWorld;					// ワールドマトリックス
+	MapLocation m_currentMapLocation;
 
-	UINT m_column, m_row;
-	UINT m_numFace, m_numIndex, m_numVertex;
+	void LifeCheck(void);
 
-	Vector3 m_moveBuff;
+	Vector3 m_move;
+	Vector3 m_prePos;
+	Vector3 m_rotDest;
 
+	UINT m_moveFrameCnt;
+
+	bool m_bMove;
+	bool m_inputEnable;
+	bool m_inputSecondEnable;
+	bool m_bTurningPlayer;					// 方向転換フラグ
+	bool m_bUse;
+
+	int m_frameCount;
+	int m_iCount;
+	int m_iTurn;
 	int m_nType;							// 種類
+
+	ENEMY_STATUS m_EnemyStatus;
 
 };

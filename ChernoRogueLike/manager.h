@@ -22,6 +22,7 @@
 class CPlayer;
 class CMap;
 class CScene2D;
+class CEnemy;
 
 //*********************************************************
 // マネージャークラス
@@ -64,6 +65,7 @@ public:
 	CSound *GetSound(void) { return m_pSound.Get(); }
 	CCamera *GetCamera(void) { return m_pCamera.Get(); }
 	CLight *GetLight(void) { return m_pLight.Get(); }
+	static CEnemy *GetEnemy(void) { return m_pEnemy; }
 
 	void SetMode(MODE mode);
 	MODE GetMode(void) { return m_mode; }
@@ -84,6 +86,7 @@ private:
 	CScene2D* m_pScene;
 	CPlayer* m_pPlayer;
 	CMap* m_pMap;
+	static CEnemy * m_pEnemy;
 
 	UINT m_width;
 	UINT m_height;

@@ -13,6 +13,12 @@
 //*****************************************************************************
 // ç\ë¢ëÃ
 //*****************************************************************************
+typedef struct
+{
+	int8_t Life;
+	uint8_t ATK;
+}PLAYER_STATUS;
+
 struct INT8_2
 {
 	int8_t x, z;
@@ -51,6 +57,7 @@ private:
 	static const UINT MOVE_FRAME;
 
 	MapLocation m_currentMapLocation;
+	PLAYER_STATUS m_Status;
 
 	void Move(void);
 	void InputMove(bool& inputEnable);
@@ -58,18 +65,25 @@ private:
 	void Item();
 	void Behavior();
 
-	D3DXVECTOR3 m_move;
-	D3DXVECTOR3 m_prePos;
-	D3DXVECTOR3 m_rotDest;
+	Vector3 m_move;
+	Vector3 m_prePos;
+	Vector3 m_rotDest;
+
+	uint8_t m_ATK;
+
+	INT8_2 m_front;				// å¸Ç¢ÇƒÇÈï˚å¸
 	INT8_2 m_moveBuff;
+
+	UINT m_moveFrameCnt;
 
 	bool m_bMove;
 	bool m_inputEnable;
 	bool m_inputSecondEnable;
+	bool m_bTurningPlayer;					// ï˚å¸ì]ä∑ÉtÉâÉO
 
 	int m_frameCount;
-	UINT m_moveFrameCnt;
 	int m_iCount;
 	int m_iTurn;
 	int m_nType;							// éÌóﬁ
+
 };

@@ -1,14 +1,15 @@
 //=============================================================================
 //
-// 3Dオブジェクトの処理 [scene3D.cpp]
-// Author : 
+// プレイヤーの処理 [player.cpp]
+// Author : 小川　朔哉
 //
 //=============================================================================
 #include "stdafx.h"
 
 #include "enemy.h"
-#include "manager.h"
 #include "WinApp.h"
+#include "manager.h"
+#include "input.h"
 #include "debugproc.h"
 
 //*****************************************************************************
@@ -19,7 +20,10 @@
 //*****************************************************************************
 // 構造体定義
 //*****************************************************************************
+typedef enum
+{
 
+};
 
 //*****************************************************************************
 // 静的変数
@@ -31,23 +35,33 @@
 //=============================================================================
 CEnemy *CEnemy::Create(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color)
 {
-	CEnemy *pScene2D;
+	CEnemy *pEnemy;
 
-	pScene2D = new CEnemy;
-	pScene2D->Init(nType, column, row, width, height, pos, rot, color);
+	pEnemy = new CEnemy;
+	pEnemy->Init(nType, column, row, width, height, pos, rot, color);
 
-	return pScene2D;
+	return pEnemy;
 }
 
 //=============================================================================
 // CPlaneコンストラクタ
 //=============================================================================
-CEnemy::CEnemy(int nPriority, CScene::OBJTYPE objType) : CScene2D(nPriority, objType)
+CEnemy::CEnemy(int nPriority, CScene::OBJTYPE objtype) :
+	CPlane(nPriority, objtype),
+	m_rotDest(vector3NS::ZERO),
+	m_prePos(vector3NS::ZERO),
+	m_currentMapLocation(3, 3),
+	m_moveFrameCnt(0)
 {
-	m_pos = D3DXVECTOR3(0.0f, 0.0f, 50.f);
-	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-
-	m_nType = 0;
+	m_iCount = 0;
+	m_iTurn = 0;
+	m_frameCount = 0;
+	m_pos = vector3NS::ZERO;
+	m_move = vector3NS::ZERO;
+	m_bMove = false;
+	m_inputEnable = false;
+	m_inputSecondEnable = false;
+	m_bTurningPlayer = false;
 }
 
 //=============================================================================
@@ -63,10 +77,15 @@ CEnemy::~CEnemy()
 //=============================================================================
 HRESULT CEnemy::Init(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color)
 {
-	CScene2D::Init(nType, pos, rot, width, height, color);
+	CPlane::Init(nType, column, row, width, height, pos, rot, color);
 
-	CEnemy* pEnemy = CEnemy::Create(0, 4, 4, 50.f, 50.f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO);
-	pEnemy->BindTexture("morizo");
+	m_EnemyStatus.Life = 5;
+	m_EnemyStatus.ATK = 1;
+	m_EnemyStatus.nType = 0;
+
+	CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, CMap::MAP_STATE_ENEMY);
+
+	m_bUse = true;
 
 	return S_OK;
 }
@@ -76,7 +95,9 @@ HRESULT CEnemy::Init(int nType, UINT column, UINT row, float width, float height
 //=============================================================================
 void CEnemy::Uninit(void)
 {
-	CScene2D::Uninit();
+	// オブジェクトを破棄
+	CPlane::Uninit();
+
 }
 
 //=============================================================================
@@ -84,9 +105,21 @@ void CEnemy::Uninit(void)
 //=============================================================================
 void CEnemy::Update(void)
 {
-	CScene2D::Update();
+	CDebugProc::Print("ENEMY LIFE : %d\n", m_EnemyStatus.Life);
 
-	CDebugProc::Print("OK\n");
+	if (!m_bUse)
+	{
+		return;
+	}
+
+	float leftMapLimit = (CMap::GetMapWidth() - 1) * -25.0f;
+	float depthMapLimit = (CMap::GetMapDepth() - 1) * 25.0f;
+	m_pos = Vector3(
+		leftMapLimit + 50.0f * m_currentMapLocation.mapX,
+		0.1f,
+		depthMapLimit - m_currentMapLocation.mapZ * 50.0f);
+
+	LifeCheck();
 }
 
 //=============================================================================
@@ -94,5 +127,20 @@ void CEnemy::Update(void)
 //=============================================================================
 void CEnemy::Draw(void)
 {
-	CScene2D::Draw();
+	if (m_bUse)
+	{
+		CPlane::Draw();
+	}
+}
+
+//=============================================================================
+// 残りライフをチェック
+//=============================================================================
+void CEnemy::LifeCheck(void)
+{
+	if (m_EnemyStatus.Life <= 0)
+	{
+		CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, CMap::MAP_STATE_FLOOR);
+		m_bUse = false;
+	}
 }
