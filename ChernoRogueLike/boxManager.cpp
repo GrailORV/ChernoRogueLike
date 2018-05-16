@@ -30,7 +30,8 @@ std::vector<CBox*> CBoxManager::m_boxList;
 uint32_t CBoxManager::m_numBox = 0;
 uint32_t CBoxManager::m_numCreateBox = 0;
 bool CBoxManager::m_initialized = false;
-ComPtr<IDirect3DVertexBuffer9> CBoxManager::m_pInstanceData;
+ComPtr<IDirect3DVertexBuffer9> CBoxManager::m_pColorData;
+ComPtr<IDirect3DVertexBuffer9> CBoxManager::m_pWorldData;
 
 //=============================================================================
 // CBoxManager生成
@@ -100,7 +101,8 @@ void CBoxManager::Uninit(void)
 	}
 
 	m_initialized = false;
-	m_pInstanceData.Reset();
+	m_pColorData.Reset();
+	m_pWorldData.Reset();
 	m_numBox = 0;
 	m_numCreateBox = 0;
 
@@ -128,6 +130,7 @@ void CBoxManager::Draw(void)
 	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
 	CCamera *pCamera = pManager->GetCamera();
+	CLight* pLight = pManager->GetLight();
 
 	// カメラの設定
 	pCamera->SetCamera();
@@ -138,6 +141,10 @@ void CBoxManager::Draw(void)
 	// プロジェクション行列設定
 	m_pEffect->SetMatrix(m_ProjHandle, &pCamera->GetProjectionMatrix());
 
+	// ライトの設定
+	m_pEffect->SetValue(m_LightHandle, pLight->GetLight(), sizeof(D3DLIGHT9)*pLight->NUM_LIGHT);
+	m_pEffect->SetValue(m_AmbientLight, &pLight->GetAmbientLight(), sizeof(XColor));
+
 	// 頂点フォーマットの設定
 	pDevice->SetVertexDeclaration(m_vtxDecl.Get());
 
@@ -145,9 +152,13 @@ void CBoxManager::Draw(void)
 	pDevice->SetStreamSource(0, m_pVtxBuff.Get(), 0, sizeof(BoxVertex));
 	pDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | m_numBox);
 
-	// インスタンシングデータ設定
-	pDevice->SetStreamSource(1, m_pInstanceData.Get(), 0, sizeof(BoxInstanceData));
+	// 色情報設定
+	pDevice->SetStreamSource(1, m_pColorData.Get(), 0, sizeof(Color));
 	pDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1ul);
+
+	// ワールドマトリクス情報設定
+	pDevice->SetStreamSource(2, m_pWorldData.Get(), 0, sizeof(Matrix));
+	pDevice->SetStreamSourceFreq(2, D3DSTREAMSOURCE_INSTANCEDATA | 1ul);
 
 	// インデックスバッファを設定
 	pDevice->SetIndices(m_pIdxBuff.Get());
@@ -171,6 +182,7 @@ void CBoxManager::Draw(void)
 
 	pDevice->SetStreamSourceFreq(0, 1);
 	pDevice->SetStreamSourceFreq(1, 1);
+	pDevice->SetStreamSourceFreq(2, 1);
 
 }
 
@@ -441,10 +453,10 @@ HRESULT CBoxManager::MakeEffect(void)
 		{ 0,3 * 4,D3DDECLTYPE_FLOAT3,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_NORMAL,0 },
 		{ 0,6 * 4,D3DDECLTYPE_FLOAT2,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,0 },
 		{ 1,0,D3DDECLTYPE_D3DCOLOR,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_COLOR,0 },
-		{ 1,4,D3DDECLTYPE_FLOAT4,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,1 },
-		{ 1,5 * 4,D3DDECLTYPE_FLOAT4,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,2 },
-		{ 1,9 * 4,D3DDECLTYPE_FLOAT4,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,3 },
-		{ 1,13 * 4,D3DDECLTYPE_FLOAT4,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,4 },
+		{ 2,0,D3DDECLTYPE_FLOAT4,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,1 },
+		{ 2,4 * 4,D3DDECLTYPE_FLOAT4,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,2 },
+		{ 2,8 * 4,D3DDECLTYPE_FLOAT4,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,3 },
+		{ 2,12 * 4,D3DDECLTYPE_FLOAT4,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,4 },
 		D3DDECL_END()
 	};
 	hr = pDevice->CreateVertexDeclaration(vtxElem, m_vtxDecl.ReleaseAndGetAddressOf());
@@ -472,6 +484,8 @@ HRESULT CBoxManager::MakeEffect(void)
 	m_TechHandle = m_pEffect->GetTechniqueByName("Effect");
 	m_ViewHandle = m_pEffect->GetParameterByName(nullptr, "View");
 	m_ProjHandle = m_pEffect->GetParameterByName(nullptr, "Proj");
+	m_LightHandle = m_pEffect->GetParameterByName(nullptr, "g_Light");
+	m_AmbientLight = m_pEffect->GetParameterByName(nullptr, "g_LightAmbient");
 
 	return S_OK;
 }
@@ -503,17 +517,30 @@ HRESULT CBoxManager::CreateBox(CBox* box)
 	m_numBox++;
 	m_numCreateBox++;
 
-	BoxInstanceData* pCopyData = nullptr;
-	BoxInstanceData* dataBuf = nullptr;
+	Color* pCopyColorData = nullptr;
+	Matrix* pCopyWorldData = nullptr;
 
-	if (m_pInstanceData)
+	if (m_pColorData && m_pWorldData)
 	{
-		pCopyData = new BoxInstanceData[m_numBox - 1];
-		m_pInstanceData->Lock(0, 0, (void**)&dataBuf, 0);
+		// 既定の色情報コピー
+		Color* dataColorBuf = nullptr;
 
-		memcpy(pCopyData, dataBuf, sizeof(BoxInstanceData) * (m_numBox - 1));
+		pCopyColorData = new Color[m_numBox - 1];
+		m_pColorData->Lock(0, 0, (void**)&dataColorBuf, 0);
+
+		memcpy(pCopyColorData, dataColorBuf, sizeof(Color) * (m_numBox - 1));
 		
-		m_pInstanceData->Unlock();
+		m_pColorData->Unlock();
+
+		// 既定のワールドマトリクス情報コピー
+		Matrix* dataWorldBuf = nullptr;
+
+		pCopyWorldData = new Matrix[m_numBox - 1];
+		m_pWorldData->Lock(0, 0, (void**)&dataWorldBuf, 0);
+
+		memcpy(pCopyWorldData, dataWorldBuf, sizeof(Matrix) * (m_numBox - 1));
+
+		m_pWorldData->Unlock();
 	}
 
 	Matrix mtxWorld, mtxScale, mtxRot, mtxTranslate;
@@ -536,30 +563,56 @@ HRESULT CBoxManager::CreateBox(CBox* box)
 	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
 
+	// 色情報設定
 	pDevice->CreateVertexBuffer(
-		sizeof(BoxInstanceData) * m_numBox,
+		sizeof(Color) * m_numBox,
 		D3DUSAGE_WRITEONLY,
 		0,
 		D3DPOOL_MANAGED,
-		m_pInstanceData.ReleaseAndGetAddressOf(),
+		m_pColorData.ReleaseAndGetAddressOf(),
 		NULL
 	);
 
-	BoxInstanceData* pOutData;
-	m_pInstanceData->Lock(0, 0, (void**)&pOutData, 0);
+	Color* pOutColorData;
+	m_pColorData->Lock(0, 0, (void**)&pOutColorData, 0);
 
-	if (pCopyData)
+	if (pCopyColorData)
 	{
-		memcpy(pOutData, pCopyData, sizeof(BoxInstanceData) * (m_numBox - 1));
+		memcpy(pOutColorData, pCopyColorData, sizeof(Color) * (m_numBox - 1));
 	}
-	pOutData[m_numBox - 1].color = box->GetColor();
-	pOutData[m_numBox - 1].world = mtxWorld;
+	pOutColorData[m_numBox - 1] = box->GetColor();
 
-	m_pInstanceData->Unlock();
+	m_pColorData->Unlock();
 
-	if (pCopyData)
+	if (pCopyColorData)
 	{
-		delete[] pCopyData;
+		delete[] pCopyColorData;
+	}
+
+	// ワールドマトリクス情報設定
+	pDevice->CreateVertexBuffer(
+		sizeof(Matrix) * m_numBox,
+		D3DUSAGE_WRITEONLY,
+		0,
+		D3DPOOL_MANAGED,
+		m_pWorldData.ReleaseAndGetAddressOf(),
+		NULL
+	);
+
+	Matrix* pOutWorldData;
+	m_pWorldData->Lock(0, 0, (void**)&pOutWorldData, 0);
+
+	if (pCopyWorldData)
+	{
+		memcpy(pOutWorldData, pCopyWorldData, sizeof(Matrix) * (m_numBox - 1));
+	}
+	pOutWorldData[m_numBox - 1] = mtxWorld;
+
+	m_pWorldData->Unlock();
+
+	if (pCopyWorldData)
+	{
+		delete[] pCopyWorldData;
 	}
 
 	return S_OK;
@@ -570,6 +623,11 @@ HRESULT CBoxManager::CreateBox(CBox* box)
 //=============================================================================
 void CBoxManager::DestroyBox(uint32_t id)
 {
+	if (m_numBox == 0)
+	{
+		return;
+	}
+
 	int32_t destroyIndex = -1;
 	for (int32_t boxCnt = 0; boxCnt < (int32_t)m_numBox; boxCnt++)
 	{
@@ -578,6 +636,7 @@ void CBoxManager::DestroyBox(uint32_t id)
 			destroyIndex = boxCnt;
 			m_boxList.erase(m_boxList.begin() + boxCnt);
 			m_numBox--;
+			break;
 		}
 	}
 
@@ -588,39 +647,193 @@ void CBoxManager::DestroyBox(uint32_t id)
 
 	if (m_numBox == 0)
 	{
-		m_pInstanceData.Reset();
+		m_pColorData.Reset();
+		m_pWorldData.Reset();
+		return;
 	}
 
-	BoxInstanceData* pEditData;
-	m_pInstanceData->Lock(0, 0, (void**)&pEditData, 0);
-	m_pInstanceData->Unlock();
+	// 色情報編集
+	Color* pEditColorData = nullptr;
+	pEditColorData = new Color[m_numBox + 1];
+	Color* pColorDataBuf = nullptr;
+	m_pColorData->Lock(0, 0, (void**)&pColorDataBuf, 0);
+	memcpy(pEditColorData, pColorDataBuf, sizeof(Color) * (m_numBox + 1));
+	m_pColorData->Unlock();
 
 	for (uint32_t boxCnt = 0; boxCnt < m_numBox; boxCnt++)
 	{
 		if (int(boxCnt) >= destroyIndex)
 		{
-			pEditData[boxCnt] = pEditData[boxCnt + 1];
+			pEditColorData[boxCnt] = pEditColorData[boxCnt + 1];
+		}
+	}
+
+	// ワールドマトリクス情報情報編集
+	Matrix* pEditWorldData = nullptr;
+	pEditWorldData = new Matrix[m_numBox + 1];
+	Matrix* pWorldDataBuf = nullptr;
+	m_pWorldData->Lock(0, 0, (void**)&pWorldDataBuf, 0);
+	memcpy(pEditWorldData, pWorldDataBuf, sizeof(Matrix) * (m_numBox + 1));
+	m_pWorldData->Unlock();
+
+	for (uint32_t boxCnt = 0; boxCnt < m_numBox; boxCnt++)
+	{
+		if (int(boxCnt) >= destroyIndex)
+		{
+			pEditWorldData[boxCnt] = pEditWorldData[boxCnt + 1];
 		}
 	}
 
 	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
 	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
 
+	// 色情報設定
 	pDevice->CreateVertexBuffer(
-		sizeof(BoxInstanceData) * m_numBox,
+		sizeof(Color) * m_numBox,
 		D3DUSAGE_WRITEONLY,
 		0,
 		D3DPOOL_MANAGED,
-		m_pInstanceData.ReleaseAndGetAddressOf(),
+		m_pColorData.ReleaseAndGetAddressOf(),
 		NULL
 	);
 
-	BoxInstanceData* pOutData;
-	m_pInstanceData->Lock(0, 0, (void**)&pOutData, 0);
+	Color* pOutColorData;
+	m_pColorData->Lock(0, 0, (void**)&pOutColorData, 0);
 
-	memcpy(pOutData, pEditData, sizeof(BoxInstanceData) * m_numBox);
+	memcpy(pOutColorData, pEditColorData, sizeof(Color) * m_numBox);
 
-	m_pInstanceData->Unlock();
+	m_pColorData->Unlock();
+
+	// ワールドマトリクス情報設定
+	pDevice->CreateVertexBuffer(
+		sizeof(Matrix) * m_numBox,
+		D3DUSAGE_WRITEONLY,
+		0,
+		D3DPOOL_MANAGED,
+		m_pWorldData.ReleaseAndGetAddressOf(),
+		NULL
+	);
+
+	Matrix* pOutWorldData;
+	m_pWorldData->Lock(0, 0, (void**)&pOutWorldData, 0);
+
+	memcpy(pOutWorldData, pEditWorldData, sizeof(Matrix) * m_numBox);
+
+	m_pWorldData->Unlock();
 }
+
+//=============================================================================
+// IDから色情報変更
+//=============================================================================
+void CBoxManager::SetColorByID(uint32_t id, XColor color)
+{
+	if (m_numBox == 0)
+	{
+		return;
+	}
+
+	int32_t editIndex = -1;
+	for (int32_t boxCnt = 0; boxCnt < (int32_t)m_numBox; boxCnt++)
+	{
+		if (m_boxList[boxCnt]->GetBoxID() == id)
+		{
+			editIndex = boxCnt;
+			break;
+		}
+	}
+
+	if (editIndex == -1)
+	{
+		return;
+	}
+
+	// 色情報編集
+	Color* pEditColorData = nullptr;
+	pEditColorData = new Color[m_numBox];
+	Color* pColorDataBuf = nullptr;
+	m_pColorData->Lock(0, 0, (void**)&pColorDataBuf, 0);
+	memcpy(pEditColorData, pColorDataBuf, sizeof(Color) * m_numBox);
+	m_pColorData->Unlock();
+
+	pEditColorData[editIndex] = color;
+
+	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
+	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
+
+	// 色情報設定
+	pDevice->CreateVertexBuffer(
+		sizeof(Color) * m_numBox,
+		D3DUSAGE_WRITEONLY,
+		0,
+		D3DPOOL_MANAGED,
+		m_pColorData.ReleaseAndGetAddressOf(),
+		NULL
+	);
+
+	Color* pOutColorData;
+	m_pColorData->Lock(0, 0, (void**)&pOutColorData, 0);
+
+	memcpy(pOutColorData, pEditColorData, sizeof(Color) * m_numBox);
+
+	m_pColorData->Unlock();
+
+}
+
+//=============================================================================
+// IDからワールドマトリクス情報変更
+//=============================================================================
+void CBoxManager::SetWorldByID(uint32_t id, Matrix world)
+{
+	if (m_numBox == 0)
+	{
+		return;
+	}
+
+	int32_t editIndex = -1;
+	for (int32_t boxCnt = 0; boxCnt < (int32_t)m_numBox; boxCnt++)
+	{
+		if (m_boxList[boxCnt]->GetBoxID() == id)
+		{
+			editIndex = boxCnt;
+			break;
+		}
+	}
+
+	if (editIndex == -1)
+	{
+		return;
+	}
+
+	// ワールドマトリクス情報情報編集
+	Matrix* pEditWorldData = nullptr;
+	pEditWorldData = new Matrix[m_numBox];
+	Matrix* pWorldDataBuf = nullptr;
+	m_pWorldData->Lock(0, 0, (void**)&pWorldDataBuf, 0);
+	memcpy(pEditWorldData, pWorldDataBuf, sizeof(Matrix) * m_numBox);
+	m_pWorldData->Unlock();
+
+	pEditWorldData[editIndex] = world;
+
+	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
+	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
+
+	// ワールドマトリクス情報設定
+	pDevice->CreateVertexBuffer(
+		sizeof(Matrix) * m_numBox,
+		D3DUSAGE_WRITEONLY,
+		0,
+		D3DPOOL_MANAGED,
+		m_pWorldData.ReleaseAndGetAddressOf(),
+		NULL
+	);
+
+	Matrix* pOutWorldData;
+	m_pWorldData->Lock(0, 0, (void**)&pOutWorldData, 0);
+
+	memcpy(pOutWorldData, pEditWorldData, sizeof(Matrix) * m_numBox);
+
+	m_pWorldData->Unlock();
+}
+
 
 

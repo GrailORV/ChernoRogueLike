@@ -28,7 +28,7 @@
 class CWinApp
 {
 	
-private:	// ’è”’è‹`
+public:	// ’è”’è‹`
 	static const LPSTR CLASS_NAME;
 	static const LPSTR WINDOW_NAME;
 

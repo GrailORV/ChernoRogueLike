@@ -29,10 +29,12 @@ public:
 
 	void SetLight(void);
 
+	D3DLIGHT9* GetLight() { return m_aLight; }
+	XColor GetAmbientLight() { return m_ambientColor; }
 
 private:
 	unsigned long m_dwRef;
 
 	D3DLIGHT9 m_aLight[NUM_LIGHT];		// ƒ‰ƒCƒgî•ñ
-
+	XColor m_ambientColor;
 };

@@ -11,6 +11,7 @@
 #include "scene.h"
 #include "debugMode.h"
 #include "StartGameMode.h"
+#include "WinApp.h"
 
 //=============================================================================
 // CManagerコンストラクタ
@@ -152,6 +153,7 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 	{
 		return hr;
 	}
+
 #endif
 
 	m_pTextureManager->LoadSceneTex(0);

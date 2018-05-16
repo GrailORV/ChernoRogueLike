@@ -15,13 +15,14 @@ class CDebugProc :public IUnknown
 {
 private:
 	static const u_int LENGTH_STRING_BUFF = 1024;
-	static const DWORD FVF_DEBUG_PROC = D3DFVF_XYZRHW | D3DFVF_DIFFUSE;
+	static const DWORD FVF_DEBUG_PROC = D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1;
 
 	struct VertexDebug
 	{
 		Vector3 position;
 		float rhw;
 		Color color;
+		Vector2 texcoord;
 	};
 
 public:
@@ -46,14 +47,23 @@ private:
 
 	static ComPtr<ID3DXFont> m_pFont;				// フォントへのポインタ
 	static char m_aStr[LENGTH_STRING_BUFF];	// デバッグ表示のバッファ
-	static const float m_fWidth;
-	static const float m_fHeight;
-
+	static float m_fWidth;
+	static float m_fHeight;
 
 	static ComPtr<IDirect3DVertexBuffer9> m_pVtxBuff;
+
+	static ComPtr<IDirect3DTexture9> m_pTexture;
 
 	static bool m_bDisp;					// デバッグ表示ON/OFF
 
 	static HRESULT MakeVertexBuffer(void);
+
+private:
+	static const uint32_t m_cTexSize;
+
+	void IsInputKeyboard();
+	void IsInputMouse();
+	void RenderTexture();
+
 };
 

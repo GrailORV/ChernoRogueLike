@@ -192,6 +192,7 @@
     <ClInclude Include="box.h" />
     <ClInclude Include="boxManager.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="debugLog.h" />
     <ClInclude Include="debugMode.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="input.h" />
@@ -218,11 +219,20 @@
     <ResourceCompile Include="ChernoRogueLike.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="data\TEXTURE\tex_haruka_princess.jpg" />
+    <Image Include="data\TEXTURE\tex_haruka_princess.jpg">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </Image>
   </ItemGroup>
   <ItemGroup>
-    <Media Include="data\BGM\bgm_NO_CURRY_NO_LIFE.mp3" />
-    <Media Include="data\SE\se_decision.wav" />
+    <Media Include="data\BGM\bgm_NO_CURRY_NO_LIFE.mp3">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </Media>
+    <Media Include="data\SE\se_decision.wav">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </Media>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Instancing.hlsl">
@@ -234,6 +244,13 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="SubWindowFrame.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

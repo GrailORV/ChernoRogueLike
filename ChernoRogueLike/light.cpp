@@ -179,11 +179,11 @@ void CLight::SetLight(void)
 	}
 
 	{// 環境光
-		XColor ambientColor;
-		ambientColor.r = 0.05333332f;
-		ambientColor.g = 0.09882354f;
-		ambientColor.b = 0.01819608f;
-		pDevice->SetRenderState(D3DRS_AMBIENT, ambientColor);
+		m_ambientColor;
+		m_ambientColor.r = 0.05333332f;
+		m_ambientColor.g = 0.09882354f;
+		m_ambientColor.b = 0.01819608f;
+		pDevice->SetRenderState(D3DRS_AMBIENT, m_ambientColor);
 	}
 
 	// ライティングモード

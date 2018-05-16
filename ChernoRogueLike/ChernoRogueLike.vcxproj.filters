@@ -188,6 +188,9 @@
     <ClInclude Include="boxManager.h">
       <Filter>Headers\Geometry</Filter>
     </ClInclude>
+    <ClInclude Include="debugLog.h">
+      <Filter>Headers\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ChernoRogueLike.rc">
@@ -209,6 +212,9 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Instancing.hlsl">
+      <Filter>Assets\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="SubWindowFrame.hlsl">
       <Filter>Assets\Shader</Filter>
     </FxCompile>
   </ItemGroup>

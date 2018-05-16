@@ -114,6 +114,26 @@ void CBox::Draw(void)
 void CBox::SetPosition(Vector3 pos)
 {
 	m_pos = pos;
+
+	Matrix mtxWorld, mtxScale, mtxRot, mtxTranslate;
+
+	// ワールドマトリックスの初期化
+	D3DXMatrixIdentity(&mtxWorld);
+
+	// サイズ反映
+	D3DXMatrixScaling(&mtxScale, m_size.x, m_size.y, m_size.z);
+	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxScale);
+
+	// 回転を反映
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, m_rot.y, m_rot.x, m_rot.z);
+	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxRot);
+
+	// 移動を反映
+	D3DXMatrixTranslation(&mtxTranslate, m_pos.x, m_pos.y, m_pos.z);
+	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxTranslate);
+
+	// 情報変更
+	CBoxManager::SetWorldByID(m_boxID, mtxWorld);
 }
 
 //=============================================================================
@@ -122,6 +142,27 @@ void CBox::SetPosition(Vector3 pos)
 void CBox::SetRotation(Vector3 rot)
 {
 	m_rot = rot;
+
+	Matrix mtxWorld, mtxScale, mtxRot, mtxTranslate;
+
+	// ワールドマトリックスの初期化
+	D3DXMatrixIdentity(&mtxWorld);
+
+	// サイズ反映
+	D3DXMatrixScaling(&mtxScale, m_size.x, m_size.y, m_size.z);
+	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxScale);
+
+	// 回転を反映
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, m_rot.y, m_rot.x, m_rot.z);
+	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxRot);
+
+	// 移動を反映
+	D3DXMatrixTranslation(&mtxTranslate, m_pos.x, m_pos.y, m_pos.z);
+	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxTranslate);
+
+	// 情報変更
+	CBoxManager::SetWorldByID(m_boxID, mtxWorld);
+
 }
 
 //=============================================================================
@@ -130,6 +171,27 @@ void CBox::SetRotation(Vector3 rot)
 void CBox::SetSize(Vector3 size)
 {
 	m_size = size;
+
+	Matrix mtxWorld, mtxScale, mtxRot, mtxTranslate;
+
+	// ワールドマトリックスの初期化
+	D3DXMatrixIdentity(&mtxWorld);
+
+	// サイズ反映
+	D3DXMatrixScaling(&mtxScale, m_size.x, m_size.y, m_size.z);
+	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxScale);
+
+	// 回転を反映
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, m_rot.y, m_rot.x, m_rot.z);
+	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxRot);
+
+	// 移動を反映
+	D3DXMatrixTranslation(&mtxTranslate, m_pos.x, m_pos.y, m_pos.z);
+	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxTranslate);
+
+	// 情報変更
+	CBoxManager::SetWorldByID(m_boxID, mtxWorld);
+
 }
 
 //=============================================================================
@@ -138,4 +200,6 @@ void CBox::SetSize(Vector3 size)
 void CBox::SetColor(XColor color)
 {
 	m_color = color;
+
+	CBoxManager::SetColorByID(m_boxID, m_color);
 }

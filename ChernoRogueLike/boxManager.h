@@ -28,12 +28,6 @@ private:
 		float u, v;
 	};
 
-	struct BoxInstanceData
-	{
-		D3DCOLOR color;
-		D3DXMATRIX world;
-	};
-
 public:
 	CBoxManager(int nPriority = 3, OBJTYPE objType = OBJTYPE_MANAGER);
 	~CBoxManager();
@@ -59,6 +53,9 @@ public:
 	void SetRotation(Vector3 rot) {}
 	Vector3 GetRotation(void) { return vector3NS::ZERO; }
 
+	static void SetColorByID(uint32_t id, XColor color);
+	static void SetWorldByID(uint32_t id, Matrix world);
+
 	static bool GetInitialized(void) { return m_initialized; }
 	static uint32_t GetBoxNum(void) { return m_numBox; }
 	static std::vector<CBox*> GetBoxList(void) { return m_boxList; }
@@ -69,13 +66,16 @@ private:
 	ComPtr<IDirect3DTexture9> m_pTexture;			// テクスチャへのポインタ
 	ComPtr<IDirect3DVertexBuffer9> m_pVtxBuff;		// 頂点バッファへのポインタ
 	ComPtr<IDirect3DIndexBuffer9> m_pIdxBuff;
-	static ComPtr<IDirect3DVertexBuffer9> m_pInstanceData;
+	static ComPtr<IDirect3DVertexBuffer9> m_pColorData;
+	static ComPtr<IDirect3DVertexBuffer9> m_pWorldData;
 
 	ComPtr<ID3DXEffect> m_pEffect;
 	ComPtr<IDirect3DVertexDeclaration9> m_vtxDecl;
 	D3DXHANDLE m_TechHandle;
 	D3DXHANDLE m_ViewHandle;
 	D3DXHANDLE m_ProjHandle;
+	D3DXHANDLE m_LightHandle;
+	D3DXHANDLE m_AmbientLight;
 
 	static std::vector<CBox*> m_boxList;
 	static uint32_t m_numBox;

@@ -19,10 +19,12 @@
 //*****************************************************************************
 ComPtr<ID3DXFont> CDebugProc::m_pFont;
 ComPtr<IDirect3DVertexBuffer9> CDebugProc::m_pVtxBuff;
+ComPtr<IDirect3DTexture9> CDebugProc::m_pTexture;
 char CDebugProc::m_aStr[LENGTH_STRING_BUFF] = { "\0" };
 bool CDebugProc::m_bDisp = true;
-const float CDebugProc::m_fWidth = 640.0f;
-const float CDebugProc::m_fHeight = 640.0f;
+float CDebugProc::m_fWidth = 320.0f;
+float CDebugProc::m_fHeight = 540.0f;
+const uint32_t CDebugProc::m_cTexSize = 512;
 
 //=============================================================================
 // CDebugProcコンストラクタ
@@ -112,6 +114,8 @@ HRESULT CDebugProc::Init(void)
 	{
 		return hr;
 	}
+
+	RenderTexture();
 
 	return S_OK;
 
@@ -221,7 +225,7 @@ void CDebugProc::Draw(void)
 		{// フォントの背景描画
 			pDevice->SetStreamSource(0, m_pVtxBuff.Get(), 0, sizeof(VertexDebug));
 			pDevice->SetFVF(FVF_DEBUG_PROC);
-			pDevice->SetTexture(0, NULL);
+			pDevice->SetTexture(0, m_pTexture.Get());
 			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 		}
 
@@ -276,7 +280,10 @@ HRESULT CDebugProc::MakeVertexBuffer(void)
 
 			pVtx->rhw = 1.0f;
 
-			pVtx->color = D3DCOLOR_ARGB(192, 0, 0, 0);
+			pVtx->color = D3DCOLOR_ARGB(255, 255, 255, 255);
+
+			pVtx->texcoord.x = float(i % 2);
+			pVtx->texcoord.y = float(i / 2);
 
 			pVtx++;
 		}
@@ -285,4 +292,96 @@ HRESULT CDebugProc::MakeVertexBuffer(void)
 	}
 
 	return S_OK;
+}
+
+//=============================================================================
+// キーボード入力処理
+//=============================================================================
+void CDebugProc::IsInputKeyboard()
+{
+
+}
+
+//=============================================================================
+// マウス入力処理
+//=============================================================================
+void CDebugProc::IsInputMouse()
+{
+
+}
+
+//=============================================================================
+// テクスチャ生成処理
+//=============================================================================
+void CDebugProc::RenderTexture()
+{
+	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
+	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
+
+	VertexDebug vtx[4];
+	for (int i = 0; i < 4; i++)
+	{
+		int a = i & 0x01;
+		int b = i >> 1;
+		int c = !(a ^ b);
+
+		vtx[i].position.x = a * m_cTexSize;
+		vtx[i].position.y = b * m_cTexSize;
+		vtx[i].position.z = 0.0f;
+
+		vtx[i].rhw = 1.0f;
+
+		vtx[i].color = D3DCOLOR_ARGB(255, c * 255, a * 255, b * 255);
+
+		vtx[i].texcoord.x = float(i % 2);
+		vtx[i].texcoord.y = float(i / 2);
+	}
+
+	ComPtr<IDirect3DSurface9> texSurface;
+	ComPtr<IDirect3DSurface9> depthSurface;
+	ComPtr<IDirect3DSurface9> backBufferSurface;
+	ComPtr<IDirect3DSurface9> backDepthSurface;
+
+	pDevice->GetRenderTarget(0, backBufferSurface.ReleaseAndGetAddressOf());
+	pDevice->GetDepthStencilSurface(backDepthSurface.ReleaseAndGetAddressOf());
+
+	D3DXCreateTexture(
+		pDevice,
+		m_cTexSize,
+		m_cTexSize,
+		0,
+		D3DUSAGE_RENDERTARGET,
+		D3DFMT_A8R8G8B8,
+		D3DPOOL_DEFAULT,
+		m_pTexture.ReleaseAndGetAddressOf());
+
+	pDevice->CreateDepthStencilSurface(
+		m_cTexSize,
+		m_cTexSize,
+		D3DFMT_D16,
+		D3DMULTISAMPLE_NONE,
+		0,
+		TRUE,
+		depthSurface.ReleaseAndGetAddressOf(),
+		NULL
+	);
+	pDevice->SetDepthStencilSurface(depthSurface.Get());
+
+	m_pTexture->GetSurfaceLevel(0, texSurface.ReleaseAndGetAddressOf());
+
+	pDevice->SetRenderTarget(0, texSurface.Get());
+
+	pDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
+
+	pDevice->BeginScene();
+
+	pDevice->SetFVF(FVF_DEBUG_PROC);
+	pDevice->SetTexture(0, NULL);
+	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vtx, sizeof(VertexDebug));
+
+	pDevice->EndScene();
+
+	pDevice->SetRenderTarget(0, backBufferSurface.Get());
+	pDevice->SetDepthStencilSurface(backDepthSurface.Get());
+
 }
