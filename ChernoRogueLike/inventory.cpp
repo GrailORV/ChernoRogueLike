@@ -98,6 +98,7 @@ HRESULT CInventory::Init(int nType, UINT column, UINT row, float width, float he
 	//インベントリの読み込み
 	LoadInventory();
 	WriteInventory();
+
 	{// インベントリウィンドウの生成
 		m_pInventoryWindow = CScene2D::Create(nType, pos, rot, width, height, color);
 		m_pInventoryWindow->BindTexture("ore");
@@ -213,7 +214,6 @@ void CInventory::KeyControl(void)
 	//キーボード取得
 	pInputKeyboard = pManager->GetInputKeyboard();
 
-
 	//インベントリの操作
 	if (pInputKeyboard->GetKeyTrigger(DIK_O))
 	{//カーソル移動（上）
@@ -237,9 +237,6 @@ void CInventory::KeyControl(void)
 	{
 		m_nInventoryIndex = MAX_INVENTORY - 1;
 	}
-
-	
-
 }
 
 //=============================================================================
