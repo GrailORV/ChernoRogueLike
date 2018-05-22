@@ -12,6 +12,7 @@
 //*****************************************************************************
 #define MAP_SIZE_X	3
 #define MAP_SIZE_Z	3
+#define MAX_MAP	1
 
 //*****************************************************************************
 // ç\ë¢ëÃ
@@ -77,6 +78,8 @@ protected:
 
 private:
 	void LoadMapText(const char *FileName);
+
+	const char *m_fileName[MAX_MAP];
 
 	MAP_STATE m_MapState;
 };

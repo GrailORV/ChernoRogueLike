@@ -103,7 +103,10 @@ HRESULT CMap::Init(const uint16_t MapSizeX, const uint16_t MapSizeZ)
 	}
 
 	m_respawnPoint = MapLocation(m_mapMaxX / 1.5, m_mapMaxZ / 1.5);
-	LoadMapText("data/MAP/test.csv");
+
+	m_fileName[0] = "data/MAP/test.csv";
+
+	LoadMapText(m_fileName[0]);
 
 
 	return S_OK;
@@ -186,7 +189,7 @@ void CMap::SetMapStateFromLocation(_In_ uint16_t x, _In_ uint16_t z, _In_  uint8
 void CMap::LoadMapText(const char *FileName)
 {
 	// ファイル構造体
-	FILE *fp;
+	FILE *fp = NULL;
 
 	// ファイルオープン
 	fopen_s(&fp, FileName, "r");
