@@ -16,13 +16,6 @@
 //*****************************************************************************
 // ç\ë¢ëÃ
 //*****************************************************************************
-typedef enum
-{
-	OBJ_NONE = 0,
-	OBJ_WALL,
-	OBJ_PLAYER,
-}OBJ_TYPE;
-
 struct MapLocation
 {
 	uint16_t mapX, mapZ;
@@ -42,7 +35,7 @@ public:
 	CMap();
 	~CMap();
 
-	enum MAP_STATE
+	typedef enum MAP_STATE
 	{
 		MAP_STATE_FLOOR = 0,
 		MAP_STATE_WALL,
@@ -81,4 +74,9 @@ protected:
 
 	static uint16_t m_mapMaxX;
 	static uint16_t m_mapMaxZ;
+
+private:
+	void LoadMapText(const char *FileName);
+
+	MAP_STATE m_MapState;
 };
