@@ -86,7 +86,7 @@ HRESULT CMap::Init(const uint16_t MapSizeX, const uint16_t MapSizeZ)
 		m_mapState[x] = new uint8_t[m_mapMaxZ];
 		for (UINT z = 0; z < m_mapMaxZ; z++)
 		{
-			if (x == 0 || x == m_mapMaxX - 1 ||
+			/*if (x == 0 || x == m_mapMaxX - 1 ||
 				z == 0 || z == m_mapMaxZ - 1)
 			{
 				m_mapState[x][z] = 1;
@@ -98,16 +98,15 @@ HRESULT CMap::Init(const uint16_t MapSizeX, const uint16_t MapSizeZ)
 			else
 			{
 				m_mapState[x][z] = 0;
-			}
+			}*/
 		}
 	}
 
 	m_respawnPoint = MapLocation(m_mapMaxX / 1.5, m_mapMaxZ / 1.5);
 
-	m_fileName[0] = "data/MAP/test.csv";
+	m_fileName[0] = "data/MAP/TestMapAllIn.csv";
 
 	LoadMapText(m_fileName[0]);
-
 
 	return S_OK;
 }
@@ -189,7 +188,7 @@ void CMap::SetMapStateFromLocation(_In_ uint16_t x, _In_ uint16_t z, _In_  uint8
 void CMap::LoadMapText(const char *FileName)
 {
 	// ファイル構造体
-	FILE *fp = NULL;
+	FILE *fp;
 
 	// ファイルオープン
 	fopen_s(&fp, FileName, "r");
@@ -200,9 +199,9 @@ void CMap::LoadMapText(const char *FileName)
 		return;
 	}
 
-	for (int nCntMapY = 0; nCntMapY < m_mapMaxX; nCntMapY++)
+	for (int nCntMapY = 0; nCntMapY < m_mapMaxZ; nCntMapY++)
 	{
-		for (int nCntMapX = 0; nCntMapX < m_mapMaxZ; nCntMapX++)
+		for (int nCntMapX = 0; nCntMapX < m_mapMaxX; nCntMapX++)
 		{
 			fscanf_s(fp, "%d,", &m_MapState);
 			m_mapState[nCntMapX][nCntMapY] = m_MapState;

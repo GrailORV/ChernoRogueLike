@@ -170,7 +170,7 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hwnd, BOOL bWindow)
 	CPlane* pPlane = CPlane::Create(0, 4, 4, 640.0f, 800.0f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO);
 	pPlane->BindTexture("tex_haruka_princess");
 
-	CMap* pMap = CMap::Create(10, 10);
+	CMap* pMap = CMap::Create(9, 19);
 
 	CPlayer* pPlayer = CPlayer::Create(0, 4, 4, 50.f, 50.f, D3DXVECTOR3(0.0f, 0.1f, 0.0f), vector3NS::ZERO);
 	pPlayer->BindTexture("ore");
