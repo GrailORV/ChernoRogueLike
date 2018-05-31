@@ -36,7 +36,7 @@ public:
 	CMap();
 	~CMap();
 
-	typedef enum MAP_STATE
+	typedef enum
 	{
 		MAP_STATE_FLOOR = 0,
 		MAP_STATE_WALL,
@@ -45,7 +45,7 @@ public:
 		MAP_STATE_ITEM,
 		MAP_STATE_GOAL,
 		MAP_STATE_MAX
-	};
+	}MAP_STATE;
 
 	static CMap *Create(const uint16_t MapSizeX, const uint16_t MapSizeZ);
 
@@ -68,6 +68,10 @@ public:
 
 	static uint8_t GetMapStateFromLocation(_In_ uint16_t x, _In_ uint16_t z);
 	static void SetMapStateFromLocation(_In_ uint16_t x, _In_ uint16_t z, _In_ uint8_t state);
+	
+	static Vector3 MapPositionLink(MapLocation mapLocation);
+
+	void LoadMapText(const char *FileName);
 
 protected:
 	static MapLocation m_respawnPoint;
@@ -77,8 +81,6 @@ protected:
 	static uint16_t m_mapMaxZ;
 
 private:
-	void LoadMapText(const char *FileName);
-
 	const char *m_fileName[MAX_MAP];
 
 	MAP_STATE m_MapState;

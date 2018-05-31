@@ -31,6 +31,18 @@
     <Filter Include="Assets\Sounds\SE">
       <UniqueIdentifier>{3941ee4b-6933-4e4b-ae34-b858fdfdaced}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Sources\プレイヤー">
+      <UniqueIdentifier>{64fd2709-0f7c-4105-bae3-1d972d5ddedd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\プレイヤー\Player">
+      <UniqueIdentifier>{c99682a0-a844-412f-a50a-c1a833e65316}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\プレイヤー">
+      <UniqueIdentifier>{3b88d4fc-5b77-4a6e-8758-eedd9a3bc191}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\プレイヤー\Player">
+      <UniqueIdentifier>{ad6dc84c-1db7-41bd-9806-db54c805e654}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -81,14 +93,14 @@
     <ClCompile Include="model.cpp">
       <Filter>Sources\Util</Filter>
     </ClCompile>
-    <ClCompile Include="player.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="enemy.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="map.cpp">
       <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>Sources\プレイヤー\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -143,14 +155,14 @@
     <ClInclude Include="model.h">
       <Filter>Headers\Util</Filter>
     </ClInclude>
-    <ClInclude Include="player.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="enemy.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="map.h">
       <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>Headers\プレイヤー\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

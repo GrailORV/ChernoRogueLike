@@ -7,6 +7,7 @@
 #include "stdafx.h"
 
 #include "map.h"
+#include "player.h"
 #include "manager.h"
 #include "WinApp.h"
 #include "debugproc.h"
@@ -14,7 +15,7 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-
+#define MAP_DIFF	50.f
 
 //*****************************************************************************
 // 構造体定義
@@ -102,11 +103,11 @@ HRESULT CMap::Init(const uint16_t MapSizeX, const uint16_t MapSizeZ)
 		}
 	}
 
-	m_respawnPoint = MapLocation(m_mapMaxX / 1.5, m_mapMaxZ / 1.5);
+	m_respawnPoint = MapLocation(m_mapMaxX / (uint16_t)1.5, m_mapMaxZ / (uint16_t)1.5);
 
 	m_fileName[0] = "data/MAP/TestMapAllIn.csv";
 
-	LoadMapText(m_fileName[0]);
+	//LoadMapText(m_fileName[0]);
 
 	return S_OK;
 }
@@ -190,6 +191,8 @@ void CMap::LoadMapText(const char *FileName)
 	// ファイル構造体
 	FILE *fp;
 
+	CPlayer * pPlayer = CManager::GetPlayer();
+
 	// ファイルオープン
 	fopen_s(&fp, FileName, "r");
 
@@ -205,8 +208,45 @@ void CMap::LoadMapText(const char *FileName)
 		{
 			fscanf_s(fp, "%d,", &m_MapState);
 			m_mapState[nCntMapX][nCntMapY] = m_MapState;
+
+			switch (m_MapState)
+			{
+			case MAP_STATE_FLOOR:
+				break;
+
+			case MAP_STATE_WALL:
+				break;
+
+			case MAP_STATE_PLAYER:
+				pPlayer->SetPosition(Vector3(-nCntMapX * MAP_DIFF, 0.1f, -nCntMapY * MAP_DIFF));
+				break;
+
+			case MAP_STATE_ENEMY:
+				break;
+
+			case MAP_STATE_ITEM:
+				break;
+
+			case MAP_STATE_GOAL:
+				break;
+
+			}
 		}
 	}
 
 	fclose(fp);
+}
+
+Vector3 CMap::MapPositionLink(MapLocation mapLocation)
+{
+	Vector3 SetPos = vector3NS::ZERO;
+	float leftMapLimit = (CMap::GetMapWidth() - 1) * -25.0f;
+	float depthMapLimit = (CMap::GetMapDepth() - 1) * 25.0f;
+
+	SetPos = Vector3(
+		leftMapLimit + 50.0f * mapLocation.mapX,
+		0.1f,
+		depthMapLimit - mapLocation.mapZ * 50.0f);
+
+	return SetPos;
 }

@@ -86,12 +86,7 @@ HRESULT CPlayer::Init(int nType, UINT column, UINT row, float width, float heigh
 
 	CPlane::Init(nType, column, row, width, height, pos, rot, color);
 
-	float leftMapLimit = (CMap::GetMapWidth() - 1) * -25.0f;
-	float depthMapLimit = (CMap::GetMapDepth() - 1) * 25.0f;
-	m_pos = Vector3(
-		leftMapLimit + 50.0f * m_currentMapLocation.mapX,
-		0.1f,
-		depthMapLimit - m_currentMapLocation.mapZ * 50.0f);
+	m_pos = CMap::MapPositionLink(m_currentMapLocation);
 
 	m_Status.ATK = 1;
 

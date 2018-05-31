@@ -65,6 +65,8 @@ public:
 	CSound *GetSound(void) { return m_pSound.Get(); }
 	CCamera *GetCamera(void) { return m_pCamera.Get(); }
 	CLight *GetLight(void) { return m_pLight.Get(); }
+
+	static CPlayer *GetPlayer(void) { return m_pPlayer; }
 	static CEnemy *GetEnemy(void) { return m_pEnemy; }
 
 	void SetMode(MODE mode);
@@ -84,9 +86,10 @@ private:
 	ComPtr<CLight> m_pLight;
 
 	CScene2D* m_pScene;
-	CPlayer* m_pPlayer;
 	CMap* m_pMap;
+
 	static CEnemy * m_pEnemy;
+	static	CPlayer* m_pPlayer;
 
 	UINT m_width;
 	UINT m_height;
