@@ -50,6 +50,8 @@ public:
 	void Update(void);
 	void Draw(void);
 
+	void CreateMenuWindow(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color);
+
 	HRESULT MakeVertexBuffer(void) {};
 
 	void BindTexture(const char* texID);
