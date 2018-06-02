@@ -19,8 +19,9 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define MOVE		         10.f
-#define MENU_WINDOW_WIDTH    
+#define MENU_WINDOW_WIDTH    (300.0f) // メニューのウィンドウの横幅
+#define MENU_WINDOW_HEIGHT   (100.0f) // メニューのウィンドウの縦幅
+#define MENU_COLUMN_NUM      (2)      // メニューの選択項目の横に並べる数
 
 //*****************************************************************************
 // 構造体定義
@@ -297,10 +298,10 @@ void CMenu::KeyControl(void)
 //=============================================================================
 // メニュー画面のウィンドウの生成（表示）
 //=============================================================================
-void CMenu::CreateMenuWindow(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color)
+void CMenu::CreateMenuWindow(int nType, D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 {
 	{// メニューウィンドウの生成
-		m_pMenuWindow = CScene2D::Create(nType, pos, rot, width, height, color);
+		m_pMenuWindow = CScene2D::Create(nType, pos, rot, MENU_WINDOW_WIDTH, MENU_WINDOW_HEIGHT);
 		m_pMenuWindow->BindTexture("ore");
 	}
 
@@ -308,13 +309,12 @@ void CMenu::CreateMenuWindow(int nType, UINT column, UINT row, float width, floa
 		for (int nCountSelect = 0; nCountSelect < SELECT_MAX; nCountSelect++)
 		{
 			m_apMenuSelect[nCountSelect] = CScene2D::Create(nType,
-				pos + D3DXVECTOR3((width / (float)m_column) * (nCountSelect % m_column) + (width / (m_column * 2.0f) - (m_fWidth / 2.0f)),
-				(height / (float)m_row) * (nCountSelect / m_column) + (height / (m_row * 2)) - (m_fHeight / 2.0f),
-					0),
+				pos + D3DXVECTOR3((MENU_WINDOW_WIDTH / (float)m_column) * (nCountSelect % m_column) + (MENU_WINDOW_WIDTH / (m_column * 2.0f) - (m_fWidth / 2.0f)),
+				(MENU_WINDOW_HEIGHT / (float)m_row) * (nCountSelect / m_column) + (MENU_WINDOW_HEIGHT / (m_row * 2)) - (m_fHeight / 2.0f),
+				0),
 				rot,
 				m_fWidth,
-				m_fHeight,
-				color);
+				m_fHeight);
 
 			//テクスチャの設定
 			m_apMenuSelect[nCountSelect]->BindTexture(m_apTextureName[nCountSelect]);
@@ -322,7 +322,7 @@ void CMenu::CreateMenuWindow(int nType, UINT column, UINT row, float width, floa
 	}
 
 	{//選択アイコンの生成
-		m_pMenuCursor = CScene2D::Create(1, m_apMenuSelect[m_nMenuIndex]->GetPosition(), D3DXVECTOR3(0, 0, 0), m_fWidth, m_fHeight, color);
+		m_pMenuCursor = CScene2D::Create(1, m_apMenuSelect[m_nMenuIndex]->GetPosition(), D3DXVECTOR3(0, 0, 0), m_fWidth, m_fHeight);
 		m_pMenuCursor->BindTexture("tex_haruka_princess");
 	}
 }
