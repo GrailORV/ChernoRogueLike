@@ -84,7 +84,8 @@ HRESULT CEnemy::Init(int nType, UINT column, UINT row, float width, float height
 	m_EnemyStatus.nType = 0;
 
 	CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, CMap::MAP_STATE_ENEMY);
-
+	m_pos = CMap::MapPositionLink(m_currentMapLocation);
+	
 	m_bUse = true;
 
 	return S_OK;

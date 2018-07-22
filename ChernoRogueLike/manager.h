@@ -23,7 +23,7 @@ class CPlayer;
 class CMap;
 class CScene2D;
 class CEnemy;
-
+class CWall;
 //*********************************************************
 // マネージャークラス
 //*********************************************************
@@ -68,6 +68,7 @@ public:
 
 	static CPlayer *GetPlayer(void) { return m_pPlayer; }
 	static CEnemy *GetEnemy(void) { return m_pEnemy; }
+	static CWall *GetWall(void) { return m_pWall; }
 
 	void SetMode(MODE mode);
 	MODE GetMode(void) { return m_mode; }
@@ -90,6 +91,7 @@ private:
 
 	static CEnemy * m_pEnemy;
 	static	CPlayer* m_pPlayer;
+	static CWall *m_pWall;
 
 	UINT m_width;
 	UINT m_height;

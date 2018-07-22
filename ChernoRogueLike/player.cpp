@@ -116,6 +116,7 @@ void CPlayer::Update(void)
 
 	CDebugProc::Print("É^Å[Éìêî : %d\n", m_iTurn);
 	CDebugProc::Print("RotAngle : %f\n", D3DXToDegree(m_rot.y));
+	CDebugProc::Print("%f,%f,%f\n", m_pos.x, m_pos.y, m_pos.z);
 
 }
 

@@ -8,6 +8,8 @@
 
 #include "map.h"
 #include "player.h"
+#include "enemy.h"
+#include "wall.h"
 #include "manager.h"
 #include "WinApp.h"
 #include "debugproc.h"
@@ -15,7 +17,7 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define MAP_DIFF	50.f
+#define MAP_WIDTH	50.f
 
 //*****************************************************************************
 // 構造体定義
@@ -87,7 +89,7 @@ HRESULT CMap::Init(const uint16_t MapSizeX, const uint16_t MapSizeZ)
 		m_mapState[x] = new uint8_t[m_mapMaxZ];
 		for (UINT z = 0; z < m_mapMaxZ; z++)
 		{
-			/*if (x == 0 || x == m_mapMaxX - 1 ||
+			if (x == 0 || x == m_mapMaxX - 1 ||
 				z == 0 || z == m_mapMaxZ - 1)
 			{
 				m_mapState[x][z] = 1;
@@ -99,11 +101,11 @@ HRESULT CMap::Init(const uint16_t MapSizeX, const uint16_t MapSizeZ)
 			else
 			{
 				m_mapState[x][z] = 0;
-			}*/
+			}
 		}
 	}
 
-	m_respawnPoint = MapLocation(m_mapMaxX / (uint16_t)1.5, m_mapMaxZ / (uint16_t)1.5);
+	//m_respawnPoint = MapLocation(m_mapMaxX / (uint16_t)1.5, m_mapMaxZ / (uint16_t)1.5);
 
 	m_fileName[0] = "data/MAP/TestMapAllIn.csv";
 
@@ -147,6 +149,8 @@ void CMap::Update(void)
 		}
 		CDebugProc::Print("\n");
 	}
+
+	CDebugProc::Print("RespawnPoint:%d,%d\n", m_respawnPoint.mapX, m_respawnPoint.mapZ);
 }
 
 //=============================================================================
@@ -184,6 +188,23 @@ void CMap::SetMapStateFromLocation(_In_ uint16_t x, _In_ uint16_t z, _In_  uint8
 }
 
 //=============================================================================
+// マップと実際の位置を同期
+//=============================================================================
+Vector3 CMap::MapPositionLink(MapLocation mapLocation)
+{
+	Vector3 SetPos = vector3NS::ZERO;
+	float leftMapLimit = (GetMapWidth() - 1) * -25.0f;
+	float depthMapLimit = (GetMapDepth() - 1) * 25.0f;
+
+	SetPos = Vector3(
+		leftMapLimit + 50.0f * mapLocation.mapX,
+		0.1f,
+		depthMapLimit - mapLocation.mapZ * 50.0f);
+
+	return SetPos;
+}
+
+//=============================================================================
 // マップ読み込み
 //=============================================================================
 void CMap::LoadMapText(const char *FileName)
@@ -192,6 +213,7 @@ void CMap::LoadMapText(const char *FileName)
 	FILE *fp;
 
 	CPlayer * pPlayer = CManager::GetPlayer();
+	CEnemy *pEnemy = CManager::GetEnemy();
 
 	// ファイルオープン
 	fopen_s(&fp, FileName, "r");
@@ -202,9 +224,9 @@ void CMap::LoadMapText(const char *FileName)
 		return;
 	}
 
-	for (int nCntMapY = 0; nCntMapY < m_mapMaxZ; nCntMapY++)
+	for (uint16_t nCntMapY = 0; nCntMapY < m_mapMaxZ; nCntMapY++)
 	{
-		for (int nCntMapX = 0; nCntMapX < m_mapMaxX; nCntMapX++)
+		for (uint16_t nCntMapX = 0; nCntMapX < m_mapMaxX; nCntMapX++)
 		{
 			fscanf_s(fp, "%d,", &m_MapState);
 			m_mapState[nCntMapX][nCntMapY] = m_MapState;
@@ -215,38 +237,38 @@ void CMap::LoadMapText(const char *FileName)
 				break;
 
 			case MAP_STATE_WALL:
+			{
+				CWall *pWall = pWall->Create(0, "torus", vector3NS::ZERO, vector3NS::ZERO, vector3NS::ONE);
+				pWall->SetSpawnPoint(MapLocation(nCntMapX, nCntMapY));
 				break;
-
+			}
+			
 			case MAP_STATE_PLAYER:
-				pPlayer->SetPosition(Vector3(-nCntMapX * MAP_DIFF, 0.1f, -nCntMapY * MAP_DIFF));
+			{
+				m_respawnPoint = MapLocation(nCntMapX, nCntMapY);
+				pPlayer->SetPosition(MapPositionLink(m_respawnPoint));
 				break;
+			}
 
 			case MAP_STATE_ENEMY:
+			{
+				pEnemy->SetSpawnPoint(MapLocation(nCntMapX, nCntMapY));
 				break;
+			}
 
 			case MAP_STATE_ITEM:
+			{
 				break;
+			}
 
 			case MAP_STATE_GOAL:
+			{
 				break;
+			}
 
 			}
 		}
 	}
 
 	fclose(fp);
-}
-
-Vector3 CMap::MapPositionLink(MapLocation mapLocation)
-{
-	Vector3 SetPos = vector3NS::ZERO;
-	float leftMapLimit = (CMap::GetMapWidth() - 1) * -25.0f;
-	float depthMapLimit = (CMap::GetMapDepth() - 1) * 25.0f;
-
-	SetPos = Vector3(
-		leftMapLimit + 50.0f * mapLocation.mapX,
-		0.1f,
-		depthMapLimit - mapLocation.mapZ * 50.0f);
-
-	return SetPos;
 }

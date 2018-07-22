@@ -44,11 +44,14 @@ public:
 	uint8_t GetLife(void) { return m_EnemyStatus.Life; }
 	void AddLife(uint8_t Num) { m_EnemyStatus.Life += Num; }
 
+	void SetSpawnPoint(MapLocation mapLocation) { m_currentMapLocation = mapLocation; }
+	MapLocation GetSpawnPoint(void) { return m_currentMapLocation; }
+
 private:
 
-	MapLocation m_currentMapLocation;
-
 	void LifeCheck(void);
+
+	MapLocation m_currentMapLocation;
 
 	Vector3 m_move;
 	Vector3 m_prePos;

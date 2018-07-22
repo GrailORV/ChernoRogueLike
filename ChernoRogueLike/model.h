@@ -41,14 +41,14 @@ public:
 
 	void SetType(int nType) { m_nType = nType; }
 
+protected:
+	D3DXVECTOR3 m_pos;						// 位置
+	D3DXVECTOR3 m_rot;						// 向き
+
 private:
 	MODEL_DATA* m_model;
-
 	D3DXMATRIX m_mtxWorld;					// ワールドマトリックス
-
-	D3DXVECTOR3 m_pos;						// 位置
 	D3DXVECTOR3 m_pivot;
-	D3DXVECTOR3 m_rot;						// 向き
 	D3DXVECTOR3 m_scale;
 
 	int m_nType;							// 種類
