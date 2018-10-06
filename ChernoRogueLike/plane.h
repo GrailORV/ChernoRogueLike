@@ -21,7 +21,6 @@ public:
 	static CPlane *Create(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color = colorNS::_WHITE);
 
 	HRESULT Init(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color = colorNS::_WHITE);
-	HRESULT Init(void) { return S_OK; }
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
@@ -47,6 +46,10 @@ public:
 
 	void SetType(int nType) { m_nType = nType; }
 
+protected:
+	D3DXVECTOR3 m_pos;						// 位置
+	D3DXVECTOR3 m_rot;						// 向き
+
 private:
 	ComPtr<IDirect3DTexture9> m_pTexture;			// テクスチャへのポインタ
 	ComPtr<IDirect3DVertexBuffer9> m_pVtxBuff;		// 頂点バッファへのポインタ
@@ -56,9 +59,7 @@ private:
 
 	UINT m_column, m_row;
 	UINT m_numFace, m_numIndex, m_numVertex;
-	D3DXVECTOR3 m_pos;						// 位置
 	D3DXVECTOR3 m_pivot;
-	D3DXVECTOR3 m_rot;						// 向き
 	float m_width;
 	float m_height;
 	D3DXVECTOR4 m_uv;

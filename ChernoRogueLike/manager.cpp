@@ -12,7 +12,14 @@
 #include "scene2D.h"
 #include "plane.h"
 #include "player.h"
+#include "enemy.h"
 #include "model.h"
+#include "map.h"
+#include "wall.h"
+
+CEnemy *CManager::m_pEnemy = NULL;
+CPlayer *CManager::m_pPlayer = NULL;
+CWall *CManager::m_pWall = NULL;
 
 //=============================================================================
 // CManagerコンストラクタ
@@ -22,6 +29,7 @@ CManager::CManager(UINT width, UINT height) :
 	m_height(height),
 	m_dwRef(0)
 {
+	
 }
 
 //=============================================================================
@@ -164,13 +172,20 @@ m_pLight = new CLight;
 
 	CPlane* pPlane = CPlane::Create(0, 4, 4, 640.0f, 800.0f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO);
 	pPlane->BindTexture("tex_haruka_princess");
+	
+	m_pMap = CMap::Create(9, 19);
 
-	CPlayer* pPlayer = CPlayer::Create(0, 4, 4, 50.f, 50.f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), vector3NS::ZERO);
-	pPlayer->BindTexture("ore");
+	m_pPlayer = CPlayer::Create(0, 4, 4, 50.f, 50.f, D3DXVECTOR3(0.0f, 0.1f, 0.0f), vector3NS::ZERO);
+	m_pPlayer->BindTexture("ore");
+	
+	m_pEnemy = CEnemy::Create(0, 4, 4, 50.f, 50.f, D3DXVECTOR3(0.0f, 0.1f, 0.0f), vector3NS::ZERO);
+	m_pEnemy->BindTexture("mori");
 
 	CModel* pModel = CModel::Create(0, "torus", D3DXVECTOR3(30.0f, 50.0f, 70.0f), D3DXVECTOR3(D3DX_PI / 4.0f, D3DX_PI / 4.0f, D3DX_PI / 6.0f));
-
+	
 	m_pSound->Play(CSound::BGM_LABEL_NO_CURRY);
+
+	m_pMap->LoadMapText("data/MAP/TestMapAllIn.csv");
 
 	return hr;
 }

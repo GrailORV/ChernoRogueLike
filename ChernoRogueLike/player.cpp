@@ -1,58 +1,75 @@
 //=============================================================================
 //
-// 3Dオブジェクトの処理 [scene3D.cpp]
-// Author : 
+// プレイヤーの処理 [player.cpp]
+// Author : 小川　朔哉
 //
 //=============================================================================
 #include "stdafx.h"
 
 #include "player.h"
-#include "manager.h"
-#include "renderer.h"
-#include "textureManager.h"
-#include "camera.h"
 #include "WinApp.h"
+#include "manager.h"
 #include "input.h"
 #include "debugproc.h"
+<<<<<<< HEAD
 #include "Menu.h"
+=======
+#include "enemy.h"
+>>>>>>> c18c7c42d4c821fa7b84c67b0387663369610a35
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define MOVE		10.f
+#define MOVE		50.0f
 
 //*****************************************************************************
 // 構造体定義
 //*****************************************************************************
+typedef enum
+{
 
+};
 
 //*****************************************************************************
 // 静的変数
 //*****************************************************************************
-
+const int CPlayer::FRAME_MAX = 5;		// キー入力の実行までの待機時間 : 0.6秒
+const UINT CPlayer::MOVE_FRAME = 20;
 
 //=============================================================================
 // CPlane生成
 //=============================================================================
 CPlayer *CPlayer::Create(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color)
 {
-	CPlayer *pScene3D;
+	CPlayer *pPlayer;
 
-	pScene3D = new CPlayer;
-	pScene3D->Init(nType, column, row, width, height, pos, rot, color);
+	pPlayer = new CPlayer;
+	pPlayer->Init(nType, column, row, width, height, pos, rot, color);
 
-	return pScene3D;
+	return pPlayer;
 }
 
 //=============================================================================
 // CPlaneコンストラクタ
 //=============================================================================
-CPlayer::CPlayer(int nPriority, CScene::OBJTYPE objType) : CScene(nPriority, objType)
+CPlayer::CPlayer(int nPriority, CScene::OBJTYPE objtype) :
+	CPlane(nPriority, objtype),
+	m_rotDest(vector3NS::ZERO),
+	m_prePos(vector3NS::ZERO),
+	m_moveFrameCnt(0),
+	m_currentMapLocation(0, 0),
+	m_moveBuff(0, 0),
+	m_front(0, 0)
 {
-	m_pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-
-	m_nType = 0;
+	m_iCount = 0;
+	m_iTurn = 0;
+	m_frameCount = 0;
+	m_pos = vector3NS::ZERO;
+	m_move = vector3NS::ZERO;
+	m_bMove = false;
+	m_inputEnable = false;
+	m_inputSecondEnable = false;
+	m_bTurningPlayer = false;
 }
 
 //=============================================================================
@@ -60,6 +77,7 @@ CPlayer::CPlayer(int nPriority, CScene::OBJTYPE objType) : CScene(nPriority, obj
 //=============================================================================
 CPlayer::~CPlayer()
 {
+
 }
 
 //=============================================================================
@@ -67,51 +85,21 @@ CPlayer::~CPlayer()
 //=============================================================================
 HRESULT CPlayer::Init(int nType, UINT column, UINT row, float width, float height, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR color)
 {
+<<<<<<< HEAD
 	HRESULT hr{};
 	m_pMenu = CMenu::Create(1, 2, 4, 400.0f, 200.0f, D3DXVECTOR3(650.0f, 0, 0), D3DXVECTOR3(0, 0, 0), color);
+=======
+	m_currentMapLocation = CMap::GetRespawnPoint();
+	CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, CMap::MAP_STATE_PLAYER);
 
-	m_iTurn = 0;
-	m_iCount = 0;
+	CPlane::Init(nType, column, row, width, height, pos, rot, color);
+>>>>>>> c18c7c42d4c821fa7b84c67b0387663369610a35
 
-	// タイプを設定
-	m_nType = nType;
+	m_pos = CMap::MapPositionLink(m_currentMapLocation);
 
-	// 分割数の設定
-	m_column = column;
-	m_row = row;
-	m_numFace = column * row * 2 + (column - 1) * 4;
-	m_numIndex = m_numFace + 2;
-	m_numVertex = (column + 1) * (row + 1);
+	m_Status.ATK = 1;
 
-	// 位置を設定
-	m_pos = pos +vector3NS::UP;
-
-	// 向きを設定
-	m_rot = rot;
-
-	// 対角線の長さ・角度を設定
-	m_width = width;
-	m_height = height;
-
-	// ピボット位置の設定
-	m_pivot = vector3NS::ZERO;
-
-	// テクスチャ座標の設定
-	m_uv = D3DXVECTOR4(1.0f, 1.0f, 0.0f, 0.0f);
-
-	// 色の設定
-	m_color = color;
-
-	m_move = vector3NS::ZERO;
-
-	m_rotDest = vector3NS::ZERO;
-
-	// オブジェクトの頂点バッファを生成
-	hr = MakeVertexBuffer();
-	if (FAILED(hr))
-	{
-		return E_FAIL;
-	}
+	m_ATK = m_Status.ATK;
 
 	return S_OK;
 }
@@ -122,7 +110,8 @@ HRESULT CPlayer::Init(int nType, UINT column, UINT row, float width, float heigh
 void CPlayer::Uninit(void)
 {
 	// オブジェクトを破棄
-	Release();
+	CPlane::Uninit();
+
 }
 
 //=============================================================================
@@ -130,159 +119,13 @@ void CPlayer::Uninit(void)
 //=============================================================================
 void CPlayer::Update(void)
 {
-	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
-	CCamera *pCamera = pManager->GetCamera();
-	CInputKeyboard *pInputKeyboard;
-	// キーボード取得
-	pInputKeyboard = pManager->GetInputKeyboard();
+	Behavior();
+	Move();
+	Item();
 
-
-
-
-
-
-	if (pInputKeyboard->GetKeyTrigger(DIK_UP)) {
-		m_iCount++;
-		// 左上
-		if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
-			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-		// 右上
-		else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
-			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-		// 上
-		else {
-			m_move.x -= sinf(pCamera->GetRot().y + D3DX_PI)* MOVE;
-			m_move.z -= cosf(pCamera->GetRot().y + D3DX_PI)* MOVE;
-			m_rotDest.y = D3DX_PI*1.f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-	}
-
-
-
-
-
-
-	else if (pInputKeyboard->GetKeyTrigger(DIK_DOWN)) {
-		m_iCount++;
-		// 左下
-		if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
-			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-		// 右下
-		else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
-			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-		// 後ろ
-		else {
-			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI)* MOVE;
-			m_rotDest.y = D3DX_PI*0.f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-	}
-
-
-
-
-
-
-
-	else if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
-		m_iCount++;
-		// 左上
-		if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
-			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-		// 右上
-		else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
-			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-		//左
-		else {
-			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-	}
-
-
-
-
-
-
-	else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
-		m_iCount++;
-		// 左上
-		if (pInputKeyboard->GetKeyTrigger(DIK_LEFT)) {
-			m_move.x += sinf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y - D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-		// 右上
-		else if (pInputKeyboard->GetKeyTrigger(DIK_RIGHT)) {
-			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-		//右
-		else {
-			m_move.x += sinf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_move.z += cosf(pCamera->GetRot().y + D3DX_PI*0.5f)* MOVE;
-			m_rotDest.y = D3DX_PI*-0.5f + pCamera->GetRot().y;
-			m_iTurn++;
-		}
-	}
-
-	// 回転方向補正
-	float fDiffRotY = m_rotDest.y - m_rot.y;
-	if (fDiffRotY > D3DX_PI)
-	{
-		fDiffRotY -= D3DX_PI * 2.0f;
-	}
-	if (fDiffRotY < -D3DX_PI)
-	{
-		fDiffRotY += D3DX_PI * 2.0f;
-	}
-
-	// 回転
-	m_rot.y += fDiffRotY * 0.2f;
-	if (m_rot.y > D3DX_PI)
-	{
-		m_rot.y -= D3DX_PI * 2.0f;
-	}
-	if (m_rot.y < -D3DX_PI)
-	{
-		m_rot.y += D3DX_PI * 2.0f;
-	}
-
-	m_pos += m_move;
-	m_move *= 0.8f;
-	
 	CDebugProc::Print("ターン数 : %d\n", m_iTurn);
+	CDebugProc::Print("RotAngle : %f\n", D3DXToDegree(m_rot.y));
+	CDebugProc::Print("%f,%f,%f\n", m_pos.x, m_pos.y, m_pos.z);
 
 }
 
@@ -291,170 +134,188 @@ void CPlayer::Update(void)
 //=============================================================================
 void CPlayer::Draw(void)
 {
-	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
-	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
-	CCamera *pCamera = pManager->GetCamera();
-
-	// カメラの設定
-	pCamera->SetCamera();
-
-	D3DXMATRIX mtxScale, mtxRot, mtxTranslate;
-
-	// ワールドマトリックスの初期化
-	D3DXMatrixIdentity(&m_mtxWorld);
-
-	// ピボット位置調整
-	D3DXMatrixTranslation(&mtxTranslate, -m_pivot.x, -m_pivot.y, -m_pivot.z);
-	D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxTranslate);
-
-	// 回転を反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, m_rot.y, m_rot.x, m_rot.z);
-	D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxRot);
-
-	// 移動を反映
-	D3DXMatrixTranslation(&mtxTranslate, m_pos.x, m_pos.y, m_pos.z);
-	D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxTranslate);
-
-	// ワールドマトリックスの設定
-	pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);
-
-	// 頂点バッファをレンダリングパイプラインに設定
-	pDevice->SetStreamSource(0, m_pVtxBuff.Get(), 0, sizeof(Vertex3D));
-
-	// インデックスバッファを設定
-	pDevice->SetIndices(m_pIdxBuff.Get());
-
-	// 頂点フォーマットの設定
-	pDevice->SetFVF(FVFVertex3D);
-
-	// テクスチャ座標返還行列の設定
-	D3DXMATRIX texture(
-		m_uv.x, 0.0f, 0.0f, 0.0f,
-		0.0f, m_uv.y, 0.0f, 0.0f,
-		m_uv.z, m_uv.w, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f
-	);
-	pDevice->SetTransform(D3DTS_TEXTURE0, &texture);
-
-	// 色設定
-	D3DMATERIAL9 matCurr, matDef;
-	pDevice->GetMaterial(&matDef);
-	matCurr = matDef;
-	matCurr.Diffuse = m_color;
-	pDevice->SetMaterial(&matCurr);
-
-	// テクスチャの設定
-	pDevice->SetTexture(0, m_pTexture.Get());
-
-	// ポリゴンの描画
-	pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, 0, 0, m_numIndex, 0, m_numFace);
-
-	// マテリアル元に戻す
-	pDevice->SetMaterial(&matDef);
+	CPlane::Draw();
 }
 
 //=============================================================================
-// 頂点バッファとインデックスバッファの生成
+// 移動処理
 //=============================================================================
-HRESULT CPlayer::MakeVertexBuffer(void)
+void CPlayer::Move(void)
 {
-	HRESULT hr{};
-
-	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
-	IDirect3DDevice9* pDevice = pManager->GetRenderer()->GetDevice();
-
-	hr = pDevice->CreateVertexBuffer(
-		sizeof(Vertex3D)*m_numVertex,
-		D3DUSAGE_WRITEONLY,
-		FVFVertex3D,
-		D3DPOOL_MANAGED,
-		m_pVtxBuff.GetAddressOf(),
-		NULL
-	);
-	if (FAILED(hr))
+	if (m_inputEnable)
 	{
-		return hr;
+		InputMove(m_inputEnable);
 	}
-
-	Vertex3D *pVtx;
-	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
-	for (UINT row = 0; row <= m_row; row++)
+	else if (!m_bMove)
 	{
-		for (UINT column = 0; column <= m_column; column++)
+		if (m_inputSecondEnable)
 		{
-			pVtx->position.x = (column / (float)m_column - 0.5f) * m_width;
-			pVtx->position.y = 0.0f;
-			pVtx->position.z = (0.5f - row / (float)m_row) * m_height;
-
-			pVtx->normal = vector3NS::UP;
-
-			pVtx->color = 0xffffffff;
-
-			pVtx->uv.x = column / (float)m_column;
-			pVtx->uv.y = row / (float)m_row;
-
-			pVtx++;
+			InputMove(m_inputSecondEnable);
+		}
+		m_frameCount++;
+		if (m_frameCount > FRAME_MAX)
+		{
+			m_frameCount = 0;
+			MoveMap(m_moveBuff);
 		}
 	}
-	m_pVtxBuff->Unlock();
 
-	hr = pDevice->CreateIndexBuffer(
-		sizeof(WORD)*m_numIndex,
-		D3DUSAGE_WRITEONLY,
-		D3DFMT_INDEX16,
-		D3DPOOL_MANAGED,
-		m_pIdxBuff.GetAddressOf(),
-		NULL
-	);
-	if (FAILED(hr))
-	{
-		return hr;
-	}
-
-	WORD* pIdx;
-	m_pIdxBuff->Lock(0, 0, (void**)&pIdx, 0);
-	int nDivide = (m_column + 2) * 2;
-	int nVtxNum;
-	for (UINT nCntVtx = 0; nCntVtx < m_numIndex; nCntVtx++)
-	{
-		int nVtxBuff = nCntVtx%nDivide;
-		// 縮退分
-		if (nVtxBuff == nDivide - 2)
-		{
-			// 前の頂点番号流用
-		}
-		else if (nVtxBuff == nDivide - 1)
-		{
-			nVtxNum = ((nVtxBuff % 2) + (nCntVtx / nDivide))*(m_column + 1) + (nVtxBuff / 2);
-		}
-		// 通常の頂点
-		else
-		{
-			nVtxNum = (((nVtxBuff + 1) % 2) + (nCntVtx / nDivide))*(m_column + 1) + (nVtxBuff / 2);
-		}
-		*pIdx = (WORD)nVtxNum;
-		pIdx++;
-	}
-
-	m_pIdxBuff->Unlock();
-
-	return S_OK;
+	MovePosition(MOVE_FRAME);
 }
 
 //=============================================================================
-// テクスチャの割り当て
+// 実移動処理
 //=============================================================================
-void CPlayer::BindTexture(const char* texID)
+void CPlayer::MovePosition(UINT moveFrame)
 {
-	if (!texID)
+	if (m_bMove)
 	{
-		m_pTexture.Reset();
+		m_moveFrameCnt++;
+		D3DXVec3Lerp(&m_pos, &m_prePos, &(m_prePos + m_move), float(m_moveFrameCnt) / float(moveFrame));
+		if (m_moveFrameCnt > moveFrame)
+		{
+			m_pos = m_prePos + m_move;
+			m_moveFrameCnt = 0;
+			m_move = vector3NS::ZERO;
+			m_bMove = false;
+			m_inputEnable = true;
+			m_inputSecondEnable = true;
+		}
+	}
+}
+
+//=============================================================================
+// マップ移動処理
+//=============================================================================
+void CPlayer::MoveMap(INT8_2 moveBuff)
+{
+	m_bMove = true;
+	m_prePos = m_pos;
+	m_moveBuff = INT8_2(0, 0);
+
+	float angleBuff = (D3DX_PI / 2.0f - atan2f(float(moveBuff.z), float(moveBuff.x)));
+	float rotAngle = (signbit(angleBuff) * 2.0f - 1.0f) * D3DX_PI + angleBuff;
+	m_rot.y = rotAngle;
+	m_front = INT8_2(moveBuff.x, -moveBuff.z);
+
+	if (CMap::GetMapStateFromLocation(m_currentMapLocation.mapX + moveBuff.x, m_currentMapLocation.mapZ - moveBuff.z) == CMap::MAP_STATE_WALL ||
+		CMap::GetMapStateFromLocation(m_currentMapLocation.mapX + moveBuff.x, m_currentMapLocation.mapZ - moveBuff.z) == CMap::MAP_STATE_ENEMY ||
+		m_bTurningPlayer)
+	{
 		return;
 	}
 
-	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
-	CTextureManager* pTextureManager = pManager->GetTextureManager();
-
-	pTextureManager->BindtextureFromString(texID, m_pTexture.GetAddressOf());
+	m_iTurn++;
+	m_move += Vector3(moveBuff.x, 0.0f, moveBuff.z) * MOVE;
+	CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, CMap::MAP_STATE_FLOOR);
+	m_currentMapLocation.mapX += moveBuff.x;
+	m_currentMapLocation.mapZ -= moveBuff.z;
+	CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, CMap::MAP_STATE_PLAYER);
 }
 
+//=============================================================================
+// 移動の入力処理
+//=============================================================================
+void CPlayer::InputMove(bool& inputEnable)
+{
+	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
+	CInputKeyboard* pInputKeyboard = pManager->GetInputKeyboard();
+
+	// 上方向に移動
+	if (pInputKeyboard->GetKeyPress(DIK_UP) && m_moveBuff.z <= 0)
+	{
+		m_moveBuff.z++;
+		inputEnable = false;
+		return;
+	}
+
+	// 下方向に移動
+	if (pInputKeyboard->GetKeyPress(DIK_DOWN) && m_moveBuff.z >= 0)
+	{
+		m_moveBuff.z--;
+		inputEnable = false;
+		return;
+	}
+	// 左方向に移動
+	if (pInputKeyboard->GetKeyPress(DIK_LEFT) && m_moveBuff.x >= 0)
+	{
+		m_moveBuff.x--;
+		inputEnable = false;
+		return;
+	}
+	// 右方向に移動
+	if (pInputKeyboard->GetKeyPress(DIK_RIGHT) && m_moveBuff.x <= 0)
+	{
+		m_moveBuff.x++;
+		inputEnable = false;
+		return;
+	}
+	
+}
+
+//=============================================================================
+// 行動の入力処理
+//=============================================================================
+void CPlayer::Behavior()
+{
+	CManager* pManager = reinterpret_cast<CManager*>(GetWindowLongPtr(CWinApp::GetHwnd(), GWLP_USERDATA));
+	CInputKeyboard* pInputKeyboard = pManager->GetInputKeyboard();
+
+	// 攻撃
+	if (pInputKeyboard->GetKeyTrigger(DIK_SPACE))
+	{
+		// 攻撃処理
+		Attack();
+	}
+
+	// Pキーでメニューウィンドウ表示
+	else if (pInputKeyboard->GetKeyTrigger(DIK_P))
+	{
+		// ウィンドウ表示
+
+	}
+
+	// 方向転換キー（押し続けている間）
+	if (pInputKeyboard->GetKeyPress(DIK_O))
+	{
+		m_bTurningPlayer = true;
+	}
+	else
+	{
+		m_bTurningPlayer = false;
+	}
+}
+
+//=============================================================================
+// 攻撃処理
+//=============================================================================
+void CPlayer::Attack()
+{
+	CEnemy *pEnemy = CManager::GetEnemy();
+	// 目の前に敵がいるか判定
+	if (CMap::GetMapStateFromLocation(m_currentMapLocation.mapX + m_front.x, m_currentMapLocation.mapZ + m_front.z) == CMap::MAP_STATE_ENEMY)
+	{
+		// 攻撃力分のダメージ与える
+		pEnemy->AddLife(-m_ATK);
+		m_iTurn++;
+	}
+
+	// 敵がいなかったら空振り
+	else
+		m_iTurn++;
+}
+
+//=============================================================================
+// アイテム取得処理
+//=============================================================================
+void CPlayer::Item()
+{
+	// 足元にアイテムがあるか判定
+	if (CMap::GetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ) == CMap::MAP_STATE_ITEM)
+	{
+		/*アイテムを取得します。
+		　インベントリに追加されたりされなかったり・・・
+		 　今はとりあえずマップから消しときます*/
+		CMap::SetMapStateFromLocation(m_currentMapLocation.mapX, m_currentMapLocation.mapZ, CMap::MAP_STATE_FLOOR);
+	}
+}

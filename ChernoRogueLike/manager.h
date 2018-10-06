@@ -19,8 +19,11 @@
 #include "textureManager.h"
 #include "modelManager.h"
 
+class CPlayer;
+class CMap;
 class CScene2D;
-
+class CEnemy;
+class CWall;
 //*********************************************************
 // マネージャークラス
 //*********************************************************
@@ -63,6 +66,10 @@ public:
 	CCamera *GetCamera(void) { return m_pCamera.Get(); }
 	CLight *GetLight(void) { return m_pLight.Get(); }
 
+	static CPlayer *GetPlayer(void) { return m_pPlayer; }
+	static CEnemy *GetEnemy(void) { return m_pEnemy; }
+	static CWall *GetWall(void) { return m_pWall; }
+
 	void SetMode(MODE mode);
 	MODE GetMode(void) { return m_mode; }
 
@@ -80,6 +87,11 @@ private:
 	ComPtr<CLight> m_pLight;
 
 	CScene2D* m_pScene;
+	CMap* m_pMap;
+
+	static CEnemy * m_pEnemy;
+	static	CPlayer* m_pPlayer;
+	static CWall *m_pWall;
 
 	UINT m_width;
 	UINT m_height;

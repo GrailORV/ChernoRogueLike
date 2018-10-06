@@ -33,7 +33,7 @@ namespace std
 	};
 }
 
-class CSound :public IUnknown
+interface CSound :public IUnknown
 {
 public:
 	// BGMƒtƒ@ƒCƒ‹

@@ -22,6 +22,15 @@
 
 using namespace Microsoft::WRL;
 
+#define Vector3 D3DXVECTOR3
+#define Vector2 D3DXVECTOR2
+#define Matrix D3DXMATRIX
+#define Quaternion D3DXQUATERNION
+
+#define KEYBOARD_UP DIK_UP | DIK_W
+#define KEYBOARD_DOWN DIK_DOWN | DIK_S
+#define KEYBOARD_LEFT DIK_LEFT | DIK_A
+#define KEYBOARD_RIGHT DIK_RIGHT | DIK_D
 
 //*****************************************************************************
 // グローバル関数定義

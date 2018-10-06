@@ -7,13 +7,32 @@
 #pragma once
 
 #include "main.h"
-#include "scene.h"
+#include "plane.h"
+#include "map.h"
+
+//*****************************************************************************
+// 構造体
+//*****************************************************************************
+typedef struct
+{
+	int8_t Life;
+	uint8_t ATK;
+}PLAYER_STATUS;
+
+struct INT8_2
+{
+	int8_t x, z;
+	INT8_2(int8_t inX, int8_t inZ)
+	{
+		x = inX; z = inZ;
+	}
+};
 
 class CMenu;
 //*********************************************************
-// 3Dオブジェクトクラス
+// プレイヤークラス
 //*********************************************************
-class CPlayer : public CScene
+class CPlayer : public CPlane
 {
 public:
 	CPlayer(int nPriority = 3, OBJTYPE objType = OBJTYPE_PLANE);
@@ -27,27 +46,36 @@ public:
 	void Update(void);
 	void Draw(void);
 
-	HRESULT MakeVertexBuffer(void);
-
-	void BindTexture(const char* texID);
-
-	void SetPosition(D3DXVECTOR3 pos) { m_pos = pos; }
-	D3DXVECTOR3 GetPosition(void) { return m_pos; }
-
-	void SetPivot(D3DXVECTOR3 pivot) { m_pivot = pivot; }
-	D3DXVECTOR3 GetPivot(void) { return m_pivot; }
-
-	void SetRotation(D3DXVECTOR3 rot) { m_rot = rot; }
-	D3DXVECTOR3 GetRotation(void) { return m_rot; }
-
-	void SetUV(float width, float height, float x, float y) { m_uv = D3DXVECTOR4(width, height, x, y); }
-	D3DXVECTOR4 GetUV(void) { return m_uv; }
-
-	void SetColor(D3DXCOLOR color) { m_color = color; }
-	D3DXCOLOR GetColor(void) { return m_color; }
-
 	void SetType(int nType) { m_nType = nType; }
 
+	int GetTurn(void) { return m_iTurn; }
+
+	void MovePosition(UINT moveFrame);
+	void MoveMap(INT8_2 moveBuff);
+
+private:
+	static const int FRAME_MAX;
+	static const UINT MOVE_FRAME;
+
+	MapLocation m_currentMapLocation;
+	PLAYER_STATUS m_Status;
+
+	void Move(void);
+	void InputMove(bool& inputEnable);
+	void Attack();
+	void Item();
+	void Behavior();
+
+	Vector3 m_move;
+	Vector3 m_prePos;
+	Vector3 m_rotDest;
+
+	uint8_t m_ATK;
+
+	INT8_2 m_front;				// 向いてる方向
+	INT8_2 m_moveBuff;
+
+<<<<<<< HEAD
 private:
 	ComPtr<IDirect3DTexture9> m_pTexture;			// テクスチャへのポインタ
 	ComPtr<IDirect3DVertexBuffer9> m_pVtxBuff;		// 頂点バッファへのポインタ
@@ -67,8 +95,17 @@ private:
 	D3DXVECTOR4 m_uv;
 	D3DXCOLOR m_color;
 	CMenu* m_pMenu;
+=======
+	UINT m_moveFrameCnt;
+
+	bool m_bMove;
+	bool m_inputEnable;
+	bool m_inputSecondEnable;
+	bool m_bTurningPlayer;					// 方向転換フラグ
+
+	int m_frameCount;
+>>>>>>> c18c7c42d4c821fa7b84c67b0387663369610a35
 	int m_iCount;
 	int m_iTurn;
-
 	int m_nType;							// 種類
 };

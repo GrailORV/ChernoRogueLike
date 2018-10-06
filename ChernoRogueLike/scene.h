@@ -66,7 +66,7 @@ public:
 		OBJTYPE_NONE = 0,
 		OBJTYPE_2D,					// 2Dポリゴン
 		OBJTYPE_PLANE,				// プレーン
-		OBJTYPE_MODEL,					// Xファイル
+		OBJTYPE_MODEL,				// Xファイル
 		OBJTYPE_BILLBOARD,			// ビルボード
 		OBJTYPE_FADE,				// フェード
 		OBJTYPE_MAX

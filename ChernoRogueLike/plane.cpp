@@ -291,4 +291,3 @@ void CPlane::BindTexture(const char* texID)
 
 	pTextureManager->BindtextureFromString(texID, m_pTexture.GetAddressOf());
 }
-
